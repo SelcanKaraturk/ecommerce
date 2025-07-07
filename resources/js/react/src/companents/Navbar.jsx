@@ -1,8 +1,9 @@
 import React from "react";
 import "./css/Navbar.css";
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, Link } from "react-router-dom";
 
 function Navbar() {
+
     return (
         <header className="header-main_area header-main_area-2">
             <div className="header-bottom_area header-bottom_area-2 header-sticky stick">
@@ -171,15 +172,139 @@ function Navbar() {
                                             </ul>
                                         </li>
 
-                                        <li>
-                                            <Navlink to="/tr/hakkimizda">
-                                                Hakkımızda
-                                            </Navlink>
+                                         <li className="megamenu-holder">
+                                            <NavLink to="/tr/pirlanta">
+                                                Pırlanta
+                                            </NavLink>
+
+                                            <ul className="hm-megamenu">
+                                                <li>
+                                                    <span className="megamenu-title">
+                                                        Shop Page Layout
+                                                    </span>
+                                                    <ul>
+                                                        <li>
+                                                            <a href="shop-3-column.html">
+                                                                Grid Fullwidth
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="shop-left-sidebar.html">
+                                                                Left Sidebar
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="shop-right-sidebar.html">
+                                                                Right Sidebar
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="shop-list-fullwidth.html">
+                                                                List Fullwidth
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="shop-list-left-sidebar.html">
+                                                                List Left
+                                                                Sidebar
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="shop-list-right-sidebar.html">
+                                                                List Right
+                                                                Sidebar
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                                <li>
+                                                    <span className="megamenu-title">
+                                                        Single Product Style
+                                                    </span>
+                                                    <ul>
+                                                        <li>
+                                                            <a href="single-product-gallery-left.html">
+                                                                Gallery Left
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="single-product-gallery-right.html">
+                                                                Gallery Right
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="single-product-tab-style-left.html">
+                                                                Tab Style Left
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="single-product-tab-style-right.html">
+                                                                Tab Style Right
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="single-product-sticky-left.html">
+                                                                Sticky Left
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="single-product-sticky-right.html">
+                                                                Sticky Right
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                                <li>
+                                                    <span className="megamenu-title">
+                                                        Single Product Type
+                                                    </span>
+                                                    <ul>
+                                                        <li>
+                                                            <a href="single-product.html">
+                                                                Single Product
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="single-product-sale.html">
+                                                                Single Product
+                                                                Sale
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="single-product-group.html">
+                                                                Single Product
+                                                                Group
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="single-product-variable.html">
+                                                                Single Product
+                                                                Variable
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="single-product-affiliate.html">
+                                                                Single Product
+                                                                Affiliate
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="single-product-slider.html">
+                                                                Single Product
+                                                                Slider
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                                <li className="menu-item_img"></li>
+                                            </ul>
+                                        </li>
+
+                                         <li>
+                                            <NavLink to="/tr/hakkimizda">Hakkımızda</NavLink>
                                         </li>
                                         <li>
-                                            <Navlink to="/tr/iletisim">
-                                                İletişim
-                                            </Navlink>
+                                            <NavLink to="/tr/iletisim">İLETİŞİM</NavLink>
                                         </li>
                                     </ul>
                                 </nav>
@@ -189,12 +314,15 @@ function Navbar() {
                             <div className="header-right_area">
                                 <ul>
                                     <li>
-                                        <a
-                                            href="wishlist.html"
+                                        <Link className="wishlist-btn" to="/me/wishlist">
+                                            <i className="ion-android-favorite-outline"></i>
+                                        </Link>
+                                        {/* <a
+                                            href={'/me/wishlist'}
                                             className="wishlist-btn"
                                         >
                                             <i className="ion-android-favorite-outline"></i>
-                                        </a>
+                                        </a> */}
                                     </li>
                                     <li>
                                         <a
@@ -220,6 +348,12 @@ function Navbar() {
                                             <i className="ion-bag"></i>
                                         </a>
                                     </li>
+                                     <li>
+                                        <Link className="minicart-btn toolbar-btn" to={'/me'}>
+                                            <i className="ion-android-person"></i>
+                                        </Link>
+                                    </li>
+
                                 </ul>
                             </div>
                         </div>

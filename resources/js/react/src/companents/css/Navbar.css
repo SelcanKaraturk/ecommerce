@@ -262,7 +262,7 @@
   }
 }
 .header-bottom_area .header-right_area > ul > li > a > i {
-  font-size: 26px;
+  font-size: 24px;
 }
 .header-bottom_area .header-right_area > ul > li:first-child {
   border-left: 1px solid rgba(0, 0, 0, 0.07);
@@ -339,6 +339,7 @@
 .header-bottom_area.header-bottom_area-2 .container-fliud .main-menu_area > nav > ul > li > a {
   padding: 30px 0;
   color: #000;
+  font-size: 14px;
 }
 .header-bottom_area.header-bottom_area-2 .container-fliud .main-menu_area > nav > ul > li > a:before {
   color: #000;
@@ -363,7 +364,7 @@
   width: 80%;
 }
 .header-bottom_area.header-bottom_area-2 .container-fliud .header-right_area > ul > li > a {
-  width: 65px;
+  width: 60px;
   height: 86px;
   line-height: 86px;
   color: #000;
