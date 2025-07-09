@@ -19,26 +19,25 @@ use App\Http\Controllers\Auth\AuthController;
 Route::post('/login',[AuthController::class,'login'])->name('login');
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout']);
-
-Route::prefix('me')->middleware( ['auth:sanctum'])->group(function(){
+//->middleware( ['auth:sanctum'])
+Route::prefix('me')->group(function(){
     Route::get('/', [AuthController::class, 'show']);
 });
-Route::get('/guest-check', function () {
-    if (auth()->check()) {
-        return response()->json(['auth' => true, 'user' => auth()->user()->load('roles')]);
-    }
+// Route::get('/guest-check', function () {
+//     if (auth()->check()) {
+//         return response()->json(['auth' => true, 'user' => auth()->user()->load('roles')]);
+//     }
 
-    return response()->json(['auth' => false], 200);
-});
-// Route::get('/me', function (Request $request) {
-//     return response()->json([
-//         'auth_user' => auth()->user(),
-//         'session_id' => session()->getId()
-//     ]);
+//     return response()->json(['auth' => false], 200);
 // });
 
+Route::prefix('/{lang}')->group(function(){
+    Route::get('/', [ProductController::class,'index']);
+});
 
-Route::get('/products', [ProductController::class, 'index']);
+
+
+//Route::get('/products', [ProductController::class, 'index']);
 
 
 

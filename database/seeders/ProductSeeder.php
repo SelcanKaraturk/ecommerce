@@ -15,25 +15,14 @@ class ProductSeeder extends Seeder
      */
     public function run()
     {
-       DB::table('products')->insert([
-            [
-            'name'=> 'Lacivert Gömlek',
-            'price'=> 890.99,
-            'content' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-            Temporibus natus harum sint enim deserunt adipisci labore nam.'
-        ],
-        [
-            'name'=> 'Beyaz Gömlek',
-            'price'=> 890,
-            'content' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-            Temporibus natus harum sint enim deserunt adipisci labore nam.'
-        ],
-        [
-            'name'=> 'Yeşil Gömlek',
-            'price'=> 890,
-            'content' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-            Temporibus natus harum sint enim deserunt adipisci labore nam.'
-        ]
-        ]);
+    //    DB::table('products')->insert([
+    //         [
+    //         'name'=> 'Lacivert Gömlek',
+    //         'price'=> 890.99,
+    //         'content' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit.
+    //         Temporibus natus harum sint enim deserunt adipisci labore nam.'
+    //     ]
+    //     ]);
+        
     }
 }
