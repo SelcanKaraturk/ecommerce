@@ -1482,34 +1482,34 @@
     /*  Hiraola's Color List
  /*----------------------------------------*/
 
-    $('.color-list a').on('click', function (e) {
-        e.preventDefault();
-        var $this = $(this);
-        $this.addClass('active');
-        $this.siblings().removeClass('active');
-        var $navs = document.querySelectorAll(
-            '.slick-slider-nav .single-slide'
-        );
-        var $details = document.querySelectorAll(
-            '.slick-img-slider .single-slide'
-        );
-        console.log($navs);
-        var $btnColor = $this.data('swatch-color');
-        for (var i = 0; i < $navs.length; i++) {
-            $navs[i].classList.remove('slick-current');
-            if ($navs[i].classList.contains($btnColor)) {
-                $navs[i].classList.add('slick-current');
-            }
-        }
-        for (var i = 0; i < $details.length; i++) {
-            $details[i].classList.remove('slick-current');
-            $details[i].style.opacity = 0;
-            if ($details[i].classList.contains($btnColor)) {
-                $details[i].classList.add('slick-current');
-                $details[i].style.opacity = 1;
-            }
-        }
-    });
+    // $('.color-list a').on('click', function (e) {
+    //     e.preventDefault();
+    //     var $this = $(this);
+    //     $this.addClass('active');
+    //     $this.siblings().removeClass('active');
+    //     var $navs = document.querySelectorAll(
+    //         '.slick-slider-nav .single-slide'
+    //     );
+    //     var $details = document.querySelectorAll(
+    //         '.slick-img-slider .single-slide'
+    //     );
+    //     console.log($navs);
+    //     var $btnColor = $this.data('swatch-color');
+    //     for (var i = 0; i < $navs.length; i++) {
+    //         $navs[i].classList.remove('slick-current');
+    //         if ($navs[i].classList.contains($btnColor)) {
+    //             $navs[i].classList.add('slick-current');
+    //         }
+    //     }
+    //     for (var i = 0; i < $details.length; i++) {
+    //         $details[i].classList.remove('slick-current');
+    //         $details[i].style.opacity = 0;
+    //         if ($details[i].classList.contains($btnColor)) {
+    //             $details[i].classList.add('slick-current');
+    //             $details[i].style.opacity = 1;
+    //         }
+    //     }
+    // });
     /*----------------------------------------*/
     /*  Single Product Image Slider Three
  /*----------------------------------------*/
@@ -1563,10 +1563,10 @@
     /*--------------------------
         Hiraola's Product Zoom
 	---------------------------- */
-    $('.zoompro').elevateZoom({
-        gallery: 'gallery',
-        galleryActiveClass: 'active',
-    });
+    // $('.zoompro').elevateZoom({
+    //     gallery: 'gallery',
+    //     galleryActiveClass: 'active',
+    // });
     /*----------------------------------------*/
     /*  Single Product Slider
  /*----------------------------------------*/

@@ -23,13 +23,14 @@ Route::post('/logout', [AuthController::class, 'logout']);
 Route::prefix('me')->group(function(){
     Route::get('/', [AuthController::class, 'show']);
 });
-// Route::get('/guest-check', function () {
-//     if (auth()->check()) {
-//         return response()->json(['auth' => true, 'user' => auth()->user()->load('roles')]);
-//     }
 
-//     return response()->json(['auth' => false], 200);
-// });
+Route::get('/guest-check', function () {
+    if (auth()->check()) {
+        return response()->json(['auth' => true, 'user' => auth()->user()->load('roles')]);
+    }
+
+    return response()->json(['auth' => false], 200);
+});
 
 Route::prefix('/{lang}')->group(function(){
     Route::get('/', [ProductController::class,'index']);

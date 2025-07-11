@@ -12,6 +12,7 @@ import MyAccount from "../pages/user/MyAccount";
 import PrivateRoutes from "./PrivateRoutes";
 import GuestRoute from "./GuestRoute";
 import WishList from "../pages/user/WishList";
+import ProductDetail from "../pages/products/ProductDetail";
 
 
 function AppRoutes() {
@@ -23,6 +24,7 @@ function AppRoutes() {
                     <Route index element={<Home />} />
                     <Route path="altin" element={<Products />} />
                     <Route path="pirlanta" element={<Products />} />
+                    <Route path="pirlanta/:slug" element={<ProductDetail />} />
                     <Route path="hakkimizda" element={<AboutUs />} />
                     <Route path="iletisim" element={<Contact />} />
                 </Route>

@@ -387,21 +387,32 @@ button {
 }
 
 /* ---Hiraola's Spacing Between Slide Item & Other Related Stuff---*/
-.slick-list {
+/* .slick-list {
     margin-left: -30px;
-}
-.slick-list .slick-slide {
+} */
+/* .slick-list .slick-slide {
     margin-left: 30px;
     outline: none;
+} */
+.sp-img_area.product-detail .slick-slide > div {
+    padding: 0 15px;
 }
-
+.slick-slider .slick-arrow::before{
+    content: "";
+}
+.slick-dots li.slick-active button:before{
+    color: transparent !important;
+}
+.slick-dots li button:before{
+    color: transparent !important;
+}
 /* ---Only For Single Product Page | Spacing Between Slide Item--- */
 .sp-images .slick-list {
     margin-left: 0;
 }
-.sp-images .slick-list .slick-slide {
+/* .sp-images .slick-list .slick-slide {
     margin-left: 0;
-}
+} */
 
 /* ---Hiraola's Spacing Between Two Row---*/
 .hiraola-product_slider .slick-slide div:first-child .slide-item,
@@ -1460,6 +1471,9 @@ button.li-btn,
     > a:hover {
     background-color: #be8658;
 }
+.hiraola-product_slider-3 .slide-item, .hiraola-product-tab_area-2.tabs .slick-slide > div {
+    padding: 0 15px;
+}
 .template-color-2 .hiraola-product_slider .slick-arrow:hover,
 .template-color-2 .hiraola-product_slider-2 .slick-arrow:hover,
 .template-color-2 .hiraola-trending-product_slider .slick-arrow:hover {
@@ -1583,7 +1597,7 @@ button.li-btn,
 .template-color-2 .hiraola-product_slider-3 .slick-arrow,
 .template-color-2 .latest-blog_slider .slick-arrow,
 .template-color-2 .shop-product-wrap .slick-arrow {
-    color: #333333;
+    color: #be8658;
 }
 .template-color-2 .hiraola-product_slider .slick-arrow:hover,
 .template-color-2 .hiraola-product-tab_slider-2 .slick-arrow:hover,
@@ -2279,6 +2293,9 @@ button.li-btn:hover {
 .brand-slider .slick-arrow:hover {
     background-color: #f0f0f0;
 }
+.sp-img_slider .slick-arrow:hover{
+    color: #cda557;
+}
 .main-slider .slick-next,
 .hiraola-product-tab_slider-2 .slick-next,
 .hiraola-product_slider-3 .slick-next,
@@ -2354,17 +2371,17 @@ button.li-btn:hover {
     border: 1px solid #e5e5e5;
 }
 
-.sp-img_slider-nav {
+/* .sp-img_slider-nav {
     padding: 0 30px;
     margin-top: 30px;
-}
-.sp-img_slider-nav .slick-list {
+} */
+/* .sp-img_slider-nav .slick-list {
     margin: 0 -15px;
-}
-.sp-img_slider-nav .slick-list .single-slide {
+} */
+/* .sp-img_slider-nav .slick-list .single-slide {
     border: 1px solid #e5e5e5;
     margin: 0 15px;
-}
+} */
 
 /* ---Single Porduct Image Slider Three--- */
 @media only screen and (min-width: 768px) and (max-width: 991px) {
@@ -2440,8 +2457,8 @@ button.li-btn:hover {
     margin: 0 3px;
     cursor: pointer;
     font-size: 0;
-    width: 15px;
-    height: 15px;
+    width: 20px;
+    height: 20px;
     background: transparent;
     border: 2px solid #ffffff;
     border-radius: 100%;
@@ -3497,7 +3514,7 @@ button.li-btn:hover {
     padding-top: 80px;
 }
 .static-banner_area .static-banner-image {
-    background-image: url("../images/banner/static-banner.png");
+    background-image: url("../images/static-banner.webp");
     background-size: cover;
     min-height: 345px;
     background-repeat: no-repeat;
@@ -3614,9 +3631,9 @@ button.li-btn:hover {
 .hiraola-product_area .hiraola-section_title {
     margin-bottom: 30px;
 }
-.hiraola-product_area.section-space_add {
+/* .hiraola-product_area.section-space_add {
     padding-bottom: 80px;
-}
+} */
 
 /* ---Hiraola's Product Slider--- */
 .hiraola-product_slider .slide-item .single_product,
@@ -3643,6 +3660,11 @@ button.li-btn:hover {
 .hiraola-product-tab_slider-3 .slide-item .single_product .product-img > a,
 .shop-product-wrap .slide-item .single_product .product-img > a {
     display: block;
+}
+.hiraola-product_slider-3 .slide-item .single_product .product-img > a .secondary-img{
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
 }
 .hiraola-product_slider .slide-item .single_product .product-img > a img,
 .hiraola-product_slider-3 .slide-item .single_product .product-img > a img,
@@ -5568,7 +5590,7 @@ button.li-btn:hover {
 /*  22 - Components - Breadcrumb
 /*----------------------------------------*/
 .breadcrumb-area {
-    background-image: url("../images/breadcrumb/1.jpg");
+    background-image: url("../images/breadcrumb1.jpg");
     background-repeat: no-repeat;
     background-position: center center;
     background-size: cover;
@@ -6807,16 +6829,16 @@ button.li-btn:hover {
     padding: 0 30px;
     margin-top: 30px;
 }
-.sp-area .sp-nav .sp-img_slider .slick-list {
+/* .sp-area .sp-nav .sp-img_slider .slick-list {
     margin: 0 -15px;
-}
-.sp-area .sp-nav .sp-img_slider .slick-list .slick-slide {
+} */
+/* .sp-area .sp-nav .sp-img_slider .slick-list .slick-slide {
     border: 1px solid #e5e5e5;
     margin: 0 15px;
-}
-.sp-area .sp-nav .sp-img_slider .slick-list .slick-slide img {
+} */
+/* .sp-area .sp-nav .sp-img_slider .slick-list .slick-slide img {
     width: 100%;
-}
+} */
 @media (max-width: 991px) {
     .sp-area .sp-nav .sp-content {
         padding-top: 30px;
