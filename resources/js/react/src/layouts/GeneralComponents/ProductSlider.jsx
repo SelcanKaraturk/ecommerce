@@ -1,8 +1,12 @@
 import React, { useEffect } from "react";
 import Slider from "react-slick";
 import { TabNextArrow, TabPrevArrow } from "./SlickArrow";
+import slugify from "slugify";
+import { Link } from "react-router-dom";
+import WishlistButton from "./WishlistButton";
 
-function ProductSlider({ mainName, products }) {
+
+function ProductSlider({ mainName, products, user }) {
     const settingsProductSlider = {
         infinite: true,
         arrows: true,
@@ -43,7 +47,12 @@ function ProductSlider({ mainName, products }) {
             },
         ],
     };
-
+    const category = slugify(mainName, {
+        lower: true,
+        locale: "tr",
+        remove: /[*+~.()'"!:@]/g, // özel karakterleri temizle
+    });
+    //console.log(user);
     //console.log(products);
     return (
         <>
@@ -66,7 +75,7 @@ function ProductSlider({ mainName, products }) {
                                             >
                                                 <div className="single_product">
                                                     <div className="product-img">
-                                                        <a href="single-product.html">
+                                                        <Link to={`/tr/${category}/${i.slug}`}>
                                                             <img
                                                                 className="primary-img"
                                                                 src={
@@ -81,7 +90,7 @@ function ProductSlider({ mainName, products }) {
                                                                 }
                                                                 alt="Hiraola's Product Image"
                                                             />
-                                                        </a>
+                                                        </Link>
                                                         {/* <span className="sticker-2">
                                                         Sale
                                                     </span> */}
@@ -98,21 +107,13 @@ function ProductSlider({ mainName, products }) {
                                                             </h6>
                                                             <div className="price-box">
                                                                 <span className="new-price">
-                                                                    {i.price} ₺
+                                                                    {`${i.price.toLocaleString('tr-TR', {minimumFractionDigits: 2,})} ₺`}
                                                                 </span>
                                                             </div>
-                                                            <div class="additional-add_action">
+                                                            <div className="additional-add_action">
                                                                 <ul>
                                                                     <li>
-                                                                        <a
-                                                                            class="hiraola-add_compare"
-                                                                            href="wishlist.html"
-                                                                            data-bs-toggle="tooltip"
-                                                                            data-placement="top"
-                                                                            title="Add To Wishlist"
-                                                                        >
-                                                                            <i class="ion-android-favorite-outline"></i>
-                                                                        </a>
+                                                                        <WishlistButton productObj={{'product_slug':i.slug, 'price':i.price}} user={user}/>
                                                                     </li>
                                                                 </ul>
                                                             </div>

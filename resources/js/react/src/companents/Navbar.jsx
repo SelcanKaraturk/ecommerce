@@ -317,12 +317,7 @@ function Navbar() {
                                         <Link className="wishlist-btn" to="/me/wishlist">
                                             <i className="ion-android-favorite-outline"></i>
                                         </Link>
-                                        {/* <a
-                                            href={'/me/wishlist'}
-                                            className="wishlist-btn"
-                                        >
-                                            <i className="ion-android-favorite-outline"></i>
-                                        </a> */}
+
                                     </li>
                                     <li>
                                         <a
@@ -341,12 +336,10 @@ function Navbar() {
                                         </a>
                                     </li>
                                     <li>
-                                        <a
-                                            href="#miniCart"
-                                            className="minicart-btn toolbar-btn"
-                                        >
+                                        <Link className="minicart-btn toolbar-btn" to={'/me/cart'}>
                                             <i className="ion-bag"></i>
-                                        </a>
+                                        </Link>
+                                        
                                     </li>
                                      <li>
                                         <Link className="minicart-btn toolbar-btn" to={'/me'}>

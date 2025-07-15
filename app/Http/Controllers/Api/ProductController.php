@@ -14,19 +14,27 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         // $products = Product::with('category')
         // ->where('category_id',1)
         // ->latest()->take(12)->get();
-        $productsDi = Product::whereRelation("category","parent_id",1)
-        ->latest()->take(12)->get();
-        $productsGold = Product::whereRelation("category","parent_id",2)
-        ->latest()->take(12)->get();
+        $productsDi = Product::whereRelation("category", "parent_id", 1)
+            ->withExists([
+                'wishlistedBy' => function ($q) {
+                    $q->where('user_id', auth()->id());
+                }
+            ])->latest()->take(12)->get();
+        $productsGold = Product::whereRelation("category", "parent_id", 2)
+            ->latest()->take(12)->get();
         $categoryDi = Category::find(1)->children()->with("products")->get();
         //$categoryDi = Category::with('children.products')->find(1); //farklı olarak modelin kendisini de döndürür
-        //dd($categoryDi);
-        return response()->json([$productsDi, $productsGold, $categoryDi]);
+        //dd($request->user());
+        return response()->json(data: [
+            'productsDi' => $productsDi,
+            'productsGold' => $productsGold,
+            'categoryDi' => $categoryDi
+        ]);
     }
 
     /**
@@ -56,9 +64,11 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($lang, $category, $slug)
     {
-        //
+        $product = Product::where("slug", $slug)->firstOrFail();
+        //dd($product);
+        return response()->json($product);
     }
 
     /**

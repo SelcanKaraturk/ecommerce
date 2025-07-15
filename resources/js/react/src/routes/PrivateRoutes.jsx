@@ -1,29 +1,23 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../services/AuthContex";
 import { useEffect } from "react";
 
 const PrivateRoute = ({ roles }) => {
-    const { user, fetchUser, loading, setLoading } = useAuth();
+    const { user, fetchUser, loading, setLoading, accessToken } = useAuth();
+    const navigate = useNavigate();
 
     useEffect(() => {
-        if (!user) {
-
-             async function fetchData() {
-                 await fetchUser();
-             }
-             fetchData();
+        if (!accessToken) {
+            navigate("/login");
         }
-    }, []);
 
-    if  (!user && loading) return <div>Kontrol ediliyor...</div>;
 
-    if (!user && !loading) return <Navigate to="/login" replace />;
-
-    if (roles.length && !roles.includes(user.roles[0]?.name)) {
-        return <Navigate to="/login" replace />;
-    }
+    }, [accessToken]);
 
     return <Outlet />;
+    // if (roles.length && !roles.includes(user.roles[0]?.name)) {
+    //     return <Navigate to="/login" replace />;
+    // }
 };
 
 export default PrivateRoute;

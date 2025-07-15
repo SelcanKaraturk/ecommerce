@@ -9,7 +9,7 @@ class Product extends Model
 {
     use HasFactory;
 
-     protected $fillable = [
+    protected $fillable = [
         "name",
         "slug",
         "category_id",
@@ -18,19 +18,26 @@ class Product extends Model
         "price"
     ];
 
-    public function category(){
+    public function category()
+    {
         return $this->belongsTo(Category::class);
+    }
+
+    public function wishlistedBy()
+    {
+        return $this->belongsToMany(User::class, 'wishlists')->withTimestamps();
     }
 
     protected $casts = [
         'images' => 'array',
+        'price' => 'float'
     ];
 
     public function getRouteKeyName()
     {
         return 'slug';
     }
-     protected $hidden = [
+    protected $hidden = [
         'id',
         'category_id'
     ];

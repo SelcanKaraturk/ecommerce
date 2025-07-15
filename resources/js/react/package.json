@@ -23,7 +23,9 @@
     "react-inner-image-zoom": "^4.0.1",
     "react-router-dom": "^7.6.3",
     "react-slick": "^0.30.3",
-    "slick-carousel": "^1.8.1"
+    "react-toastify": "^11.0.5",
+    "slick-carousel": "^1.8.1",
+    "slugify": "^1.6.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",

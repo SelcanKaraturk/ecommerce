@@ -19,7 +19,7 @@ const GuestRoute = ({ children }) => {
       }, [user])
 
 //console.log(user);
-  //if (!user && loading) return <div>Yükleniyor...</div>;
+  if (!user && loading) return <div>Yükleniyor...</div>;
 
   // Kullanıcı varsa login/register sayfasına gitmesin
   if (user) return <Navigate to="/me" replace />;

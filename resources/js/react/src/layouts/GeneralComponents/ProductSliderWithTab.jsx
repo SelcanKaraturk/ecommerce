@@ -139,21 +139,21 @@ function ProductSliderWithTab({ mainName, categoryProducts }) {
                                                                             <div className="price-box">
                                                                                 <span className="new-price">
                                                                                     {
-                                                                                        `${e.price} ₺`
+                                                                                        `${e.price.toLocaleString('tr-TR', {minimumFractionDigits: 2,})} ₺`
                                                                                     }
                                                                                 </span>
                                                                             </div>
-                                                                            <div class="additional-add_action">
+                                                                            <div className="additional-add_action">
                                                                                 <ul>
                                                                                     <li>
                                                                                         <a
-                                                                                            class="hiraola-add_compare"
+                                                                                            className="hiraola-add_compare"
                                                                                             href="wishlist.html"
                                                                                             data-bs-toggle="tooltip"
                                                                                             data-placement="top"
                                                                                             title="Add To Wishlist"
                                                                                         >
-                                                                                            <i class="ion-android-favorite-outline"></i>
+                                                                                            <i className="ion-android-favorite-outline"></i>
                                                                                         </a>
                                                                                     </li>
                                                                                 </ul>

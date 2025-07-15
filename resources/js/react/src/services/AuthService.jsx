@@ -1,22 +1,31 @@
 import api from "./api";
-import Cookies from 'js-cookie'
+import Cookies from 'js-cookie';
+import axios from 'axios';
 
 export const getCsrfCookie = () => {
     return api.get("/sanctum/csrf-cookie");
 };
 
 // Kullanıcı giriş işlemi
-
 export const login = async (credentials) => {
-    await getCsrfCookie();
-    const token = Cookies.get('XSRF-TOKEN');
-    return api.post("/api/login", credentials,{
-  headers: {
-    'X-XSRF-TOKEN': token
-  },
-  withCredentials: true
-});
+    debugger;
+  //const deneme = await getCsrfCookie();
+
+  const deneme = await axios.get("http://localhost:8000/sanctum/csrf-cookie",{withCredentials: true});
+  console.log(deneme);
+  const res = await axios.post("http://localhost:8000/api/login", credentials,{withCredentials: true}); // withCredentials zaten global ayarda var
+  console.log(res);
 };
+// export const login = async (credentials) => {
+//     await getCsrfCookie();
+//     const token = Cookies.get('XSRF-TOKEN');
+//     return api.post("/api/login", credentials,{
+//   headers: {
+//     'X-XSRF-TOKEN': token
+//   },
+//   withCredentials: true
+// });
+// };
 
 // Kullanıcı kayıt işlemi (isteğe bağlı)
 export const register = async (data) => {

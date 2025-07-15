@@ -12,75 +12,27 @@ function Home() {
     const [productsDi, setProducts] = useState([]);
     const [productsGold, setProductsGold] = useState([]);
     const [categoryDiamon, setCategoryDiamon] = useState([]);
-    const [user, setUser] = useState([]);
-    //const { auth } = useAuth();
+    const { currentUser, accessToken } = useAuth();
 
     useEffect(() => {
         //Verileri Getir
         const fetchData = async () => {
             try {
                 const { data } = await homeData();
-                setProducts(data[0]);
-                setProductsGold(data[1]);
-                setCategoryDiamon(data[2]);
+                console.log(data);
+                setProducts(data.productsDi);
+                setProductsGold(data.productsGold);
+                setCategoryDiamon(data.categoryDi);
             } catch (error) {
                 console.log(error);
                 setProducts([]);
+                setProductsGold([]);
+                setCategoryDiamon([]);
             }
-            // console.log(auth);
-            //     setUser(auth);
+
         };
         fetchData();
     }, []);
-
-    useEffect(() => {
-        if (productsDi && productsDi.length > 0) {
-            // $(".hiraola-product-tab_slider-2.slide").slick({
-            //     infinite: true,
-            //     arrows: true,
-            //     dots: false,
-            //     speed: 1000,
-            //     slidesToShow: 5,
-            //     slidesToScroll: 4,
-            //     prevArrow:
-            //         '<button class="slick-prev"><i class="ion-ios-arrow-back"></i></button>',
-            //     nextArrow:
-            //         '<button class="slick-next"><i class="ion-ios-arrow-forward"></i></button>',
-            //     responsive: [
-            //         {
-            //             breakpoint: 1501,
-            //             settings: {
-            //                 slidesToShow: 4,
-            //             },
-            //         },
-            //         {
-            //             breakpoint: 1200,
-            //             settings: {
-            //                 slidesToShow: 3,
-            //             },
-            //         },
-            //         {
-            //             breakpoint: 992,
-            //             settings: {
-            //                 slidesToShow: 2,
-            //             },
-            //         },
-            //         {
-            //             breakpoint: 768,
-            //             settings: {
-            //                 slidesToShow: 1,
-            //             },
-            //         },
-            //         {
-            //             breakpoint: 575,
-            //             settings: {
-            //                 slidesToShow: 1,
-            //             },
-            //         },
-            //     ],
-            // });
-        }
-    }, [productsDi]);
 
     const settingsMainSlider = {
         autoplay: false,
@@ -100,7 +52,7 @@ function Home() {
         prevArrow: <TabPrevArrow />,
     };
     //console.log(categoryDiamon);
-    // console.log(user);
+
     return (
         <>
             <div className="hiraola-slider_area-2">
@@ -154,7 +106,7 @@ function Home() {
                 </div>
             </div>
 
-            <ProductSlider mainName={'Pırlanta'} products={productsDi}/>
+            <ProductSlider mainName={'Pırlanta'} products={productsDi} user={currentUser}/>
 
             <div className="static-banner_area">
                 <div className="container">
@@ -186,7 +138,7 @@ function Home() {
                 </div>
             </div>
 
-            <ProductSlider mainName={'Altın'} products={productsGold}/>
+            <ProductSlider mainName={'Altın'} products={productsGold} user={currentUser}/>
 
             <div className="hiraola-banner_area-2 mb-5">
                 <div className="container">

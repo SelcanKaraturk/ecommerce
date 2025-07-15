@@ -1,20 +1,31 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-
+import { Link, useParams } from "react-router-dom";
 import "./ProductDetail.css";
 import "../../assets/js/plugins/jquery.elevateZoom-3.0.8.min";
 import ProductDetailImages from "./ProductDetailImages";
+import { getSingleProduct } from "../../services/WebService";
 
 function ProductDetail() {
     const [count, setCount] = useState(1);
-    const productImages = [
-        "/src/assets/images/1.jpg",
-        "/src/assets/images/1.jpg",
-        "/src/assets/images/1.jpg",
-        "/src/assets/images/1.jpg",
-        "/src/assets/images/1.jpg",
-        "/src/assets/images/2.jpg",
-    ];
+    const [product, setProduct] = useState(null);
+    const {slug, category} = useParams();
+
+    useEffect(()=>{
+          async function fetchData(){
+                    try {
+                        const { data } = await getSingleProduct(category,slug);
+                        //setProduct(data);
+                        console.log(data);
+                    } catch (error) {
+                        console.log(error);
+                        setProduct();
+                    };
+                };
+                fetchData();
+    },[]);
+
+
+    //console.log(product);
     return (
         <>
             {/* <!-- Begin Hiraola's Breadcrumb Area --> */}
@@ -42,19 +53,19 @@ function ProductDetail() {
                     <div className="sp-nav">
                         <div className="row">
                             <div className="col-lg-5 col-md-5">
-                                <ProductDetailImages images={productImages} />
+                                <ProductDetailImages images={product?.images || []} />
                             </div>
                             <div className="col-lg-7 col-md-7">
                                 <div className="sp-content">
                                     <div className="sp-heading">
                                         <h5>
                                             <a href="#">
-                                                JWDA Penant Lamp Brshed Steel
+                                                {product?.name}
                                             </a>
                                         </h5>
                                     </div>
                                     <span className="reference">
-                                        Reference: demo_1
+                                        {product?.content}
                                     </span>
 
                                     <div className="sp-essential_stuff">
@@ -62,7 +73,7 @@ function ProductDetail() {
                                             <li>
                                                 EX Tax:{" "}
                                                 <a href="javascript:void(0)">
-                                                    <span>£453.35</span>
+                                                    <span>{`${product?.price.toLocaleString('tr-TR', {minimumFractionDigits: 2,})} ₺`}</span>
                                                 </a>
                                             </li>
                                             <li>
@@ -92,16 +103,16 @@ function ProductDetail() {
                                         </ul>
                                     </div>
                                     <div className="product-size_box">
-                                        <span>Size</span>
+                                        <span>Renk</span>
                                         <select className="myniceselect nice-select">
-                                            <option value="1">S</option>
-                                            <option value="2">M</option>
-                                            <option value="3">L</option>
-                                            <option value="4">XL</option>
+                                            <option value="1">22 Ayar Gold</option>
+                                            <option value="2">Rose Gold</option>
+                                            <option value="3">Gümüş Rengi</option>
+                                            <option value="4">14 Ayar Gold</option>
                                         </select>
                                     </div>
                                     <div className="quantity">
-                                        <label>Quantity</label>
+                                        <label>Miktar</label>
                                         <div className="cart-plus-minus">
                                             <input
                                                 className="cart-plus-minus-box"
@@ -133,7 +144,7 @@ function ProductDetail() {
                                                     className="qty-cart_btn"
                                                     href="cart.html"
                                                 >
-                                                    Add To Cart
+                                                    Sepete Ekle
                                                 </a>
                                             </li>
                                             <li>
@@ -146,16 +157,7 @@ function ProductDetail() {
                                                     <i className="ion-android-favorite-outline"></i>
                                                 </a>
                                             </li>
-                                            <li>
-                                                <a
-                                                    className="qty-compare_btn"
-                                                    href="compare.html"
-                                                    data-bs-toggle="tooltip"
-                                                    title="Compare This Product"
-                                                >
-                                                    <i className="ion-ios-shuffle-strong"></i>
-                                                </a>
-                                            </li>
+
                                         </ul>
                                     </div>
                                     <div className="hiraola-tag-line">
@@ -176,36 +178,6 @@ function ProductDetail() {
                                                     title="Facebook"
                                                 >
                                                     <i className="fab fa-facebook"></i>
-                                                </a>
-                                            </li>
-                                            <li className="twitter">
-                                                <a
-                                                    href="https://twitter.com"
-                                                    data-bs-toggle="tooltip"
-                                                    target="_blank"
-                                                    title="Twitter"
-                                                >
-                                                    <i className="fab fa-twitter-square"></i>
-                                                </a>
-                                            </li>
-                                            <li className="youtube">
-                                                <a
-                                                    href="https://www.youtube.com"
-                                                    data-bs-toggle="tooltip"
-                                                    target="_blank"
-                                                    title="Youtube"
-                                                >
-                                                    <i className="fab fa-youtube"></i>
-                                                </a>
-                                            </li>
-                                            <li className="google-plus">
-                                                <a
-                                                    href="https://www.plus.google.com/discover"
-                                                    data-bs-toggle="tooltip"
-                                                    target="_blank"
-                                                    title="Google Plus"
-                                                >
-                                                    <i className="fab fa-google-plus"></i>
                                                 </a>
                                             </li>
                                             <li className="instagram">

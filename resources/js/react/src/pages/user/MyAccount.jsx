@@ -1,15 +1,33 @@
 import React, { useEffect } from "react";
 import { useAuth } from "../../services/AuthContex";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function MyAccount() {
-    const { user, logout } = useAuth();
-    useEffect(() => {
-        console.log(user);
-    }, []);
+    const navigate = useNavigate();
+    const { setAccessToken, setCurrentUser, currentUser, logout } = useAuth();
 
-    const userLogout = (e)=>{
+     useEffect(() => {
+        currentUser? console.log(currentUser) : '';
+
+    }, [currentUser]);
+
+    const userLogout = async (e)=>{
         e.preventDefault();
-        logout();
+        try {
+          const res = await logout();
+
+          if(res?.data?.message){
+            setCurrentUser('');
+            setAccessToken(null);
+            localStorage.setItem('currentToken', null);
+            toast.success(res.data.message);
+            navigate('/login')
+          }
+
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     return (
@@ -90,7 +108,21 @@ function MyAccount() {
                                         >
                                             Logout
                                         </a>
-                                  
+
+                                    </li>
+                                    <li className="nav-item">
+
+                                        <Link
+                                            className="nav-link"
+                                            //id="account-logout-tab"
+                                            type="submit"
+                                            to={'/login'}
+                                            role="tab"
+                                            aria-selected="false"
+                                        >
+                                            Login
+                                        </Link>
+
                                     </li>
                                 </ul>
                             </div>

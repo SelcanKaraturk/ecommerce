@@ -25,10 +25,9 @@ class AuthController extends Controller
 
         $user = User::create(array_merge(    $request->only('name', 'email'),
         ['password' => Hash::make($request->password)]
-));
+        ));
 
         $user->assignRole('user');
-
 
         return response()->json(['message' => 'Kayıt başarılı']);
 
@@ -41,25 +40,32 @@ class AuthController extends Controller
             'email'=> 'required|email',
             'password' => 'required|min:6',
         ]);
-        $user = User::where('email', $request->email)->first();
+         $user = User::where('email', $request->email)->first();
 
-         if (!$user || !Hash::check($request->password, $user->password)) {
-            return  response()->json(['message' => 'Kullanıcı adı ya da şifre hatalı'], 401);
-         }
-         Auth::login($user,$request->remember_me);
-        $request->session()->regenerate(); // güvenlik session id sini yenile
-        return response()->json(['message' => auth()->user()->load('roles')]);
+          if (!$user || !Hash::check($request->password, $user->password)) {
+             return  response()->json(['error' => 'Kullanıcı adı ya da şifre hatalı'], 401);
+          }else{
+              return response()->json([
+                'user' => $user,
+                'currentToken' => $user->createToken('new_user')->plainTextToken,
+                'message' => 'Giriş Başarılı'
+              ]);
+          }
+        //  Auth::login($user,$request->remember_me);
+        // $request->session()->regenerate(); // güvenlik session id sini yenile
+
     }
 
     public function show(Request $request)
     {
-        return response()->json(auth()->user()->load('roles'));
+        return response()->json([
+            'user' => $request->user(),
+            'currentToken' => $request->bearerToken()
+        ]);
     }
     public function logout(Request $request)
     {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        $request->user()->currentAccessToken()->delete();
         return response()->json(['message' => 'Çıkış yapıldı']);
     }
 

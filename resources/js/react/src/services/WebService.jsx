@@ -1,11 +1,18 @@
-import api from "./api"
+import api, {getConfig} from "./api"
+import { useAuth } from "./AuthContex";
 
-
-export const getCsrfCookie = () => {
-    return api.get("/sanctum/csrf-cookie");
-};
+//const {accessToken} = useAuth();
 
 export const homeData = async ()=>{
-    await getCsrfCookie();
-    return await api.get('/api/tr',{withCredentials:true});
+    return await api.get('api/tr');
+}
+
+export const getSingleProduct = async (category,slug)=>{
+
+    return await api.get(`/api/tr/${category}/${slug}`,{withCredentials:true});
+}
+
+export const addWishToList = async (productObj)=>{
+    const {product_slug, price} = productObj;
+    return await api.post('/api/me/wishlist/toggle');
 }

@@ -4,6 +4,7 @@ import { resolve } from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
+    plugins: [react()]
   // plugins: [react()],
   // build: {
   //   outDir: 'public/build',
@@ -16,11 +17,12 @@ export default defineConfig({
   //   },
   // },
   //base: '/react/',
-  plugins: [react()],
-  server: {
-  proxy: {
-    '/api': 'http://localhost:8000',
-    '/sanctum': 'http://localhost:8000',
-  }
-}
+//plugins: [react()],
+//   server: {
+//   proxy: {
+//     '/api': 'http://127.0.0.1:8000',
+//     '/sanctum': 'http://127.0.0.1:8000',
+//   }
+// }
 })
+

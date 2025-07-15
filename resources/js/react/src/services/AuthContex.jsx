@@ -1,30 +1,53 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { getUser, logout as apiLogout } from "../services/AuthService";
 import { useNavigate } from "react-router-dom";
+import {toast} from "react-toastify";
+import { ErrorServices } from "./ErrorServices";
+import api, { getConfig } from "./api";
+import axios from "axios";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [accessToken, setAccessToken] = useState(()=>localStorage.getItem('currentToken'));
+    const [currentUser, setCurrentUser] = useState(null);
 
+    useEffect(() => {
+        const fetchCurrentlyLoggedInUser = async() => {
+            try {
+                        const res = await api.get('api/me', getConfig(accessToken));
+                        setCurrentUser(res?.data?.user);
+                        console.log(res?.data?.user);
+                    } catch (error) {
+                        console.log(error);
+                        if(error.response.status === 401){
+                            localStorage.removeItem('currentToken');
+                            setCurrentUser(null);
+                            setAccessToken('');
+                        }
 
-    const fetchUser = async () => {
-        //debugger;
-
-        try {
-            const { data } = await getUser();
-            //console.log(data);
-            setUser(data);
-
-        } catch (err) {
-            console.log(err)
-            setUser(null);
-        } finally {
-            setLoading(false);
+                    }
         }
+        if(accessToken != null) fetchCurrentlyLoggedInUser();
+    }, [accessToken]);
+
+
+    const errorShow = (err) => {
+        const message = ErrorServices(err);
+        //setError(message);
+        toast.error(message);
     };
 
+    const registerForm = async (data) => {
+        return await api.post(`/api/register`, data);
+    };
+
+    const login = async (credentials) => {
+        //const deneme = await getCsrfCookie();
+        //console.log(deneme);
+        return await api.post("/api/login", credentials); // withCredentials zaten global ayarda var
+    };
 
     //     try {
     //         const { data } = await getAuth();
@@ -44,21 +67,22 @@ export const AuthProvider = ({ children }) => {
     // };
 
     const logout = async () => {
-        await apiLogout();
-        setUser(null);
-
+       return await api.post('/api/me/logout', {}, getConfig(accessToken));
     };
 
     return (
         <AuthContext.Provider
             value={{
-                user,
-                setUser,
-                logout,
-                fetchUser,
                 loading,
                 setLoading,
                 logout,
+                errorShow,
+                registerForm,
+                login,
+                accessToken,
+                setAccessToken,
+                currentUser,
+                setCurrentUser
             }}
         >
             {children}
