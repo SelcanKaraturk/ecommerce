@@ -7,13 +7,13 @@ import { TabNextArrow, TabPrevArrow } from "../../layouts/GeneralComponents/Slic
 
 function ProductDetailImages({ images }) {
     //console.log(images[0]);
-    const [activeImage, setActiveImage] = useState(null);
+    const [activeImage, setActiveImage] = useState(images[0]);
 
-    useEffect(() => {
-    if (images && images.length > 0) {
-        setActiveImage(images[0]);
-    }
-    }, [images]);
+    // useEffect(() => {
+    // if (images && images.length > 0) {
+    //     setActiveImage(images[0]);
+    // }
+    // }, [images]);
 
     var settingsTabSlider = {
         dots: false,
@@ -59,7 +59,8 @@ function ProductDetailImages({ images }) {
 
                 <div id="gallery" className="sp-img_slider">
                     <Slider {...settingsTabSlider}>
-                        {images.map((img, idx) => (
+                        {images.length > 0 &&
+                        images.map((img, idx) => (
                                 <img
                                 key={idx}
                                 src={img}

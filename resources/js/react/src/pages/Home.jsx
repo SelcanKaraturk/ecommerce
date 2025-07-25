@@ -3,15 +3,17 @@ import { homeData } from "../services/WebService";
 import "slick-carousel";
 import { useAuth } from "../services/AuthContex";
 import Slider from "react-slick";
-import { TabNextArrow, TabPrevArrow } from "../layouts/GeneralComponents/SlickArrow";
+import {
+    TabNextArrow,
+    TabPrevArrow,
+} from "../layouts/GeneralComponents/SlickArrow";
 import ProductSlider from "../layouts/GeneralComponents/ProductSlider";
 import ProductSliderWithTab from "../layouts/GeneralComponents/ProductSliderWithTab";
-
 
 function Home() {
     const [productsDi, setProducts] = useState([]);
     const [productsGold, setProductsGold] = useState([]);
-    const [categoryDiamon, setCategoryDiamon] = useState([]);
+    const [categoryDi, setCategoryDi] = useState([]);
     const { currentUser, accessToken } = useAuth();
 
     useEffect(() => {
@@ -19,20 +21,19 @@ function Home() {
         const fetchData = async () => {
             try {
                 const { data } = await homeData();
-                console.log(data);
                 setProducts(data.productsDi);
                 setProductsGold(data.productsGold);
-                setCategoryDiamon(data.categoryDi);
+                setCategoryDi(data.categoryDi);
             } catch (error) {
                 console.log(error);
                 setProducts([]);
-                setProductsGold([]);
-                setCategoryDiamon([]);
             }
-
         };
         fetchData();
     }, []);
+
+
+
 
     const settingsMainSlider = {
         autoplay: false,
@@ -106,7 +107,11 @@ function Home() {
                 </div>
             </div>
 
-            <ProductSlider mainName={'Pırlanta'} products={productsDi} user={currentUser}/>
+            <ProductSlider
+                mainName={"Pırlanta"}
+                products={productsDi ?? productsDi}
+
+            />
 
             <div className="static-banner_area">
                 <div className="container">
@@ -138,7 +143,11 @@ function Home() {
                 </div>
             </div>
 
-            <ProductSlider mainName={'Altın'} products={productsGold} user={currentUser}/>
+            <ProductSlider
+                mainName={"Altın"}
+                products={productsGold ?? productsGold}
+
+            />
 
             <div className="hiraola-banner_area-2 mb-5">
                 <div className="container">
@@ -169,9 +178,10 @@ function Home() {
                 </div>
             </div>
 
-            <ProductSliderWithTab mainName={"EŞSİZ PIRLANTA SERİMİZ"} categoryProducts={categoryDiamon}/>
-
-
+            <ProductSliderWithTab
+                mainName={"EŞSİZ PIRLANTA SERİMİZ"}
+                categoryProducts={categoryDi ?? categoryDi}
+            />
         </>
     );
 }

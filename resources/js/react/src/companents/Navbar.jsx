@@ -9,11 +9,11 @@ function Navbar() {
             <div className="header-bottom_area header-bottom_area-2 header-sticky stick">
                 <div className="container-fliud h-100">
                     <div className="row h-100">
-                        <div className="col-lg-2 col-md-4 col-sm-4">
-                            <div className="header-logo">
+                        <div className="col-lg-2 col-md-4 col-sm-4 h-100">
+                            <div className="header-logo h-100">
                                 <NavLink to="/tr">
                                     <img
-                                        src="/src/assets/images/menu/logo/1.png"
+                                        src="/src/assets/images/valor_logo_transparent_125px.png"
                                         alt="Hiraola's Header Logo"
                                     />
                                 </NavLink>
@@ -23,27 +23,6 @@ function Navbar() {
                             <div className="main-menu_area">
                                 <nav>
                                     <ul>
-                                        <li className="dropdown-holder">
-                                            <NavLink to="/tr">Home</NavLink>
-
-                                            <ul className="hm-dropdown">
-                                                <li>
-                                                    <a href="index.html">
-                                                        Home One
-                                                    </a>
-                                                </li>
-                                                <li className="active">
-                                                    <a href="index-2.html">
-                                                        Home Two
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a href="index-3.html">
-                                                        Home Three
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </li>
                                         <li className="megamenu-holder">
                                             <NavLink to="/tr/altin">
                                                 Altın
@@ -171,7 +150,6 @@ function Navbar() {
                                                 <li className="menu-item_img"></li>
                                             </ul>
                                         </li>
-
                                          <li className="megamenu-holder">
                                             <NavLink to="/tr/pirlanta">
                                                 Pırlanta
@@ -299,7 +277,6 @@ function Navbar() {
                                                 <li className="menu-item_img"></li>
                                             </ul>
                                         </li>
-
                                          <li>
                                             <NavLink to="/tr/hakkimizda">Hakkımızda</NavLink>
                                         </li>
@@ -339,7 +316,7 @@ function Navbar() {
                                         <Link className="minicart-btn toolbar-btn" to={'/me/cart'}>
                                             <i className="ion-bag"></i>
                                         </Link>
-                                        
+
                                     </li>
                                      <li>
                                         <Link className="minicart-btn toolbar-btn" to={'/me'}>

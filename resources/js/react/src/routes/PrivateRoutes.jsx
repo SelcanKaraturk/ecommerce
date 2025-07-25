@@ -3,15 +3,15 @@ import { useAuth } from "../services/AuthContex";
 import { useEffect } from "react";
 
 const PrivateRoute = ({ roles }) => {
-    const { user, fetchUser, loading, setLoading, accessToken } = useAuth();
+    const { loading, setLoading, accessToken, errorShow } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
         if (!accessToken) {
             navigate("/login");
+            const error = { response: {data:'',status:401} };
+            errorShow(error);
         }
-
-
     }, [accessToken]);
 
     return <Outlet />;

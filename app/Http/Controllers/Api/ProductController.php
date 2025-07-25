@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use Illuminate\Support\Facades\Auth;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class ProductController extends Controller
 {
@@ -16,24 +18,17 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        // $products = Product::with('category')
-        // ->where('category_id',1)
-        // ->latest()->take(12)->get();
         $productsDi = Product::whereRelation("category", "parent_id", 1)
-            ->withExists([
-                'wishlistedBy' => function ($q) {
-                    $q->where('user_id', auth()->id());
-                }
-            ])->latest()->take(12)->get();
+            ->latest()->take(12)->get();
         $productsGold = Product::whereRelation("category", "parent_id", 2)
             ->latest()->take(12)->get();
         $categoryDi = Category::find(1)->children()->with("products")->get();
-        //$categoryDi = Category::with('children.products')->find(1); //farklı olarak modelin kendisini de döndürür
-        //dd($request->user());
+
         return response()->json(data: [
             'productsDi' => $productsDi,
             'productsGold' => $productsGold,
-            'categoryDi' => $categoryDi
+            'categoryDi' => $categoryDi,
+            $request->bearerToken()
         ]);
     }
 
@@ -66,7 +61,33 @@ class ProductController extends Controller
      */
     public function show($lang, $category, $slug)
     {
-        $product = Product::where("slug", $slug)->firstOrFail();
+        if (!auth()->check()) {
+            $product = Product::where("slug", $slug)
+                ->withExists([
+                    'wishlistedBy' => function ($q) {
+                        if (auth()->check()) {
+                            $q->where('user_id', auth()->id());
+                        } else {
+                            $q->whereNull('user_id');
+                        }
+                    }
+                ])
+                ->addSelect(['in_carts_exists' => \DB::raw('false')])
+                ->firstOrFail();
+        } else {
+            $product = Product::where("slug", $slug)
+                ->withExists([
+                    'wishlistedBy' => function ($q) {
+                        $q->where('user_id', auth()->id());
+                    },
+                    'inCarts' => function ($q) {
+                        $q->whereHas('cart', function ($cartQuery) {
+                            $cartQuery->where('user_id', auth()->id());
+                        });
+                    }
+                ])
+                ->firstOrFail();
+        }
         //dd($product);
         return response()->json($product);
     }

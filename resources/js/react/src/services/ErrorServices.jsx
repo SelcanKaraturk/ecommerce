@@ -3,7 +3,7 @@ import React from 'react'
 export const ErrorServices = (error) => {
      // Axios hatasıysa
     if (error.response) {
-        console.log(error.response);
+        //console.log(error.response);
         const status = error.response.status;
         const data = error.response.data;
 

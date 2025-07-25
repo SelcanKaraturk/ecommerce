@@ -10,7 +10,13 @@ class WishlistController extends Controller
 {
     public function index(Request $request)
     {
-        return response()->json(auth()->user()->wishlist()->get());
+        return response()->json(auth()->user()->wishlist()->withExists(
+            ['inCarts' => function ($q) {
+                $q->whereHas('cart', function ($cartQuery) {
+                    $cartQuery->where('user_id', auth()->user()->id);
+                });
+            }])
+        ->with('category:id,slug')->withPivot('price')->get());
     }
 
     public function toggle(Request $request)
@@ -22,7 +28,7 @@ class WishlistController extends Controller
             ]);
 
             $user = auth()->user();
-            $productId = Product::where('slug', $request->product_slug)->value('id');
+            $productId = Product::where('slug', operator: $request->product_slug)->value('id');
             if (!$productId) {
                 return response()->json([
                     'message' => 'Product not found.',
@@ -44,5 +50,17 @@ class WishlistController extends Controller
                 'status' => 'error'
             ]);
         }
+    }
+
+    public function destroy($slug)
+    {
+        $productId = Product::where('slug', $slug)->value('id');
+        if (!$productId) {
+            return response()->json(['status'=>'error','message' => 'Silmek İstediğiniz Ürün Bulunamadı']);
+        }else{
+            auth()->user()->wishlist()->where('product_id', $productId)->delete();
+            return response()->json(['status'=>'success','message'=> 'Ürün Favorilerinizden Kaldırıldı']);
+        }
+
     }
 }

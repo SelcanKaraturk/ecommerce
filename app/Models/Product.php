@@ -27,6 +27,10 @@ class Product extends Model
     {
         return $this->belongsToMany(User::class, 'wishlists')->withTimestamps();
     }
+    public function inCarts()
+    {
+        return $this->hasMany(CartItem::class, 'product_id');
+    }
 
     protected $casts = [
         'images' => 'array',

@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
             try {
                         const res = await api.get('api/me', getConfig(accessToken));
                         setCurrentUser(res?.data?.user);
-                        console.log(res?.data?.user);
+                        //console.log(res?.data?.user);
                     } catch (error) {
                         console.log(error);
                         if(error.response.status === 401){

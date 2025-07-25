@@ -1,12 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Slider from "react-slick";
 import { TabNextArrow, TabPrevArrow } from "./SlickArrow";
 import slugify from "slugify";
 import { Link } from "react-router-dom";
 import WishlistButton from "./WishlistButton";
 
+function ProductSlider({ mainName, products }) {
+    const [sliderKey, setSliderKey] = useState(0);
 
-function ProductSlider({ mainName, products, user }) {
     const settingsProductSlider = {
         infinite: true,
         arrows: true,
@@ -53,7 +54,7 @@ function ProductSlider({ mainName, products, user }) {
         remove: /[*+~.()'"!:@]/g, // özel karakterleri temizle
     });
     //console.log(user);
-    //console.log(products);
+
     return (
         <>
             <div className="hiraola-product_area hiraola-product_area-2 section-space_add">
@@ -66,16 +67,20 @@ function ProductSlider({ mainName, products, user }) {
                         </div>
                         <div className="col-lg-12">
                             <div className="hiraola-product_slider-3">
-                                <Slider {...settingsProductSlider}>
-                                    {products.length > 0 &&
-                                        products.map((i, key) => (
+                                <Slider
+                                    {...settingsProductSlider}
+                                >
+                                    {products?.length > 0 &&
+                                        products.map((i, index) => (
                                             <div
                                                 className="slide-item"
-                                                key={key}
+                                                key= {products.slug}
                                             >
                                                 <div className="single_product">
                                                     <div className="product-img">
-                                                        <Link to={`/tr/${category}/${i.slug}`}>
+                                                        <Link
+                                                            to={`/tr/${category}/${i.slug}`}
+                                                        >
                                                             <img
                                                                 className="primary-img"
                                                                 src={
@@ -107,16 +112,15 @@ function ProductSlider({ mainName, products, user }) {
                                                             </h6>
                                                             <div className="price-box">
                                                                 <span className="new-price">
-                                                                    {`${i.price.toLocaleString('tr-TR', {minimumFractionDigits: 2,})} ₺`}
+                                                                    {`${i.price.toLocaleString(
+                                                                        "tr-TR",
+                                                                        {
+                                                                            minimumFractionDigits: 2,
+                                                                        }
+                                                                    )} ₺`}
                                                                 </span>
                                                             </div>
-                                                            <div className="additional-add_action">
-                                                                <ul>
-                                                                    <li>
-                                                                        <WishlistButton productObj={{'product_slug':i.slug, 'price':i.price}} user={user}/>
-                                                                    </li>
-                                                                </ul>
-                                                            </div>
+
                                                         </div>
                                                     </div>
                                                 </div>

@@ -57,7 +57,7 @@ function ProductSliderWithTab({ mainName, categoryProducts }) {
                                     <h4>{mainName}</h4>
                                 </div>
                                 <ul className="nav product-menu">
-                                    {categoryProducts.length > 0 &&
+                                    {categoryProducts?.length > 0 &&
                                         categoryProducts.map((i) => (
                                             <li key={i.slug}>
                                                 <a
@@ -79,7 +79,7 @@ function ProductSliderWithTab({ mainName, categoryProducts }) {
                                 </ul>
                             </div>
                             <div className="tab-content hiraola-tab_content">
-                                {categoryProducts.length > 0 &&
+                                {categoryProducts?.length > 0 &&
                                     categoryProducts.map((i) => (
                                         <div
                                             key={i.slug}
