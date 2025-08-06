@@ -12,16 +12,17 @@ return new class extends Migration {
      */
     public function up()
     {
-        Schema::create('carts', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->foreignId('user_id')->nullable()->constrained()->cascadeOnDelete();
-            // $table->foreign('user_id')
-            //     ->references('id')
-            //     ->on('users')
-            //     ->cascadeOnDelete(); // veya ->cascadeOnDelete() ihtiyacına göre
+        Schema::create('product_stocks', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('product_id')->constrained()->onDelete('cascade');
+            $table->string('color')->nullable();
+            $table->smallInteger('size')->nullable();
+            $table->integer('stock')->default(0);
             $table->timestamps();
         });
     }
+
+
 
     /**
      * Reverse the migrations.
@@ -30,6 +31,6 @@ return new class extends Migration {
      */
     public function down()
     {
-        Schema::dropIfExists('carts');
+        Schema::dropIfExists('product_stocks');
     }
 };

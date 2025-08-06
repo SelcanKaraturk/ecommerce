@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ProductResources;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Models\Product;
@@ -63,23 +64,28 @@ class ProductController extends Controller
     {
         if (!auth()->check()) {
             $product = Product::where("slug", $slug)
-                ->withExists([
-                    'wishlistedBy' => function ($q) {
-                        if (auth()->check()) {
-                            $q->where('user_id', auth()->id());
-                        } else {
-                            $q->whereNull('user_id');
-                        }
-                    }
-                ])
-                ->addSelect(['in_carts_exists' => \DB::raw('false')])
+                ->with(['stock' => function ($query){
+                     $query->withExists([
+                            'wishlistedBy' => function ($q) {
+                                $q->whereNull('user_id');
+                            }
+                        ]);
+                }, 'groupedStock'])
+                // ->addSelect(['in_carts_exists' => \DB::raw('false')])
                 ->firstOrFail();
         } else {
             $product = Product::where("slug", $slug)
-                ->withExists([
-                    'wishlistedBy' => function ($q) {
-                        $q->where('user_id', auth()->id());
+                ->with([
+                    'stock' => function ($query) {
+                        $query->withExists([
+                            'wishlistedBy' => function ($q) {
+                                $q->where('user_id', auth()->id());
+                            }
+                        ]);
                     },
+                    'groupedStock',
+                ])
+                ->withExists([
                     'inCarts' => function ($q) {
                         $q->whereHas('cart', function ($cartQuery) {
                             $cartQuery->where('user_id', auth()->id());
@@ -89,7 +95,8 @@ class ProductController extends Controller
                 ->firstOrFail();
         }
         //dd($product);
-        return response()->json($product);
+
+        return response()->json(new ProductResources($product));
     }
 
     /**

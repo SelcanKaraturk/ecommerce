@@ -2,16 +2,17 @@ import React, { useEffect, useState } from "react";
 import { addWishToList } from "../../services/WebService";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../services/AuthContex";
-import { error } from "jquery";
+import { CircularProgress } from "@mui/material";
 
-function WishlistButton({ productObj }) {
+function WishlistButton({ productObj, changeWishStatue }) {
     const navigate = useNavigate();
-    const [response, setResponse] = useState(null);
     const [isWish, setIsWish] = useState(productObj.myWish);
     const { errorShow, accessToken } = useAuth();
+    const [updating, setUpdating] = useState(false);
 
     const WishClick = async (e) => {
         e.preventDefault();
+        setUpdating(true);
         if (!accessToken) {
             navigate("/login#signIn");
             const error = { response: {data:'',status:401} };
@@ -23,31 +24,43 @@ function WishlistButton({ productObj }) {
                 console.log(res);
                 if (status === "added") {
                     setIsWish(true);
+                    changeWishStatue(true);
                 } else if (status === "removed") {
                     setIsWish(false);
+                    changeWishStatue(false);
                 }
+                setUpdating(false);
             } catch (error) {
+                console.log(error);
                 errorShow(error);
+                setUpdating(false);
             }
         }
     };
-
+    useEffect(()=>{
+        setIsWish(productObj.myWish)
+        // console.log(productObj);
+    },[productObj])
     return (
         <>
             <a
-                onClick={WishClick}
+
                 className="qty-wishlist_btn"
                 data-bs-toggle="tooltip"
                 title={isWish ? "Favoriden Çıkar":"Favoriye Ekle"}
             >
-                {isWish ? (
+                {updating? (<CircularProgress size="sm" sx={{width:'13px'}} />) : (
+                    isWish ? (
                     <i
+                        onClick={WishClick}
                         className="ion-android-favorite"
                         style={{ color: "#cda557" }}
                     ></i>
                 ) : (
-                    <i className="ion-android-favorite-outline"></i>
+                    <i onClick={WishClick} className="ion-android-favorite-outline"></i>
+                )
                 )}
+
             </a>
         </>
     );

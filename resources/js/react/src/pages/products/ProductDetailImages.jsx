@@ -52,7 +52,7 @@ function ProductDetailImages({ images }) {
                         src={activeImage && activeImage}
                         zoomSrc={activeImage && activeImage}
                         zoomType="hover"
-                        zoomScale={1.5}
+                        zoomScale={1.3}
                         alt="Ürün Görseli"
                     />
                 </div>

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
- 
+import { TextField } from "@mui/material";
 import { useAuth } from "../../services/AuthContex";
 import { toast } from "react-toastify";
 import ValidateError from "./ValidateError";
+import Loading from "../../layouts/GeneralComponents/Loading";
 
 function Register() {
     const [registerFormData, setRegisterFormData] = useState({
@@ -15,14 +16,14 @@ function Register() {
     });
     const [loading, SetLoading] = useState(false);
     const [errors, SetErrors] = useState(null);
-    const { registerForm, errorShow, currentUser } = useAuth();
+    const { registerForm, errorShow, accessToken } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (currentUser) {
+        if (accessToken) {
             navigate("/me");
         }
-    }, [currentUser]);
+    }, [accessToken]);
 
     const formChange = (e) => {
         const { name, value } = e.target;
@@ -50,126 +51,84 @@ function Register() {
 
     return (
         <>
-            {/* <!-- Begin Hiraola's Breadcrumb Area --> */}
-            <div className="breadcrumb-area">
-                <div className="container">
-                    <div className="breadcrumb-content">
-                        <h2>Other</h2>
-                        <ul>
-                            <li>
-                                <Link to="/tr">Ana Sayfa</Link>
-                            </li>
-                            <li className="active">Kullanıcı Kayıt</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            {/* <!-- Hiraola's Breadcrumb Area End Here --> */}
-
-            {/* <!-- Begin Hiraola's Login Register Area --> */}
-            <div className="hiraola-login-register_area">
-                <div className="container">
-                    <div className="row justify-content-center">
-                        <div className="col-sm-12 col-md-12 col-lg-6 col-xs-12">
-                            <form onSubmit={RegisterHandleSubmit}>
-                                <div className="login-form">
-                                    <h4 className="login-title">Register</h4>
-                                    <div className="row">
-                                        <div className="col-md-6 col-12 mb--20 mb-3">
-                                            <label>First Name</label>
-                                            <input
-                                                onChange={formChange}
-                                                name="name"
-                                                value={registerFormData.name}
-                                                type="text"
-                                                placeholder="First Name"
-                                                className="mb-0"
-                                            />
-                                            {ValidateError(errors, "name")}
-                                        </div>
-                                        <div className="col-md-6 col-12 mb--20 mb-3">
-                                            <label>Last Name</label>
-                                            <input
-                                                onChange={formChange}
-                                                name="lastname"
-                                                value={
-                                                    registerFormData.lastname
-                                                }
-                                                type="text"
-                                                placeholder="Last Name"
-                                                className="mb-0"
-                                            />
-                                            {ValidateError(errors, "lastname")}
-                                        </div>
-                                        <div className="col-md-12 mb-3">
-                                            <label>Email Address*</label>
-                                            <input
-                                                onChange={formChange}
-                                                name="email"
-                                                value={registerFormData.email}
-                                                type="email"
-                                                placeholder="Email Address"
-                                                className="mb-0"
-                                            />
-                                            {ValidateError(errors, "email")}
-                                        </div>
-                                        <div className="col-md-6 mb-3">
-                                            <label>Password</label>
-                                            <input
-                                                onChange={formChange}
-                                                name="password"
-                                                value={
-                                                    registerFormData.password
-                                                }
-                                                type="password"
-                                                placeholder="Password"
-                                                className="mb-0"
-                                            />
-                                            {ValidateError(errors, "password")}
-                                        </div>
-                                        <div className="col-md-6 mb-3">
-                                            <label>Confirm Password</label>
-                                            <input
-                                                onChange={formChange}
-                                                name="password_confirmation"
-                                                type="password"
-                                                placeholder="Confirm Password"
-                                                className="mb-0"
-                                            />
-                                            {ValidateError(
-                                                errors,
-                                                "password_confirmation"
-                                            )}
-                                        </div>
-                                        <div className="col-12">
-                                            {loading ? (
-                                                <div className="mt-3">
-                                                    <div
-                                                        className="spinner-border text-dark"
-                                                        role="status"
-                                                    >
-                                                        <span className="sr-only">
-                                                            Loading...
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <button
-                                                    type="submit"
-                                                    className="hiraola-register_btn"
-                                                >
-                                                    Kayıt
-                                                </button>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
+            <form onSubmit={RegisterHandleSubmit}>
+                <div className="login-form">
+                    <h4 className="login-title">Hesap Oluştur</h4>
+                    <div className="row">
+                        <div className="col-md-6 col-12 mb--20 mb-3">
+                            <TextField
+                                error={!!errors?.name}
+                                name="name"
+                                label="Ad*"
+                                variant="outlined"
+                                type="text"
+                                defaultValue={registerFormData.name}
+                                onChange={formChange}
+                            />
+                            {ValidateError(errors, "name")}
+                        </div>
+                        <div className="col-md-6 col-12 mb--20 mb-3">
+                            <TextField
+                                error={!!errors?.lastname}
+                                name="lastname"
+                                label="Soyad*"
+                                variant="outlined"
+                                type="text"
+                                defaultValue={registerFormData.lastname}
+                                onChange={formChange}
+                            />
+                            {ValidateError(errors, "lastname")}
+                        </div>
+                        <div className="col-md-12 mb-3">
+                            <TextField
+                                error={!!errors?.email}
+                                name="email"
+                                label="Email*"
+                                variant="outlined"
+                                type="email"
+                                defaultValue={registerFormData.email}
+                                onChange={formChange}
+                            />
+                            {ValidateError(errors, "email")}
+                        </div>
+                        <div className="col-md-6 mb-3">
+                             <TextField
+                                error={!!errors?.password}
+                                name="password"
+                                label="Password*"
+                                variant="outlined"
+                                type="password"
+                                defaultValue={registerFormData.password}
+                                onChange={formChange}
+                            />
+                            {ValidateError(errors, "password")}
+                        </div>
+                        <div className="col-md-6 mb-3">
+                            <TextField
+                                error={!!errors?.password_confirmation}
+                                name="password_confirmation"
+                                label="Şifre Tekrar*"
+                                variant="outlined"
+                                type="password"
+                                onChange={formChange}
+                            />
+                            {ValidateError(errors, "password_confirmation")}
+                        </div>
+                        <div className="col-12">
+                            {loading ? (
+                                 <Loading style={"m-height"}/>
+                            ) : (
+                                <button
+                                    type="submit"
+                                    className="hiraola-register_btn"
+                                >
+                                    Oluştur
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
-            </div>
-            {/* <!-- Hiraola's Login Register Area  End Here --></> */}
+            </form>
         </>
     );
 }

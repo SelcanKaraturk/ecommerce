@@ -4,6 +4,7 @@ import { getWishList, destroyWish } from "../../services/WebService";
 import { useAuth } from "../../services/AuthContex";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import Loading from "../../layouts/GeneralComponents/Loading";
 
 function WishList() {
     const { accessToken } = useAuth();
@@ -62,11 +63,7 @@ function WishList() {
     return (
         <>
             {load ? (
-                <div className="loading-spinner">
-                    <div className="spinner-border text-dark" role="status">
-                        <span className="sr-only">Loading...</span>
-                    </div>
-                </div>
+                <Loading/>
             ) : (
                 <>
                     {/* <!--Begin Hiraola's Wishlist Area --> */}
@@ -127,6 +124,11 @@ function WishList() {
                                                                                     minimumFractionDigits: 2,
                                                                                 }
                                                                             )} ₺`}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td className="hiraola-product-name border-0">
+                                                                        <span className="amount">
+                                                                            {e.stock_color}
                                                                         </span>
                                                                     </td>
                                                                     <td className="hiraola-product-stock-status border-0">

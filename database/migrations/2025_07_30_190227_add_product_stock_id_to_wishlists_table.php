@@ -12,12 +12,9 @@ return new class extends Migration {
      */
     public function up()
     {
-        Schema::create('wishlists', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->decimal('price',10,2)->nullable();
-            $table->timestamps();
+        Schema::table('wishlists', function (Blueprint $table) {
+            $table->unsignedBigInteger('product_stock_id')->nullable()->after('product_id');
+            $table->foreign('product_stock_id')->references('id')->on('product_stocks')->onDelete('cascade');
         });
     }
 
@@ -28,6 +25,8 @@ return new class extends Migration {
      */
     public function down()
     {
-        Schema::dropIfExists('wishlists');
+        Schema::table('wishlists', function (Blueprint $table) {
+            //
+        });
     }
 };

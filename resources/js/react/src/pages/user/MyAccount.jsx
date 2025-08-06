@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 
 function MyAccount() {
     const navigate = useNavigate();
-    const { setAccessToken, setCurrentUser, currentUser, logout } = useAuth();
+    const { setAccessToken, setCurrentUser, currentUser, logout, setCart } = useAuth();
 
      useEffect(() => {
         currentUser? console.log(currentUser) : '';
@@ -21,6 +21,7 @@ function MyAccount() {
             setCurrentUser('');
             setAccessToken(null);
             localStorage.setItem('currentToken', null);
+            setCart([]);
             toast.success(res.data.message);
             navigate('/login')
           }
@@ -139,12 +140,7 @@ function MyAccount() {
                                     >
                                         <div className="myaccount-dashboard">
                                             <p>
-                                                Hello <b>Edwin Adams</b> (not
-                                                Edwin Adams?{" "}
-                                                <a href="login-register.html">
-                                                    Sign out
-                                                </a>
-                                                )
+                                                Hello <b>{currentUser?.name}</b>
                                             </p>
                                             <p>
                                                 From your account dashboard you

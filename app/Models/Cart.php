@@ -8,9 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class Cart extends Model
 {
     use HasFactory;
-    protected $guarded = ['id'];
-
+    public $incrementing = false;      // otomatik artan sayı olmasın
+    protected $keyType = 'string';     // primary key string (UUID) tipinde
+    protected $fillable = ['user_id'];
     public function cartItems(){
         return $this->hasMany(CartItem::class);
+    }
+     public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

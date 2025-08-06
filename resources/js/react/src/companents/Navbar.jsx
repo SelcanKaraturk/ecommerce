@@ -1,9 +1,26 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./css/Navbar.css";
-import { NavLink, Outlet, Link } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../services/AuthContex";
+import { Badge } from "@mui/material";
 
 function Navbar() {
 
+    const { accessToken, cart, miniCart, setMiniCart } = useAuth();
+    const navigate = useNavigate();
+    const subTotal = (cartList) => {
+        return cartList.reduce((total, item) => {
+            return total + item.quantity * item.product_price;
+        }, 0);
+    };
+    const handleCheckout = () => {
+        navigate("/tr/checkout", {
+            state: {
+                cartList: cart,
+                totalPrice: subTotal(cart),
+            },
+        });
+    };
     return (
         <header className="header-main_area header-main_area-2">
             <div className="header-bottom_area header-bottom_area-2 header-sticky stick">
@@ -150,7 +167,7 @@ function Navbar() {
                                                 <li className="menu-item_img"></li>
                                             </ul>
                                         </li>
-                                         <li className="megamenu-holder">
+                                        <li className="megamenu-holder">
                                             <NavLink to="/tr/pirlanta">
                                                 Pırlanta
                                             </NavLink>
@@ -277,11 +294,15 @@ function Navbar() {
                                                 <li className="menu-item_img"></li>
                                             </ul>
                                         </li>
-                                         <li>
-                                            <NavLink to="/tr/hakkimizda">Hakkımızda</NavLink>
+                                        <li>
+                                            <NavLink to="/tr/hakkimizda">
+                                                Hakkımızda
+                                            </NavLink>
                                         </li>
                                         <li>
-                                            <NavLink to="/tr/iletisim">İLETİŞİM</NavLink>
+                                            <NavLink to="/tr/iletisim">
+                                                İLETİŞİM
+                                            </NavLink>
                                         </li>
                                     </ul>
                                 </nav>
@@ -291,10 +312,12 @@ function Navbar() {
                             <div className="header-right_area">
                                 <ul>
                                     <li>
-                                        <Link className="wishlist-btn" to="/me/wishlist">
+                                        <Link
+                                            className="wishlist-btn"
+                                            to="/me/wishlist"
+                                        >
                                             <i className="ion-android-favorite-outline"></i>
                                         </Link>
-
                                     </li>
                                     <li>
                                         <a
@@ -313,17 +336,31 @@ function Navbar() {
                                         </a>
                                     </li>
                                     <li>
-                                        <Link className="minicart-btn toolbar-btn" to={'/me/cart'}>
-                                            <i className="ion-bag"></i>
-                                        </Link>
-
+                                        <a
+                                            className="minicart-btn toolbar-btn "
+                                            onClick={() =>
+                                                setMiniCart(!miniCart)
+                                            }
+                                        >
+                                            {cart?.length > 0 ? (
+                                                <Badge
+                                                    badgeContent={cart.length}
+                                                >
+                                                    <i className="ion-bag"></i>
+                                                </Badge>
+                                            ) : (
+                                                <i className="ion-bag"></i>
+                                            )}
+                                        </a>
                                     </li>
-                                     <li>
-                                        <Link className="minicart-btn toolbar-btn" to={'/me'}>
+                                    <li>
+                                        <Link
+                                            className="minicart-btn toolbar-btn"
+                                            to={"/me"}
+                                        >
                                             <i className="ion-android-person"></i>
                                         </Link>
                                     </li>
-
                                 </ul>
                             </div>
                         </div>
@@ -352,111 +389,78 @@ function Navbar() {
                     </div>
                 </div>
             </div>
-            <div className="offcanvas-minicart_wrapper" id="miniCart">
+            <div
+                className={`offcanvas-minicart_wrapper ${
+                    miniCart ? "open" : ""
+                }`}
+                id="miniCart"
+            >
                 <div className="offcanvas-menu-inner">
-                    <a href="#" className="btn-close">
+                    <a onClick={() => setMiniCart(false)} className="btn-close">
                         <i className="ion-android-close"></i>
                     </a>
                     <div className="minicart-content">
                         <div className="minicart-heading">
-                            <h4>Shopping Cart</h4>
+                            <h4>Sepet Özeti</h4>
                         </div>
                         <ul className="minicart-list">
-                            <li className="minicart-product">
-                                <a
-                                    className="product-item_remove"
-                                    href="javascript:void(0)"
-                                >
-                                    <i className="ion-android-close"></i>
-                                </a>
-                                <div className="product-item_img">
-                                    <img
-                                        src="/src/assets/images/product/small-size/2-1.jpg"
-                                        alt="Hiraola's Product Image"
-                                    />
-                                </div>
-                                <div className="product-item_content">
-                                    <a
-                                        className="product-item_title"
-                                        href="shop-left-sidebar.html"
+                            {cart?.length > 0 &&
+                                cart.map((item, index) => (
+
+                                    <li
+
+                                        className="minicart-product"
+                                        key={`${item.product_slug}-${index}`}
                                     >
-                                        Pendant, Made of White Pl...
-                                    </a>
-                                    <span className="product-item_quantity">
-                                        1 x $120.80
-                                    </span>
-                                </div>
-                            </li>
-                            <li className="minicart-product">
-                                <a
-                                    className="product-item_remove"
-                                    href="javascript:void(0)"
-                                >
-                                    <i className="ion-android-close"></i>
-                                </a>
-                                <div className="product-item_img">
-                                    <img
-                                        src="/src/assets/images/product/small-size/2-2.jpg"
-                                        alt="Hiraola's Product Image"
-                                    />
-                                </div>
-                                <div className="product-item_content">
-                                    <a
-                                        className="product-item_title"
-                                        href="shop-left-sidebar.html"
-                                    >
-                                        Pendant, Made of White Pl...
-                                    </a>
-                                    <span className="product-item_quantity">
-                                        1 x $120.80
-                                    </span>
-                                </div>
-                            </li>
-                            <li className="minicart-product">
-                                <a
-                                    className="product-item_remove"
-                                    href="javascript:void(0)"
-                                >
-                                    <i className="ion-android-close"></i>
-                                </a>
-                                <div className="product-item_img">
-                                    <img
-                                        src="/src/assets/images/product/small-size/2-3.jpg"
-                                        alt="Hiraola's Product Image"
-                                    />
-                                </div>
-                                <div className="product-item_content">
-                                    <a
-                                        className="product-item_title"
-                                        href="shop-left-sidebar.html"
-                                    >
-                                        Pendant, Made of White Pl...
-                                    </a>
-                                    <span className="product-item_quantity">
-                                        1 x $120.80
-                                    </span>
-                                </div>
-                            </li>
+
+                                        <div className="product-item_img">
+                                            <img
+                                                 src={item.product_images?.[0]}
+                                                alt="Hiraola's Product Image"
+                                            />
+                                        </div>
+                                        <div className="product-item_content">
+                                            <a className="product-item_title">
+                                                {item.product_name || "Ürün adı"}
+                                            </a>
+                                            <span className="product-item_quantity pt-0">
+                                                {`${item.quantity} x ${item?.product_price?.toLocaleString(
+                                                    "tr-TR",
+                                                    {
+                                                        minimumFractionDigits: 2,
+                                                    }
+                                                )} ₺`}
+                                            </span>
+                                            <span className="cart_variant"><i>Renk:</i> {item.color} - <i>Size:</i> {item.size}</span>
+                                        </div>
+                                    </li>
+                                ))}
                         </ul>
                     </div>
                     <div className="minicart-item_total">
-                        <span>Subtotal</span>
-                        <span className="ammount">$360.00</span>
+                        <span>Ara Toplam</span>
+                        <span className="ammount">
+                            {cart &&
+                                subTotal(cart).toLocaleString("tr-TR", {
+                                    minimumFractionDigits: 2,
+                                })}
+                            {" ₺"}
+                        </span>
+                    </div>
+                    <div className="minicart-btn_area">
+                        <Link
+                            to="/tr/sepet"
+                            className="hiraola-btn hiraola-btn_dark hiraola-btn_fullwidth"
+                        >
+                            Sepete Git
+                        </Link>
                     </div>
                     <div className="minicart-btn_area">
                         <a
-                            href="cart.html"
+                            onClick={handleCheckout}
                             className="hiraola-btn hiraola-btn_dark hiraola-btn_fullwidth"
                         >
-                            Minicart
-                        </a>
-                    </div>
-                    <div className="minicart-btn_area">
-                        <a
-                            href="checkout.html"
-                            className="hiraola-btn hiraola-btn_dark hiraola-btn_fullwidth"
-                        >
-                            Checkout
+                            Siparişi Tamamla
                         </a>
                     </div>
                 </div>

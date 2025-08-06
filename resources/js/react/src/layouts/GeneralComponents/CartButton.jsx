@@ -3,50 +3,40 @@ import { useNavigate } from "react-router-dom";
 import { addCartToList } from "../../services/WebService";
 import { toast } from "react-toastify";
 import { useAuth } from "../../services/AuthContex";
+import { CircularProgress } from "@mui/material";
 
-function CartButton({ product, handleCartClick }) {
-    const { errorShow, accessToken } = useAuth();
+function CartButton({ product, handleCartClick, productVarients }) {
+    const { errorShow, accessToken, cart, setCart, setMiniCart } = useAuth();
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    // useEffect(() => {
-    //     console.log(product);
-    // }, [product]);
     const addCart = async (e) => {
-        if (!accessToken) {
-            navigate("/login#signIn");
-            const error = { response: { data: "", status: 401 } };
-            errorShow(error);
-        } else {
+        setLoading(true);
             e.preventDefault();
-            setLoading(true);
             try {
-                const { data } = await addCartToList(product.slug, accessToken);
+                const { data } = await addCartToList(product.product_number, productVarients.id);
+                const response = data.original.data;
                 if (data.status === "error") {
                     toast.error(data.message);
-                } else if (data.status === "removed") {
-                    toast.info(data.message);
-                     handleCartClick({slug:product.slug, inCart:false});
-                } else if (data.status === "added") {
-                    toast.success(data.message);
-                    handleCartClick({slug:product.slug, inCart:true});
+                }else{
+                    toast.success(data.original.message);
+                    setCart(response);
                 }
-                setLoading(false);
+                setMiniCart(true);
             } catch (error) {
                 console.log(error);
                 setLoading(false);
+                setMiniCart(false);
             }
-        }
-    };
 
+        setLoading(false);
+        setMiniCart(true);
+    };
+    // console.log(productVarients)
     return (
         <>
             {loading ? (
-                <div className="mt-3">
-                    <div className="spinner-border text-dark" role="status">
-                        <span className="sr-only">Loading...</span>
-                    </div>
-                </div>
+                <CircularProgress size="sm" />
             ) : (
                 <a
                     style={{
@@ -55,7 +45,11 @@ function CartButton({ product, handleCartClick }) {
                     className="qty-cart_btn"
                     onClick={addCart}
                 >
-                    {product && product.in_carts_exists
+                    {product &&
+                    (product.in_carts_exists ||
+                        (cart.length > 0 &&
+                            cart.find((i) => i.product_number === product.product_number &&  i.stock_number === productVarients?.id)
+                        ))
                         ? "Sepetten Çıkar"
                         : "Sepete Ekle"}
                 </a>

@@ -196,57 +196,6 @@
     );
 
     /*----------------------------------------*/
-    /*  Nice Select
-/*----------------------------------------*/
-    $('.nice-select').niceSelect();
-    /*----------------------------------------*/
-    /*  Hiraola's Product Slider
-/*----------------------------------------*/
-    // $('.hiraola-product_slider').slick({
-    //     infinite: true,
-    //     arrows: true,
-    //     dots: false,
-    //     speed: 2000,
-    //     slidesToShow: 5,
-    //     slidesToScroll: 1,
-    //     prevArrow:
-    //         '<button class="slick-prev"><i class="ion-ios-arrow-back"></i></button>',
-    //     nextArrow:
-    //         '<button class="slick-next"><i class="ion-ios-arrow-forward"></i></button>',
-    //     responsive: [
-    //         {
-    //             breakpoint: 1501,
-    //             settings: {
-    //                 slidesToShow: 5,
-    //             },
-    //         },
-    //         {
-    //             breakpoint: 1200,
-    //             settings: {
-    //                 slidesToShow: 4,
-    //             },
-    //         },
-    //         {
-    //             breakpoint: 992,
-    //             settings: {
-    //                 slidesToShow: 3,
-    //             },
-    //         },
-    //         {
-    //             breakpoint: 768,
-    //             settings: {
-    //                 slidesToShow: 2,
-    //             },
-    //         },
-    //         {
-    //             breakpoint: 575,
-    //             settings: {
-    //                 slidesToShow: 1,
-    //             },
-    //         },
-    //     ],
-    // });
-    /*----------------------------------------*/
     /*  Hiraola's Product Slider Two
 /*----------------------------------------*/
     // $('.hiraola-product_slider-2').slick({

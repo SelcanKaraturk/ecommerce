@@ -1,6 +1,5 @@
 import AppRoutes from "./routes/AppRoutes";
 import { AuthProvider } from "./services/AuthContex";
-import { Toaster } from "react-hot-toast";
 import { ToastContainer } from 'react-toastify';
 // import $ from "jquery";
 // window.$ = $;
@@ -13,7 +12,7 @@ function App() {
             <AuthProvider>
                 <AppRoutes />
                 <ToastContainer
-                    position="top-right"
+                    position="top-center"
                     autoClose={3000}
                     hideProgressBar={false}
                     newestOnTop={false}

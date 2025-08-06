@@ -385,3 +385,9 @@
 .header-bottom_area.header-bottom_area-2 .container-fliud .header-right_area > ul > li > a:hover {
   color: #cda557 !important;
 }
+.minicart-btn .MuiBadge-badge{
+    background-color: #bfa133;
+    color: #fff;
+    height: 18px;
+    font-size: 0.70em;
+}

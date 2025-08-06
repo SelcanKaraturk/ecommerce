@@ -14,6 +14,7 @@ import GuestRoute from "./GuestRoute";
 import WishList from "../pages/user/WishList";
 import ProductDetail from "../pages/products/ProductDetail";
 import Cart from "../pages/user/Cart";
+import Checkout from "../pages/Checkout";
 
 
 function AppRoutes() {
@@ -28,6 +29,8 @@ function AppRoutes() {
                     <Route path=":category/:slug" element={<ProductDetail />} />
                     <Route path="hakkimizda" element={<AboutUs />} />
                     <Route path="iletisim" element={<Contact />} />
+                    <Route path="checkout" element={<Checkout />} />
+                    <Route path="sepet" element={<Cart/>}/>
                 </Route>
             </Route>
 
@@ -35,16 +38,12 @@ function AppRoutes() {
             <Route element={<MainLayout />}>
 
                 <Route path="login" element={<Login/>} />  {/* <GuestRoute><Login/></GuestRoute> */}
-
-
                 <Route path="register" element={<Register />} />
                 <Route path="logout" element={<Navigate to="/tr" />} />
 
                  <Route path="/me" element={<PrivateRoutes roles={["user"]} />} >
                     <Route index element={<MyAccount />} />
                     <Route path="wishlist" element={<WishList/>}/>
-
-                    <Route path="cart" element={<Cart/>}/>
                 </Route>
             </Route>
         </Routes>

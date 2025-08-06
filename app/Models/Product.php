@@ -31,6 +31,16 @@ class Product extends Model
     {
         return $this->hasMany(CartItem::class, 'product_id');
     }
+    public function stock()
+    {
+        return $this->hasMany(ProductStock::class, 'product_id');
+    }
+    public function groupedStock()
+    {
+        return $this->stock()
+            ->selectRaw('product_id, color')
+            ->groupBy('color');
+    }
 
     protected $casts = [
         'images' => 'array',
@@ -42,7 +52,6 @@ class Product extends Model
         return 'slug';
     }
     protected $hidden = [
-        'id',
-        'category_id'
+        
     ];
 }

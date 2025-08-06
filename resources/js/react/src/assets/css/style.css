@@ -55,7 +55,7 @@ INDEX:
 /*  00 - Base - Typography
 /*----------------------------------------*/
 body {
-    font-family: "Lato", sans-serif;
+    font-family: "Poppins", sans-serif;
     background-color: #ffffff;
     color: #595959;
     font-size: 16px;
@@ -68,14 +68,14 @@ h3,
 h4,
 h5,
 h6 {
-    font-family: "Lato", sans-serif;
+    font-family: "Poppins", sans-serif;
     color: #333333;
     line-height: 1;
     font-weight: 700;
 }
 
 p {
-    font-family: "Lato", sans-serif;
+    font-family: "Poppins", sans-serif;
     color: #595959;
     font-size: 16px;
     line-height: 24px;
@@ -174,11 +174,16 @@ button {
     outline: none;
     background: transparent;
 }
-.loading-spinner{
+.loading-spinner {
     min-height: calc(50vh - 86px);
     display: flex;
     justify-content: center;
     align-items: center;
+}
+.loading-spinner.m-height {
+    min-height: auto;
+    justify-content: start;
+    margin-top: 20px;
 }
 /* ---Alista's Blog Section Default Youtube & Soundcloud Height--- */
 .blog-grid-view_area .embed-responsive {
@@ -399,7 +404,7 @@ button {
     margin-left: 30px;
     outline: none;
 } */
- /* .sp-img_area.product-detail .slick-slide{
+/* .sp-img_area.product-detail .slick-slide{
     width: 80px !important;
     height: 80px !important;
  } */
@@ -413,19 +418,19 @@ button {
 .sp-img_area.product-detail .slick-track {
     margin-left: 0;
 }
-.sp-img_area.product-detail .slick-slide > div img{
+.sp-img_area.product-detail .slick-slide > div img {
     width: 100% !important;
     height: 100%;
     object-fit: cover;
     object-position: center;
 }
-.slick-slider .slick-arrow::before{
+.slick-slider .slick-arrow::before {
     content: "";
 }
-.slick-dots li.slick-active button:before{
+.slick-dots li.slick-active button:before {
     color: transparent !important;
 }
-.slick-dots li button:before{
+.slick-dots li button:before {
     color: transparent !important;
 }
 /* ---Only For Single Product Page | Spacing Between Slide Item--- */
@@ -440,6 +445,11 @@ button {
 .hiraola-product_slider .slick-slide div:first-child .slide-item,
 .hiraola-product-tab_slider-3 .slick-slide div:first-child .slide-item {
     margin-bottom: 30px;
+}
+
+.hiraola-product-remove .MuiCircularProgress-root {
+    width: 15px;
+    height: 15px;
 }
 
 /* ---Tab Content & Pane Fix--- */
@@ -588,6 +598,9 @@ button {
     text-align: center;
     width: 28px;
     line-height: 21px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .quantity .cart-plus-minus > .qtybutton:hover {
     background: #ebebeb;
@@ -1493,7 +1506,8 @@ button.li-btn,
     > a:hover {
     background-color: #be8658;
 }
-.hiraola-product_slider-3 .slide-item, .hiraola-product-tab_area-2.tabs .slick-slide > div {
+.hiraola-product_slider-3 .slide-item,
+.hiraola-product-tab_area-2.tabs .slick-slide > div {
     padding: 0 15px;
 }
 .template-color-2 .hiraola-product_slider .slick-arrow:hover,
@@ -1651,7 +1665,7 @@ button.li-btn,
 .template-color-2 .footer-bottom_area .footer-bottom_nav .copyright > span > a {
     color: #be8658;
 }
-.template-color-2 #scrollUp i{
+.template-color-2 #scrollUp i {
     margin-top: 16px;
 }
 .template-color-2 #scrollUp {
@@ -1781,8 +1795,8 @@ button.li-btn,
 .template-color-2 .sp-gallery_area .sp-nav .sp-gallery .lg-image:hover {
     outline: 1px solid #be8658;
 }
-.header-main_area .header-logo img{
-    height: 70%;
+.header-main_area .header-logo img {
+    height: 80%;
     margin-top: 3px;
 }
 /*----------------------------------------*/
@@ -1862,7 +1876,6 @@ button.li-btn:hover {
     line-height: 45px;
     display: block;
     text-align: center;
-    text-transform: uppercase;
 }
 @media (max-width: 767px) {
     .hiraola-btn,
@@ -1915,7 +1928,6 @@ button.li-btn:hover {
 .hiraola-btn_fullwidth {
     width: 100%;
     color: #ffffff;
-    text-transform: uppercase;
 }
 
 .hiraola-btn_sm {
@@ -2318,7 +2330,7 @@ button.li-btn:hover {
 .brand-slider .slick-arrow:hover {
     background-color: #f0f0f0;
 }
-.sp-img_slider .slick-arrow:hover{
+.sp-img_slider .slick-arrow:hover {
     color: #cda557;
 }
 .main-slider .slick-next,
@@ -2945,7 +2957,7 @@ button.li-btn:hover {
 .offcanvas-minicart_wrapper .offcanvas-menu-inner .btn-close {
     background: transparent;
     color: #595959;
-    top: 0;
+    top: 16px;
     right: 0;
     left: auto;
 }
@@ -2961,7 +2973,8 @@ button.li-btn:hover {
     .offcanvas-menu-inner
     .minicart-content
     .minicart-list {
-    max-height: 310px;
+    max-height: 330px;
+    min-height: 300px;
     position: relative;
     overflow: auto;
 }
@@ -3043,6 +3056,23 @@ button.li-btn:hover {
     display: block;
     padding-top: 10px;
 }
+.offcanvas-minicart_wrapper
+    .offcanvas-menu-inner
+    .minicart-content
+    .minicart-list
+    > li span.cart_variant{
+        font-size: small;
+    }
+.offcanvas-minicart_wrapper
+    .offcanvas-menu-inner
+    .minicart-content
+    .minicart-list
+    > li span.cart_variant i{
+    color: #333;
+    font-style: normal;
+    font-weight: 600;
+    }
+
 .offcanvas-minicart_wrapper .offcanvas-menu-inner .minicart-item_total {
     display: -webkit-box;
     display: -webkit-flex;
@@ -3686,8 +3716,18 @@ button.li-btn:hover {
 .shop-product-wrap .slide-item .single_product .product-img > a {
     display: block;
 }
-.hiraola-product_slider-3 .slide-item .single_product .product-img > a .secondary-img,
-.hiraola-product-tab_slider-2 .slide-item .single_product .product-img > a .secondary-img{
+.hiraola-product_slider-3
+    .slide-item
+    .single_product
+    .product-img
+    > a
+    .secondary-img,
+.hiraola-product-tab_slider-2
+    .slide-item
+    .single_product
+    .product-img
+    > a
+    .secondary-img {
     height: 100%;
     object-fit: cover;
     object-position: center;
@@ -6923,17 +6963,49 @@ button.li-btn:hover {
 .sp-area .sp-nav .sp-content .hiraola-countdown {
     padding: 30px 0 0;
 }
+.product-size_box .MuiButtonBase-root {
+    border: none;
+    height: 34px;
+    padding: 5px;
+}
+.product-size_box .MuiButtonBase-root.Mui-selected {
+    border-radius: 50%;
+    padding: 2px;
+    background-color: #d3d3d3 !important;
+    border: 1px solid #e5e5e5;
+    box-shadow: 0 0 0 3px rgb(226 226 226 / 40%), 0 0 5px rgb(246 246 246 / 20%);
+}
+.product-size_box .MuiButtonBase-root img {
+    width: 26px;
+}
+.sp-area .sp-nav .sp-content .text-small {
+    font-size: 12px;
+    color: #333333;
+    line-height: 17px;
+    margin: 10px 0;
+}
+
 .sp-area .sp-nav .sp-content .product-size_box {
-    display: -webkit-box;
+    /* display: -webkit-box;
     display: -webkit-flex;
     display: -ms-flexbox;
-    display: flex;
+    display: flex; */
     -webkit-box-align: center;
     -webkit-align-items: center;
     -ms-flex-align: center;
     align-items: center;
-    padding-top: 25px;
+    padding-top: 7px;
 }
+.sp-area .sp-nav .sp-content .product-size_box .basic-single{
+    width: 150px;
+}
+.sp-area .sp-nav .sp-content .product-size_box .basic-single .select__control--is-focused{
+
+    outline: none;
+    border-color: #595959;
+    box-shadow: none;
+}
+
 .sp-area .sp-nav .sp-content .product-size_box > span {
     padding-right: 15px;
 }
@@ -8417,7 +8489,9 @@ button.li-btn:hover {
 .hiraola-login-register_area {
     padding: 80px 0;
 }
-
+.hiraola-login-register_area .MuiBox-root {
+    padding: 0;
+}
 @media (max-width: 991px) {
     [class*="col-"]:first-child form .login-form {
         margin-bottom: 30px;
@@ -8430,10 +8504,10 @@ button.li-btn:hover {
     -webkit-box-shadow: 1px 1px 5px 5px rgba(0, 0, 0, 0.1);
     box-shadow: 1px 1px 5px 5px rgba(0, 0, 0, 0.1);
 }
+
 .login-form .login-title {
     font-size: 20px;
     line-height: 23px;
-    text-transform: capitalize;
     font-weight: 700;
     margin-bottom: 0;
     padding-bottom: 20px;
@@ -8443,9 +8517,23 @@ button.li-btn:hover {
     font-size: 14px;
     margin-bottom: 12px;
     font-weight: 500;
-    text-transform: capitalize;
 }
-.login-form input {
+.login-form .MuiFormControl-root {
+    width: 100%;
+}
+.login-form .MuiFormControl-root input {
+    padding: 10.5px 14px;
+}
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: #888888 !important;
+}
+.MuiInputLabel-root.Mui-focused {
+    color: #888888 !important;
+}
+.login-form .MuiFormControl-root .MuiFormLabel-root {
+    line-height: 1em;
+}
+/* .login-form input {
     width: 100%;
     background-color: transparent;
     border: 1px solid #e5e5e5;
@@ -8455,7 +8543,7 @@ button.li-btn:hover {
     font-size: 14px;
     color: #888888;
     margin-bottom: 15px;
-}
+} */
 .login-form input[type="checkbox"] {
     width: auto;
 }
@@ -8528,7 +8616,7 @@ button.li-btn:hover {
     height: 40px;
     line-height: 40px;
     border: 0;
-    text-transform: uppercase;
+    font-family: "Poppins", sans-serif;
 }
 @media (max-width: 767px) {
     .hiraola-login_btn,
@@ -8552,7 +8640,7 @@ button.li-btn:hover {
     padding: 80px 0;
 }
 
-.hiraola-wishlist_area .table-content td{
+.hiraola-wishlist_area .table-content td {
     border: none;
 }
 
@@ -8617,11 +8705,17 @@ button.li-btn:hover {
     -o-transition: all 0.3s ease-in-out;
     transition: all 0.3s ease-in-out;
 }
-.table-content table td.hiraola-product-thumbnail img{
+.table-content table td.hiraola-product-thumbnail img {
     width: 90px;
     height: 115px;
     object-fit: cover;
     object-position: center;
+}
+.table-content table td .click{
+    cursor: pointer;
+}
+.table-content table td span{
+    color: #595959;
 }
 .table-content table td.hiraola-product-name {
     font-size: 16px;
@@ -8641,7 +8735,7 @@ button.li-btn:hover {
 .table-content table td.hiraola-product-stock-status span.out-stock {
     color: #ea3a3c;
 }
-.table-content table td.hiraola-cart_btn span.inCart{
+.table-content table td.hiraola-cart_btn span.inCart {
     color: #bfa133;
     font-weight: 700;
 }
@@ -8678,6 +8772,22 @@ button.li-btn:hover {
 .table-content table td.quantity .cart-plus-minus {
     margin: 0 auto;
 }
+.table-content table {
+    border: none;
+}
+.table-content table tbody {
+    border: 1px solid #e5e5e5;
+}
+.table-content table td,
+.table-content table th {
+    border: none;
+}
+.table-content table thead tr th.total-count {
+    color: #595959;
+    font-weight: 700;
+    text-align: start;
+    padding: 20px 0;
+}
 
 @media (max-width: 767px) {
     .hiraola-cart-area .table-content table td:nth-child(3) {
@@ -8697,7 +8807,7 @@ button.li-btn:hover {
     font-size: 13px;
     border-radius: 0;
     height: 42px;
-    width: 120px;
+    width: 160px;
     padding: 0 10px;
 }
 .coupon-all .coupon input.button,
@@ -8734,7 +8844,7 @@ button.li-btn:hover {
 }
 
 .cart-page-total {
-    padding-top: 30px;
+    padding-top: 12px;
 }
 .cart-page-total > h2 {
     font-size: 25px;
@@ -8902,8 +9012,14 @@ button.li-btn:hover {
 }
 
 .coupon-checkout-content {
-    margin-bottom: 30px;
-    display: none;
+    max-height: 0;
+    visibility: hidden;
+    overflow: hidden;
+    transition: all 1.5s ease-in-out;
+}
+.coupon-checkout-content.active {
+    max-height: 500px; /* yeterli bir yükseklik */
+    visibility: inherit;
 }
 .coupon-checkout-content .coupon-info .checkout-coupon {
     margin-bottom: 0;
@@ -8947,7 +9063,6 @@ button.li-btn:hover {
     font-size: 25px;
     margin: 0 0 25px;
     padding-bottom: 10px;
-    text-transform: uppercase;
     width: 100%;
 }
 @media (max-width: 479px) {
@@ -8977,6 +9092,7 @@ button.li-btn:hover {
     height: 42px;
     width: 100%;
     padding: 0 0 0 10px;
+    font-family: "Lato", sans-serif;
 }
 .checkbox-form .checkout-form-list input[type="checkbox"] {
     display: inline-block;
@@ -8985,6 +9101,21 @@ button.li-btn:hover {
     position: relative;
     top: 2px;
     width: inherit;
+}
+.checkout-form-list.create-account {
+    max-height: 0;
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.9s ease-in-out, opacity 0.9s ease-in-out,
+        max-height 0.9s ease-in-out;
+    opacity: 0;
+    height: auto;
+}
+
+.checkout-form-list.create-account.active {
+    transform: scaleY(1);
+    opacity: 1;
+    max-height: 500px;
 }
 .checkbox-form .checkout-form-list.create-acc {
     margin-bottom: 15px !important;
@@ -9043,7 +9174,6 @@ button.li-btn:hover {
     width: 100%;
 }
 
-.create-account,
 #ship-box-info {
     display: none;
 }
@@ -9056,7 +9186,6 @@ button.li-btn:hover {
     border-bottom: 1px solid #e5e5e5;
     font-size: 25px;
     padding-bottom: 10px;
-    text-transform: uppercase;
     width: 100%;
 }
 @media (max-width: 479px) {
@@ -9086,7 +9215,7 @@ button.li-btn:hover {
     border-right: medium none;
     font-size: 14px;
     padding: 15px 0;
-    text-align: center;
+    text-align: start;
 }
 .your-order .your-order-table table .cart_item:hover {
     background: #f4f4f4;
@@ -9140,7 +9269,6 @@ button.li-btn:hover {
     height: 50px;
     margin: 20px 0 0;
     padding: 0;
-    text-transform: uppercase;
     width: 100%;
     border: 1px solid transparent;
     cursor: pointer;

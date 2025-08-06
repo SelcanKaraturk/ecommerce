@@ -1,37 +1,70 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { getUser, logout as apiLogout } from "../services/AuthService";
-import { useNavigate } from "react-router-dom";
-import {toast} from "react-toastify";
+import { toast } from "react-toastify";
 import { ErrorServices } from "./ErrorServices";
 import api, { getConfig } from "./api";
-import axios from "axios";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
-    const [accessToken, setAccessToken] = useState(()=>localStorage.getItem('currentToken'));
+    const [accessToken, setAccessToken] = useState(() =>
+        localStorage.getItem("currentToken")
+    );
     const [currentUser, setCurrentUser] = useState(null);
+    const [cart, setCart] = useState([]);
+    const [miniCart, setMiniCart] = useState(false);
 
     useEffect(() => {
-        const fetchCurrentlyLoggedInUser = async() => {
+        const fetchCurrentlyLoggedInUser = async () => {
             try {
-                        const res = await api.get('api/me', getConfig(accessToken));
-                        setCurrentUser(res?.data?.user);
-                        //console.log(res?.data?.user);
-                    } catch (error) {
-                        console.log(error);
-                        if(error.response.status === 401){
-                            localStorage.removeItem('currentToken');
-                            setCurrentUser(null);
-                            setAccessToken('');
-                        }
+                const res = await api.get("api/me", getConfig(accessToken));
+                setCurrentUser(res?.data?.user);
+                //console.log(res?.data?.user);
+            } catch (error) {
+                console.log(error);
+                if (error.response.status === 401) {
+                    localStorage.removeItem("currentToken");
+                    setCurrentUser(null);
+                    setAccessToken("");
+                }
+            }
+        };
 
-                    }
+        const fetchUserCart = async () => {
+            try {
+                const {data} = await api.get(
+                    "api/me/cart",
+                    getConfig(accessToken)
+                );
+                setCart(data);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
+        if (accessToken != null) {
+            fetchCurrentlyLoggedInUser();
+            fetchUserCart();
         }
-        if(accessToken != null) fetchCurrentlyLoggedInUser();
     }, [accessToken]);
 
+    useEffect(() => {
+        console.log(cart);
+    }, [cart]);
+
+    useEffect(() => {
+        const fetchCart = async () => {
+            try {
+                const { data } = await api.get("api/cart");
+                setCart(data);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        if (accessToken == null) {
+            fetchCart();
+        }
+    }, []);
 
     const errorShow = (err) => {
         const message = ErrorServices(err);
@@ -44,8 +77,6 @@ export const AuthProvider = ({ children }) => {
     };
 
     const login = async (credentials) => {
-        //const deneme = await getCsrfCookie();
-        //console.log(deneme);
         return await api.post("/api/login", credentials); // withCredentials zaten global ayarda var
     };
 
@@ -67,7 +98,7 @@ export const AuthProvider = ({ children }) => {
     // };
 
     const logout = async () => {
-       return await api.post('/api/me/logout', {}, getConfig(accessToken));
+        return await api.post("/api/me/logout", {}, getConfig(accessToken));
     };
 
     return (
@@ -82,7 +113,11 @@ export const AuthProvider = ({ children }) => {
                 accessToken,
                 setAccessToken,
                 currentUser,
-                setCurrentUser
+                setCurrentUser,
+                cart,
+                setCart,
+                miniCart,
+                setMiniCart,
             }}
         >
             {children}
