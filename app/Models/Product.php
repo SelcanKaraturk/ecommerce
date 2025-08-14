@@ -41,6 +41,12 @@ class Product extends Model
             ->selectRaw('product_id, color')
             ->groupBy('color');
     }
+     public function groupedStockById()
+    {
+        return $this->stock()
+            ->selectRaw('product_id, SUM(stock) as stock')
+            ->groupBy('product_id');
+    }
 
     protected $casts = [
         'images' => 'array',
@@ -52,6 +58,6 @@ class Product extends Model
         return 'slug';
     }
     protected $hidden = [
-        
+
     ];
 }

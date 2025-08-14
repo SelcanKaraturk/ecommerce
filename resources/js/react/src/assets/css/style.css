@@ -51,6 +51,7 @@ INDEX:
 
 */
 @import url("https://fonts.googleapis.com/css?family=Dancing+Script:400,700|Lato:300,300i,400,400i,700,700i,900,900i|Pacifico");
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 /*----------------------------------------*/
 /*  00 - Base - Typography
 /*----------------------------------------*/
@@ -985,7 +986,7 @@ button.li-btn,
 }
 
 /* ---Hiraola's Image Hover Effect--- */
-.img-hover_effect {
+/* .img-hover_effect {
     position: relative;
     display: block;
 }
@@ -1030,7 +1031,7 @@ button.li-btn,
     -webkit-transition: all 900ms ease-in;
     -o-transition: all 900ms ease-in;
     transition: all 900ms ease-in;
-}
+} */
 
 /* ---Uren's Newsletters Popup--- */
 .popup_wrapper {
@@ -1273,10 +1274,10 @@ button.li-btn,
     /* ---Single Product Gallery Outline Color--- */
 }
 .template-color-2 a.hiraola-btn {
-    background-color: #be8658;
+    background-color: #cda557;
 }
 .template-color-2 a.hiraola-btn:hover {
-    background-color: #c89972;
+    background-color: #b08a3e;
     color: #ffffff !important;
 }
 .template-color-2 a:hover {
@@ -1393,10 +1394,10 @@ button.li-btn,
     background-color: #be8658;
 }
 .template-color-2 .sticker {
-    background: #be8658;
+    background: #cda557;
 }
 .template-color-2 .sticker:before {
-    border-color: #be8658 transparent transparent transparent;
+    border-color: #cda557 transparent transparent transparent;
 }
 .template-color-2
     .offcanvas-menu_wrapper
@@ -1456,10 +1457,14 @@ button.li-btn,
     background: #be8658;
 }
 .template-color-2 .main-slider .slider-content span {
-    color: #be8658;
+    color: #cda557;
+}
+.template-color-2 .main-slider .slider-content span.di {
+    color: #919495;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.9), 0 0 10px rgba(200, 200, 255, 0.5);
 }
 .template-color-2 .main-slider .slick-arrow {
-    color: #be8658;
+    color: #cda557;
 }
 .template-color-2
     .hiraola-slider_area-3
@@ -1513,7 +1518,7 @@ button.li-btn,
 .template-color-2 .hiraola-product_slider .slick-arrow:hover,
 .template-color-2 .hiraola-product_slider-2 .slick-arrow:hover,
 .template-color-2 .hiraola-trending-product_slider .slick-arrow:hover {
-    color: #be8658;
+    color: #595959;
 }
 .template-color-2 .hiraola-product_slider .slide-item .single_product,
 .template-color-2 .hiraola-product-tab_slider-2 .slide-item .single_product,
@@ -1535,7 +1540,7 @@ button.li-btn,
 .template-color-2 .hiraola-product_slider-3 .slide-item .single_product:hover,
 .template-color-2 .latest-blog_slider .slide-item .single_product:hover,
 .template-color-2 .shop-product-wrap .slide-item .single_product:hover {
-    border-color: #be8658;
+    border-color: #cda557;
 }
 .template-color-2
     .hiraola-product_slider
@@ -1633,7 +1638,7 @@ button.li-btn,
 .template-color-2 .hiraola-product_slider-3 .slick-arrow,
 .template-color-2 .latest-blog_slider .slick-arrow,
 .template-color-2 .shop-product-wrap .slick-arrow {
-    color: #be8658;
+    color: #cda557;
 }
 .template-color-2 .hiraola-product_slider .slick-arrow:hover,
 .template-color-2 .hiraola-product-tab_slider-2 .slick-arrow:hover,
@@ -1641,7 +1646,7 @@ button.li-btn,
 .template-color-2 .hiraola-product_slider-3 .slick-arrow:hover,
 .template-color-2 .latest-blog_slider .slick-arrow:hover,
 .template-color-2 .shop-product-wrap .slick-arrow:hover {
-    color: #be8658;
+    color: #595959;
 }
 .template-color-2 .hiraola-testimonial_slider .slick-arrow:hover,
 .template-color-2 .hiraola-brand_slider .slick-arrow:hover {
@@ -1794,6 +1799,42 @@ button.li-btn,
 }
 .template-color-2 .sp-gallery_area .sp-nav .sp-gallery .lg-image:hover {
     outline: 1px solid #be8658;
+}
+.hiraola-banner_area-3 .hiraola-btn-ps_center{
+    position: absolute;
+    bottom: 13px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.hiraola-banner_area-3 .img-hover_effect {
+    overflow: hidden; /* taşan kısmı gizler */
+    display: block;
+}
+.hiraola-banner_area-3 .img-hover_effect img {
+    transition: transform 0.4s ease-in-out; /* yumuşak geçiş */
+    display: block; /* boşluk sorunlarını önler */
+}
+.hiraola-banner_area-3 .img-hover_effect:hover img {
+    transform: scale(1.05); /* %5 yakınlaştırma */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+.hiraola-banner_area-3 .text-wrap{
+    position: absolute;
+    top: 30px;
+    left: 40px;
+}
+.hiraola-banner_area-3 .text-wrap p {
+    font-size: 36px;
+    font-style: italic;
+    font-family: cursive;
+    color: #fff;
+    font-family: "Playfair Display", sans-serif;
+}
+
+
+.hiraola-banner_area-3 img{
+    height: 300px;
+    object-fit: cover;
 }
 .header-main_area .header-logo img {
     height: 80%;
@@ -2078,6 +2119,9 @@ button.li-btn:hover {
     z-index: 8;
     text-align: left;
 }
+.hiraola-slider_area-2 .main-slider .slider-content h3{
+    color: #333;
+}
 @media (max-width: 479px) {
     .hiraola-slider_area-2 .main-slider .slider-content {
         max-width: 100%;
@@ -2085,7 +2129,6 @@ button.li-btn:hover {
 }
 .hiraola-slider_area-2 .main-slider .slider-content > h5 {
     font-weight: 500;
-    text-transform: capitalize;
     margin-bottom: 0;
     padding-bottom: 7px;
 }
@@ -2188,17 +2231,17 @@ button.li-btn:hover {
     }
 }
 
-.bg-2 {
+/* .bg-2 {
     background-image: url("../images/slider/2.jpg");
 }
 
 .bg-3 {
     background-image: url("../images/slider/3.jpg");
-}
+} */
 
 .bg-4,
 .bg-5 {
-    background-image: url("../images/slider/4.jpg");
+    background-image: url("../images/slide1.webp");
     background-repeat: no-repeat;
     background-position: center center;
     background-size: cover;
@@ -3575,6 +3618,33 @@ button.li-btn:hover {
     background-repeat: no-repeat;
     background-position: center;
     position: relative;
+
+}
+.static-banner_area .static-banner-image.custimize h2,h3 {
+    color: #fff;
+}
+.static-banner_area .static-banner-image.custimize p {
+    color: #cbc8c8;
+}
+.static-banner_area .static-banner-image.custimize {
+    background-image: url("../images/bg/custimize-design.webp");
+    background-size: cover;
+    min-height: 345px;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+}
+.static-banner_area .static-banner-image.custimize a {
+    width: 220px;
+}
+.static-banner_area .static-banner-image.custimize .col-md-5:nth-child(2) p{
+    color: #fff;
+    font-size: 18px;
+}
+.static-banner_area .static-banner-image.custimize .col-md-5:nth-child(2) svg{
+    font-size: 30px;
 }
 .static-banner_area .static-banner-image.static-banner-image-2 {
     background-image: url("../images/banner/static-banner-2.png");
@@ -3668,6 +3738,10 @@ button.li-btn:hover {
 
 .hiraola-banner_area-3 {
     padding-top: 80px;
+}
+.hiraola-banner_area-3.categories {
+    padding-bottom: 80px;
+    background-color: #f6f6f6;
 }
 @media (max-width: 991px) {
     .hiraola-banner_area-3 [class*="col"]:nth-child(-n + 2) {
@@ -8529,6 +8603,16 @@ button.li-btn:hover {
 }
 .MuiInputLabel-root.Mui-focused {
     color: #888888 !important;
+}
+.MuiModal-root .MuiBox-root:focus {
+  outline: none;
+}
+.MuiModal-root h3{
+    color: #ffffff;
+}
+.MuiModal-root p{
+    color: #ffffff;
+    font-size: 14px;
 }
 .login-form .MuiFormControl-root .MuiFormLabel-root {
     line-height: 1em;

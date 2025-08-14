@@ -15,7 +15,7 @@ import WishList from "../pages/user/WishList";
 import ProductDetail from "../pages/products/ProductDetail";
 import Cart from "../pages/user/Cart";
 import Checkout from "../pages/Checkout";
-
+import VerifyEmail from "../pages/auth/VerifyEmail";
 
 function AppRoutes() {
     return (
@@ -40,8 +40,9 @@ function AppRoutes() {
                 <Route path="login" element={<Login/>} />  {/* <GuestRoute><Login/></GuestRoute> */}
                 <Route path="register" element={<Register />} />
                 <Route path="logout" element={<Navigate to="/tr" />} />
+                <Route path="verify-email" element={<VerifyEmail/>} />
 
-                 <Route path="/me" element={<PrivateRoutes roles={["user"]} />} >
+                 <Route path="/me" > {/* element={<PrivateRoutes roles={["user"]} />} */}
                     <Route index element={<MyAccount />} />
                     <Route path="wishlist" element={<WishList/>}/>
                 </Route>

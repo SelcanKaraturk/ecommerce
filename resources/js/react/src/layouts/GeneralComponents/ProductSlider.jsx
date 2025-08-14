@@ -4,6 +4,7 @@ import { TabNextArrow, TabPrevArrow } from "./SlickArrow";
 import slugify from "slugify";
 import { Link } from "react-router-dom";
 import WishlistButton from "./WishlistButton";
+import dayjs from "dayjs";
 
 function ProductSlider({ mainName, products }) {
     const [sliderKey, setSliderKey] = useState(0);
@@ -53,7 +54,8 @@ function ProductSlider({ mainName, products }) {
         locale: "tr",
         remove: /[*+~.()'"!:@]/g, // özel karakterleri temizle
     });
-    //console.log(user);
+    const oneWeekAgo = dayjs().subtract(7, "day");
+    console.log(oneWeekAgo);
 
     return (
         <>
@@ -74,31 +76,38 @@ function ProductSlider({ mainName, products }) {
                                         products.map((i, index) => (
                                             <div
                                                 className="slide-item"
-                                                key= {products.slug}
+                                                key= {i.product_number}
                                             >
                                                 <div className="single_product">
                                                     <div className="product-img">
                                                         <Link
-                                                            to={`/tr/${category}/${i.slug}`}
+                                                            to={`/tr/${category}/${i.product_slug}`}
                                                         >
                                                             <img
                                                                 className="primary-img"
                                                                 src={
-                                                                    i.images[0]
+                                                                    i.product_images[0]
                                                                 }
                                                                 alt="Hiraola's Product Image"
                                                             />
                                                             <img
                                                                 className="secondary-img"
                                                                 src={
-                                                                    i.images[1]
+                                                                    i.product_images[1]
                                                                 }
                                                                 alt="Hiraola's Product Image"
                                                             />
                                                         </Link>
-                                                        {/* <span className="sticker-2">
-                                                        Sale
-                                                    </span> */}
+                                                        {i.grouped_stock_by_id ? (i.grouped_stock_by_id.stock > 0 ? (i.grouped_stock_by_id.stock < 4 ? (
+                                                            <span className="sticker-2">
+                                                                Tükenmek Üzere
+                                                            </span>):(i.updated_at )):
+                                                        (
+                                                             <span className="sticker-2">
+                                                                Tükendi
+                                                            </span>
+                                                        )):null}
+
                                                     </div>
                                                     <div className="hiraola-product_content">
                                                         <div className="product-desc_info">
@@ -107,12 +116,12 @@ function ProductSlider({ mainName, products }) {
                                                                     className="product-name"
                                                                     href="single-product.html"
                                                                 >
-                                                                    {i.name}
+                                                                    {i.product_name}
                                                                 </a>
                                                             </h6>
                                                             <div className="price-box">
                                                                 <span className="new-price">
-                                                                    {`${i.price.toLocaleString(
+                                                                    {`${i.product_price.toLocaleString(
                                                                         "tr-TR",
                                                                         {
                                                                             minimumFractionDigits: 2,

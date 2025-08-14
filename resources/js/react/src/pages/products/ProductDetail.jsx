@@ -73,10 +73,10 @@ function ProductDetail() {
         }
     }, [options]);
 
-    const handleCartClick = (val) => {
-        //sepete ekle tıklanınca product objesini güncelle
-        setProduct((prev) => ({ ...prev, in_carts_exists: val.inCart }));
-    };
+    // const handleCartClick = (val) => {
+    //     //sepete ekle tıklanınca product objesini güncelle
+    //     setProduct((prev) => ({ ...prev, in_carts_exists: val.inCart }));
+    // };
 
     const radioColorChange = (event, newValue) => {
         if (newValue !== null) {
@@ -104,6 +104,7 @@ function ProductDetail() {
                     (i) => i.color === selectedColor && i.size == selectedSize
                 ) ?? null;
             setSelectedVariant(variant);
+            // console.log(product);
         }
     }, [product, selectedColor, selectedSize]);
 
@@ -261,10 +262,7 @@ function ProductDetail() {
                                                                 product={
                                                                     product
                                                                 }
-                                                                handleCartClick={
-                                                                    handleCartClick
-                                                                }
-                                                                productVarients={
+                                                                productVarient={
                                                                     selectedVariant
                                                                 }
                                                             />

@@ -5,7 +5,7 @@ export const homeData = async () => {
 };
 
 export const getSingleProduct = async (category, slug, token) => {
-    return await api.get(`/api/tr/${category}/${slug}`,getConfig(token));
+    return await api.get(`/api/tr/${category}/${slug}`, getConfig(token));
 };
 
 export const addWishToList = async (productObj, token) => {
@@ -17,11 +17,19 @@ export const addWishToList = async (productObj, token) => {
     );
 };
 
-export const addCartToList = async (id, stock_id) => {
-    return await api.post(
-        "/api/cart/toggle",
-        { product_id: id, product_stock_id: stock_id }
-    );
+export const addCartToList = async (id, stock_id, token) => {
+    if (token) {
+        return await api.post(
+            "/api/me/cart/toggle",
+            { product_id: id, product_stock_id: stock_id },
+            getConfig(token)
+        );
+    } else {
+        return await api.post("/api/cart/toggle", {
+            product_id: id,
+            product_stock_id: stock_id,
+        });
+    }
 };
 
 // export const addCartToAuth = async (cart, token) => {
@@ -33,27 +41,24 @@ export const addCartToList = async (id, stock_id) => {
 // };
 
 export const getWishList = async (token) => {
-    return await api.get(
-        "/api/me/wishlist",
-        getConfig(token)
-    );
+    return await api.get("/api/me/wishlist", getConfig(token));
 };
-export const destroyWish = async (slug,token) => {
-    return await api.delete(
-        `/api/me/wishlist/${slug}`,
-        getConfig(token)
-    );
+export const destroyWish = async (slug, token) => {
+    return await api.delete(`/api/me/wishlist/${slug}`, getConfig(token));
 };
 
 export const getCartList = async () => {
-    return await api.get(
-        "/api/cart"
-    );
+    return await api.get("/api/cart");
 };
 
-export const destroyCart = async (slug,token) => {
-    return await api.delete(
-        `/api/me/cart/${slug}`,
-        getConfig(token)
-    );
+export const destroyCart = async (product, token) => {
+    const data = {
+        product_id: product.product_number,
+        product_stock_id: product.stock_number,
+    };
+    if (token) {
+        return await api.post(`/api/me/cart/delete`, data, getConfig(token));
+    } else {
+        return await api.post(`/api/cart/delete`, data);
+    }
 };

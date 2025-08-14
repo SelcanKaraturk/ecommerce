@@ -36,8 +36,19 @@ function Register() {
         try {
             const res = await registerForm(registerFormData);
             SetLoading(false);
-            toast.success(res?.data?.message);
-            navigate("/login");
+            if (res.data.error) {
+                toast.error(res?.data?.message);
+            }else if(res.data.status === 'success'){
+                 toast.success(res?.data?.message);
+            navigate(`/verify-email`, {
+                state: {
+                    email: registerFormData.email,
+                },
+            });
+            }else{
+                 toast.warning('Beklenmeyen bir hata oluştu.');
+            }
+
         } catch (error) {
             console.log(error.response.data.errors);
             if (error.response.status !== 422) {
@@ -92,7 +103,7 @@ function Register() {
                             {ValidateError(errors, "email")}
                         </div>
                         <div className="col-md-6 mb-3">
-                             <TextField
+                            <TextField
                                 error={!!errors?.password}
                                 name="password"
                                 label="Password*"
@@ -116,7 +127,7 @@ function Register() {
                         </div>
                         <div className="col-12">
                             {loading ? (
-                                 <Loading style={"m-height"}/>
+                                <Loading style={"m-height"} />
                             ) : (
                                 <button
                                     type="submit"

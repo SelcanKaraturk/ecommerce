@@ -7,45 +7,47 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
-    const [accessToken, setAccessToken] = useState(() =>
-        localStorage.getItem("currentToken")
+    const [accessToken, setAccessToken] = useState(
+        () => localStorage.getItem("currentToken") || null
     );
     const [currentUser, setCurrentUser] = useState(null);
     const [cart, setCart] = useState([]);
     const [miniCart, setMiniCart] = useState(false);
+    const [openModal, setOpenModal] = useState(null);
 
     useEffect(() => {
-        const fetchCurrentlyLoggedInUser = async () => {
+        const fetchData = async () => {
+            // Başta loading hep true
+            setLoading(true);
+
+            if (!accessToken) {
+                // Token yok → API çağrısı yok → direkt loading bitir
+                setLoading(false);
+                return;
+            }
+
             try {
                 const res = await api.get("api/me", getConfig(accessToken));
                 setCurrentUser(res?.data?.user);
-                //console.log(res?.data?.user);
-            } catch (error) {
-                console.log(error);
-                if (error.response.status === 401) {
-                    localStorage.removeItem("currentToken");
-                    setCurrentUser(null);
-                    setAccessToken("");
-                }
-            }
-        };
 
-        const fetchUserCart = async () => {
-            try {
-                const {data} = await api.get(
+                const { data } = await api.get(
                     "api/me/cart",
                     getConfig(accessToken)
                 );
                 setCart(data);
             } catch (error) {
-                console.log(error);
+                console.log("Auth fetch error:", error);
+                if (error.response?.status === 401) {
+                    localStorage.removeItem("currentToken");
+                    setCurrentUser(null);
+                    setAccessToken("");
+                }
+            } finally {
+                setLoading(false); // sadece tüm işlemler bitince
             }
         };
 
-        if (accessToken != null) {
-            fetchCurrentlyLoggedInUser();
-            fetchUserCart();
-        }
+        fetchData();
     }, [accessToken]);
 
     useEffect(() => {
@@ -118,6 +120,8 @@ export const AuthProvider = ({ children }) => {
                 setCart,
                 miniCart,
                 setMiniCart,
+                openModal,
+                setOpenModal,
             }}
         >
             {children}

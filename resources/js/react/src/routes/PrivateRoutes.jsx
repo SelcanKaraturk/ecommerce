@@ -1,6 +1,8 @@
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../services/AuthContex";
 import { useEffect } from "react";
+import Loading from "../layouts/GeneralComponents/Loading";
+import { styled } from "@mui/material";
 
 const PrivateRoute = ({ roles }) => {
     const { loading, setLoading, accessToken, errorShow } = useAuth();
@@ -14,7 +16,8 @@ const PrivateRoute = ({ roles }) => {
         }
     }, [accessToken]);
 
-    return <Outlet />;
+
+    return loading ? <Loading /> : <Outlet />;
     // if (roles.length && !roles.includes(user.roles[0]?.name)) {
     //     return <Navigate to="/login" replace />;
     // }

@@ -32,45 +32,30 @@ class CartCookieController extends Controller
 
     public function toggle(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'product_id' => 'required|integer',
             'product_stock_id' => 'required|integer',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json(['message' => 'Geçersiz veri'], 422);
-        }
+        $productId = (int) $validated['product_id'];
+        $productStockId = (int) $validated['product_stock_id'];
 
-        $productId = (int) $request->input('product_id');
-        $productStockId = (int) $request->input('product_stock_id');
+        $cart = $this->getCartFromCookie($request) ?? [];
 
-        $cart = $this->getCartFromCookie($request);
-        if (!is_array($cart)) {
-            $cart = [];
-        }
+        // Mevcut ürünün index'ini bul
+        $existingIndex = array_search(true, array_map(function ($item) use ($productId, $productStockId) {
+            return isset($item['product_id'], $item['product_stock_id']) &&
+                (int) $item['product_id'] === $productId &&
+                (int) $item['product_stock_id'] === $productStockId;
+        }, $cart), true);
 
-        // Sepette bu product_id + product_stock_id ikilisi var mı bak
-        $existingIndex = null;
-        foreach ($cart as $index => $item) {
-            if (is_array($item)) {
-                if (
-                    isset($item['product_id'], $item['product_stock_id']) &&
-                    (int) $item['product_id'] === $productId &&
-                    (int) $item['product_stock_id'] === $productStockId
-                ) {
-                    $existingIndex = $index;
-                    break;
-                }
-            }
-        }
-
-        if ($existingIndex !== null) {
-            // Varsa çıkar (toggle)
+        if ($existingIndex !== false) {
+            // Varsa çıkar
             unset($cart[$existingIndex]);
             $cart = array_values($cart);
             $message = "Ürün sepetinizden çıkarıldı";
         } else {
-            // Yoksa ekle, limit kontrolü (farklı ürün/varyant sayısına göre ayarlayabilirsin)
+            // Limit kontrolü
             if (count($cart) >= $this->maxItems) {
                 return response()->json([
                     'message' => 'Maximum sepet sınırına ulaştınız. Daha fazla ürün yüklemek için sepetinizden ürün çıkarınız ya da WhatsApp üzerinden iletişime geçiniz.',
@@ -78,6 +63,7 @@ class CartCookieController extends Controller
                 ], 400);
             }
 
+            // Ekle
             $cart[] = [
                 'product_id' => $productId,
                 'product_stock_id' => $productStockId,
@@ -85,68 +71,57 @@ class CartCookieController extends Controller
             $message = "Ürün sepetinize eklendi";
         }
 
-        // Güncellenmiş cart'a göre anlık dönecek veriyi oluştur
+        // Güncellenmiş cart item verisi
         $cartItems = $this->buildCartItems($cart);
 
-        $response = response()->json([
-            'message' => $message,
-            'data' => $cartItems,
-        ]);
-        return $this->withCartCookie(response()->json($response), $cart);
-        //return $this->withCartCookie(response()->json($cart), $cart);
+        return $this->withCartCookie(
+            response()->json([
+                'message' => $message,
+                'data' => $cartItems,
+            ]),
+            $cart
+        );
     }
     protected function getCartFromCookie(Request $request): array
     {
-
         $raw = $request->cookie('cart_items');
+
         if (!$raw) {
             return [];
         }
 
         try {
-            $decrypted = decrypt(value: $raw);
-            // decrypt'tan ya dizi ya da JSON string gelmesi bekleniyor
-            if (is_string($decrypted)) {
-                $decoded = json_decode($decrypted, true);
-            } elseif (is_array($decrypted)) {
-                $decoded = $decrypted;
-            } else {
-                \Log::warning('Cart cookie decrypted unexpected type', [
-                    'type' => gettype($decrypted),
-                    'value' => $decrypted,
-                ]);
-                return [];
-            }
+            $decrypted = decrypt($raw);
+
+            // JSON ise decode et, array ise direkt al
+            $decoded = is_array($decrypted) ? $decrypted : json_decode($decrypted, true);
 
             if (!is_array($decoded)) {
                 \Log::warning('Cart cookie format invalid after decode', ['decoded' => $decoded]);
                 return [];
             }
 
-            $cart = [];
-            foreach ($decoded as $item) {
-                if (!is_array($item)) {
-                    continue;
-                }
-
-                if (!isset($item['product_id'], $item['product_stock_id'])) {
-                    continue;
+            // Geçerli item’ları filtrele
+            $cart = array_values(array_filter(array_map(function ($item) {
+                if (!is_array($item) || !isset($item['product_id'], $item['product_stock_id'])) {
+                    return null;
                 }
 
                 $productId = filter_var($item['product_id'], FILTER_VALIDATE_INT);
                 $stockId = filter_var($item['product_stock_id'], FILTER_VALIDATE_INT);
 
                 if ($productId === false || $stockId === false) {
-                    continue;
+                    return null;
                 }
 
-                $cart[] = [
+                return [
                     'product_id' => (int) $productId,
                     'product_stock_id' => (int) $stockId,
                 ];
-            }
+            }, $decoded)));
 
             return $cart;
+
         } catch (DecryptException $e) {
             \Log::warning('Failed to decrypt cart_items cookie', ['message' => $e->getMessage()]);
         } catch (\Throwable $e) {
@@ -154,7 +129,6 @@ class CartCookieController extends Controller
         }
 
         return [];
-
     }
 
     protected function withCartCookie($response, array $cart)
@@ -178,14 +152,53 @@ class CartCookieController extends Controller
         );
     }
     protected function buildCartItems(array $cart)
-{
-    $stockIds = array_unique(array_column($cart, 'product_stock_id'));
+    {
+        $stockIds = array_unique(array_column($cart, 'product_stock_id'));
 
-    // Varyantları (product_stock) ilişkili ürünle beraber çek
-    $variants = ProductStock::whereIn('id', $stockIds)
-        ->with(['product.category:id,slug'])
-        ->get();
+        // Varyantları (product_stock) ilişkili ürünle beraber çek
+        $variants = ProductStock::whereIn('id', $stockIds)
+            ->with(['product.category:id,slug'])
+            ->get();
 
-    return CartProductResources::collection($variants);
-}
+        return CartProductResources::collection($variants);
+    }
+
+    public function destroy(Request $request)
+    {
+        $validated = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'product_stock_id' => 'required|exists:product_stocks,id'
+        ]);
+
+        $productId = (int) $validated['product_id'];
+        $productStockId = (int) $validated['product_stock_id'];
+
+        $cart = $this->getCartFromCookie($request);
+
+        // Filtrele: Sadece eşleşmeyen ürünleri tut
+        $newCart = array_values(array_filter($cart, function ($item) use ($productId, $productStockId) {
+            return !(
+                isset($item['product_id'], $item['product_stock_id']) &&
+                (int) $item['product_id'] === $productId &&
+                (int) $item['product_stock_id'] === $productStockId
+            );
+        }));
+
+        if (count($cart) === count($newCart)) {
+            // Hiçbir şey silinmemiş → ürün bulunamadı
+            return response()->json([
+                'message' => 'İşleminiz Gerçekleştirilemedi.',
+                'status' => 'error'
+            ]);
+        }
+
+        // Yeni cookie ile geri döndür
+        return $this->withCartCookie(
+            response()->json([
+                'message' => 'Ürün sepetinizden çıkarıldı',
+                'status' => 'success'
+            ]),
+            $newCart
+        );
+    }
 }

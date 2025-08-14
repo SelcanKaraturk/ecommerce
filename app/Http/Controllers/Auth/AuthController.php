@@ -36,11 +36,12 @@ class AuthController extends Controller
 
             // Rol ata
             $user->assignRole('user');
+            $user->sendEmailVerificationNotification();
 
             // Her şey yolunda, commit et
             DB::commit();
 
-            return response()->json(['message' => 'Kayıt başarılı']);
+            return response()->json(['message' => 'Lütfen Hesabınızı Doğrulayınız','status'=>'success']);
         } catch (\Throwable $e) {
             // Hata varsa rollback
             DB::rollBack();
@@ -64,6 +65,9 @@ class AuthController extends Controller
         DB::beginTransaction();
         try {
             $user = User::where('email', $request->email)->first();
+            if(!$user->email_verified_at){
+                return response()->json(['error' => 'Merhaba '.$user->name.' işleminize devam edebilmek için hesabınızı doğrulamanız gerekmektedir. Lütfen emailinizi kontrol ediniz.']);
+            }
 
             if (!$user || !Hash::check($request->password, $user->password)) {
                 return response()->json(['error' => 'Kullanıcı adı ya da şifre hatalı'], 401);

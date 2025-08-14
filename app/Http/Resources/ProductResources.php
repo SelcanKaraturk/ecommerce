@@ -12,7 +12,7 @@ class ProductResources extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
-     public function toArray($request)
+    public function toArray($request)
     {
         return [
             'product_number' => $this->id,
@@ -23,8 +23,17 @@ class ProductResources extends JsonResource
             'product_price' => $this->price,
             'category_slug' => $this->category->slug,
             'grouped_stock_by_color' => $this->groupStockByColor(),
-            'product_stock' => $this->stock,
-            'in_cart' => isset($this->in_carts_exists) ? (bool)$this->in_carts_exists : false,
+            'product_stock' => $this->stock->map(function ($stock) {
+                return [
+                    'stock_number' => $stock->id,
+                    'product_number' => $stock->product_id,
+                    'color' => $stock->color,
+                    'size' => $stock->size,
+                    'stock' => $stock->stock,
+                    'in_wishlist' => isset($stock->in_wishlist_exists) ? (bool) $stock->in_wishlist_exists : false,
+                ];
+            }),
+            // 'in_cart' => isset($this->in_carts_exists) ? (bool) $this->in_carts_exists : false,
         ];
     }
 

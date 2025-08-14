@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\HomeResources;
 use App\Http\Resources\ProductResources;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -19,15 +20,24 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $productsDi = Product::whereRelation("category", "parent_id", 1)
-            ->latest()->take(12)->get();
+        // $productsDi = Product::whereRelation("category", "parent_id", 1)->with(['stock','groupedStock'])
+        //     ->latest()->take(12)->get();
+            $productsDi = Product::whereRelation("category", "parent_id", 1)
+            ->with(['stock'])
+            ->latest()
+            ->take(12)
+            ->get()
+            ->map(function ($product) {
+                $product->groupedStockById = $product->stock->groupBy('product_id');
+                return $product;
+            });
         $productsGold = Product::whereRelation("category", "parent_id", 2)
             ->latest()->take(12)->get();
         $categoryDi = Category::find(1)->children()->with("products")->get();
 
         return response()->json(data: [
-            'productsDi' => $productsDi,
-            'productsGold' => $productsGold,
+            'productsDi' => HomeResources::collection($productsDi),
+            'productsGold' => ProductResources::collection($productsGold),
             'categoryDi' => $categoryDi,
             $request->bearerToken()
         ]);

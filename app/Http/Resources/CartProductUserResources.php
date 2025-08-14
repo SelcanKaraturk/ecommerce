@@ -20,9 +20,10 @@ class CartProductUserResources extends JsonResource
             'color'=>$this->productStock?->color,
             'size'=>$this->productStock?->size,
             'quantity' => $this->quantity,
+            'stock' => $this->productStock?->stock,
             'product_name' => $this->product->name,
             'product_slug' => $this->product->slug,
-            'product_content' => $this->product->content,
+            // 'product_content' => $this->product->content,
             'product_price' => $this->product->price,
             'product_images' => $this->product->images,
             'category_slug' => $this->product->category?->slug
