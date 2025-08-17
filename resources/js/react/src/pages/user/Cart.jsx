@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getCartList, destroyCart } from "../../services/WebService";
+import { destroyCart, updateCartQuantity } from "../../services/WebService";
 import { useAuth } from "../../services/AuthContex";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -27,7 +27,7 @@ function Cart() {
             setOpenModal(<>✨ Seçtiğiniz ürün şu anda stoklarımızda bulunmamaktadır, sizin için özel olarak hazırlanacaktır. <br/>
                 📦 Daha fazla adet sipariş etmek isterseniz, ekibimizle WhatsApp üzerinden memnuniyetle iletişime geçebilirsiniz.</>);
         } else if (type === "inc" && preQuantity + 1 > product.stock) {
-            setOpenModal(<>✨ Seçtiğiniz ürün şu anda stoklarımızda bulunmamaktadır. <br/>
+            setOpenModal(<>✨ Seçtiğiniz üründe daha fazla stok yoktur. <br/>
                 📦 Daha fazla adet sipariş etmek isterseniz, ekibimizle WhatsApp üzerinden memnuniyetle iletişime geçebilirsiniz.</>);
         } else {
             const newQty =
@@ -44,8 +44,23 @@ function Cart() {
                         : item
                 )
             );
+            if(accessToken){
+                updateUserQuantity(product, newQty)
+            }
         }
     };
+    const updateUserQuantity = async(cart, quantity)=>{
+        try {
+            const {data} = await updateCartQuantity(cart, quantity, accessToken);
+            if(data.error){
+                toast.error(data.message);
+            }else if(data.status === 'success'){
+                toast.success(data.message);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
     const subTotal = (cart) => {
         return cart.reduce((total, item) => {
             return total + item.quantity * item.product_price;

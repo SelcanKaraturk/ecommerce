@@ -19,8 +19,12 @@ class CartController extends Controller
 
     public function index(Request $request)
     {
-        $cart = $this->getUserCart();
-        return response()->json(CartProductUserResources::collection($cart->cartItems));
+        if(auth()->user()->cart){
+            $cart = $this->getUserCart();
+            return response()->json(CartProductUserResources::collection($cart->cartItems));
+        }else{
+            return [];
+        }
         //return response()->json($cart->cartItems->pluck('product_stock_id'));
     }
     public function toggleItem(Request $request)
@@ -42,7 +46,7 @@ class CartController extends Controller
             // login olmuşsa user cart üzerinden toggle
             DB::beginTransaction();
             try {
-                $cart = $user->cart;
+                $cart = Cart::firstOrCreate(['user_id' => $user->id]);
                 $item = $cart->cartItems()->where('product_id', $productId)->where('product_stock_id', $productStockId)->first();
                 if ($item) {
                     $item->delete();
@@ -83,21 +87,39 @@ class CartController extends Controller
         }
 
     }
-    // {
-    //     $result = [];
-    //     foreach ($guestItems as $productId => $qty) {
-    //         $product = Product::find($productId);
-    //         if (!$product)
-    //             continue;
-    //         $result[] = [
-    //             'product_id' => $product->id,
-    //             'quantity' => $qty,
-    //             'product' => $product,
-    //         ];
-    //     }
-    //     return $result;
-    // }
 
+    public function update(Request $request)
+    {
+       // return response()->json($request->all());
+        $validated = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'product_stock_id' => 'required|exists:product_stocks,id',
+            'quantity' => 'required|exists:product_stocks,id',
+        ]);
+        $user = $request->user();
+        $exist = CartItem::
+            where('cart_id', $user->cart->id)
+            ->where('product_id', $validated['product_id'])
+            ->where('product_stock_id', $validated['product_stock_id'])->first();
+
+        DB::beginTransaction();
+        try {
+            if (isset($exist)) {
+                $exist->update(['quantity'=>$validated['quantity']]);
+                DB::commit();
+                return response()->json([
+                    'message' => 'Ürün güncellendi',
+                    'status' => 'success'
+                ]);
+            }
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Beklenmeyen bir hata oluştu.',
+                'error' => $th->getMessage(),
+            ], 500);
+        }
+    }
     protected function getUserCart()
     {
         if (auth()->check()) {

@@ -12,7 +12,8 @@
   }
 }
 .hiraola-footer_area .footer-top_area .footer-widgets_info .footer-widgets_logo {
-  padding-bottom: 25px;
+  padding-bottom: 10px;
+  margin-top: -14px;
 }
 .hiraola-footer_area .footer-top_area .footer-widgets_info .widget-short_desc > p {
   margin-bottom: 0;

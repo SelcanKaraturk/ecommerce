@@ -31,6 +31,9 @@ function AppRoutes() {
                     <Route path="iletisim" element={<Contact />} />
                     <Route path="checkout" element={<Checkout />} />
                     <Route path="sepet" element={<Cart/>}/>
+
+                    <Route path="hesabim" element={<MyAccount />} />
+                    <Route path="favorilerim" element={<WishList/>}/>
                 </Route>
             </Route>
 
@@ -42,10 +45,8 @@ function AppRoutes() {
                 <Route path="logout" element={<Navigate to="/tr" />} />
                 <Route path="verify-email" element={<VerifyEmail/>} />
 
-                 <Route path="/me" > {/* element={<PrivateRoutes roles={["user"]} />} */}
-                    <Route index element={<MyAccount />} />
-                    <Route path="wishlist" element={<WishList/>}/>
-                </Route>
+                 {/* <Route path="/tr" > element={<PrivateRoutes roles={["user"]} />}
+                </Route> */}
             </Route>
         </Routes>
     );

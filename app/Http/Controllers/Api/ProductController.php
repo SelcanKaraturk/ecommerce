@@ -92,6 +92,7 @@ class ProductController extends Controller
                                 $q->where('user_id', auth()->id());
                             }
                         ]);
+                        //$query->whereIn('size',[12]);
                     },
                     'groupedStock',
                 ])

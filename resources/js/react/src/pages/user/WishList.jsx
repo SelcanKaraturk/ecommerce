@@ -2,15 +2,16 @@ import React, { useState, useEffect } from "react";
 import CartButton from "../../layouts/GeneralComponents/CartButton";
 import { getWishList, destroyWish } from "../../services/WebService";
 import { useAuth } from "../../services/AuthContex";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Loading from "../../layouts/GeneralComponents/Loading";
+
 
 function WishList() {
     const { accessToken } = useAuth();
     const [wishList, setWishList] = useState([]);
     const [load, setLoad] = useState(false);
-
+    const navigate = useNavigate();
     useEffect(() => {
         const FetchWishList = async (token) => {
             setLoad(true);
@@ -23,7 +24,12 @@ function WishList() {
                 setLoad(false);
             }
         };
-        FetchWishList(accessToken);
+        if(!accessToken){
+            navigate('/login')
+        }else{
+            FetchWishList(accessToken);
+        }
+
     }, []);
 
     useEffect(() => {

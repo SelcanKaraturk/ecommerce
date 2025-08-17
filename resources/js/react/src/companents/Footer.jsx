@@ -1,6 +1,6 @@
 import React from 'react'
 import './css/Footer.css'
-
+import dayjs from "dayjs";
 function Footer() {
   return (
     <>
@@ -14,13 +14,13 @@ function Footer() {
 
                                 <div className="footer-widgets_logo">
                                     <a href="#">
-                                        <img src="/src/assets/images/footer/logo/1.png" alt="Hiraola's Footer Logo"/>
+                                        <img src="/src/assets/images/valor.png" width={'142px'} alt="Valor Footer Logo"/>
                                     </a>
                                 </div>
 
                                 <div className="widget-short_desc">
-                                    <p>We are a team of designers and developers that create high quality HTML Template &
-                                        Woocommerce, Shopify Theme.
+                                    <p>
+                                        Geniş koleksiyonumuz ve kişiye özel üretim ayrıcalığımızla, her parçada zamansız zarafet sunuyoruz. Sınırlı sayıda üretilen tasarımlarımızla, size özel ihtişamı keşfedin.
                                     </p>
                                 </div>
                                 <div className="hiraola-social_link">
@@ -28,16 +28,6 @@ function Footer() {
                                         <li className="facebook">
                                             <a href="https://www.facebook.com" data-bs-toggle="tooltip" target="_blank" title="Facebook">
                                                 <i className="fab fa-facebook"></i>
-                                            </a>
-                                        </li>
-                                        <li className="twitter">
-                                            <a href="https://twitter.com" data-bs-toggle="tooltip" target="_blank" title="Twitter">
-                                                <i className="fab fa-twitter-square"></i>
-                                            </a>
-                                        </li>
-                                        <li className="google-plus">
-                                            <a href="https://www.plus.google.com/discover" data-bs-toggle="tooltip" target="_blank" title="Google Plus">
-                                                <i className="fab fa-google-plus"></i>
                                             </a>
                                         </li>
                                         <li className="instagram">
@@ -54,21 +44,20 @@ function Footer() {
                                 <div className="row">
                                     <div className="col-lg-3">
                                         <div className="footer-widgets_title">
-                                            <h6>Product</h6>
+                                            <h6>KOLEKSİYON</h6>
                                         </div>
                                         <div className="footer-widgets">
                                             <ul>
-                                                <li><a href="#">Prices drop</a></li>
-                                                <li><a href="#">New products</a></li>
-                                                <li><a href="#">Best sales</a></li>
-                                                <li><a href="#">Contact us</a></li>
+                                                <li><a href="#">Pırlanta</a></li>
+                                                <li><a href="#">Altın</a></li>
+                                                <li><a href="#">Bilezik</a></li>
                                             </ul>
                                         </div>
                                     </div>
                                     <div className="col-lg-5">
                                         <div className="footer-widgets_info">
                                             <div className="footer-widgets_title">
-                                                <h6>About Us</h6>
+                                                <h6>İLETİŞİM</h6>
                                             </div>
                                             <div className="widgets-essential_stuff">
                                                 <ul>
@@ -148,16 +137,16 @@ function Footer() {
                                     </ul>
                                 </div>
                             </div>
-                            <div className="col-lg-12">
+                            {/* <div className="col-lg-12">
                                 <div className="payment">
                                     <a href="#">
                                         <img src="/src/assets/images/footer/payment/1.png" alt="Hiraola's Payment Method"/>
                                     </a>
                                 </div>
-                            </div>
+                            </div> */}
                             <div className="col-lg-12">
                                 <div className="copyright">
-                                    <span>Copyright &copy; 2022 <a href="index.html">Hiraola.</a> All rights reserved.</span>
+                                    <span>Copyright &copy; {dayjs().year()} <a href="/">Valor.</a> Tüm Hakları Saklıdır.</span>
                                 </div>
                             </div>
                         </div>

@@ -21,7 +21,7 @@ function WishlistButton({ productObj, changeWishStatue }) {
             try {
                 const res = await addWishToList(productObj, accessToken);
                 const status = res.data.status;
-                console.log(res);
+                //console.log(res.data);
                 if (status === "added") {
                     setIsWish(true);
                     changeWishStatue(true);
@@ -39,7 +39,7 @@ function WishlistButton({ productObj, changeWishStatue }) {
     };
     useEffect(()=>{
         setIsWish(productObj.myWish)
-        // console.log(productObj);
+        //console.log(productObj);
     },[productObj])
     return (
         <>

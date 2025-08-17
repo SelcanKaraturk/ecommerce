@@ -72,7 +72,8 @@ class AuthController extends Controller
             if (!$user || !Hash::check($request->password, $user->password)) {
                 return response()->json(['error' => 'Kullanıcı adı ya da şifre hatalı'], 401);
             }
-            event(new Login(auth()->guard(), $user, false));
+            event(new Login(auth()->getDefaultDriver(), $user, false));
+            //return response()->json(['guard'=>auth()->getDefaultDriver()]);
             DB::commit();
             return response()->json([
                 'user' => $user,

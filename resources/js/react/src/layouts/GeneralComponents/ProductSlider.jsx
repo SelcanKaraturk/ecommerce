@@ -55,8 +55,6 @@ function ProductSlider({ mainName, products }) {
         remove: /[*+~.()'"!:@]/g, // özel karakterleri temizle
     });
     const oneWeekAgo = dayjs().subtract(7, "day");
-    console.log(oneWeekAgo);
-
     return (
         <>
             <div className="hiraola-product_area hiraola-product_area-2 section-space_add">
@@ -69,14 +67,12 @@ function ProductSlider({ mainName, products }) {
                         </div>
                         <div className="col-lg-12">
                             <div className="hiraola-product_slider-3">
-                                <Slider
-                                    {...settingsProductSlider}
-                                >
+                                <Slider {...settingsProductSlider}>
                                     {products?.length > 0 &&
                                         products.map((i, index) => (
                                             <div
                                                 className="slide-item"
-                                                key= {i.product_number}
+                                                key={i.product_number}
                                             >
                                                 <div className="single_product">
                                                     <div className="product-img">
@@ -86,28 +82,47 @@ function ProductSlider({ mainName, products }) {
                                                             <img
                                                                 className="primary-img"
                                                                 src={
-                                                                    i.product_images[0]
+                                                                    i
+                                                                        .product_images[0]
                                                                 }
                                                                 alt="Hiraola's Product Image"
                                                             />
                                                             <img
                                                                 className="secondary-img"
                                                                 src={
-                                                                    i.product_images[1]
+                                                                    i
+                                                                        .product_images[1]
                                                                 }
                                                                 alt="Hiraola's Product Image"
                                                             />
                                                         </Link>
-                                                        {i.grouped_stock_by_id ? (i.grouped_stock_by_id.stock > 0 ? (i.grouped_stock_by_id.stock < 4 ? (
-                                                            <span className="sticker-2">
-                                                                Tükenmek Üzere
-                                                            </span>):(i.updated_at )):
-                                                        (
-                                                             <span className="sticker-2">
-                                                                Tükendi
+                                                        <div className="sticker-wrapper">{i.grouped_stock_by_id ? (
+                                                            i
+                                                                .grouped_stock_by_id
+                                                                .stock > 0 ? (
+                                                                i
+                                                                    .grouped_stock_by_id
+                                                                    .stock <
+                                                                6 ? (
+                                                                    <span className="sticker-2">
+                                                                        Tükeniyor
+                                                                    </span>
+                                                                ) : null
+                                                            ) : (
+                                                                <span className="sticker-3">
+                                                                    Tükendi
+                                                                </span>
+                                                            )
+                                                        ) : null}
+                                                        {dayjs(
+                                                            i.last_stock_update
+                                                        ).isAfter(
+                                                            oneWeekAgo
+                                                        ) ? (
+                                                            <span className="sticker">
+                                                                Yeni
                                                             </span>
-                                                        )):null}
-
+                                                        ) : null}</div>
                                                     </div>
                                                     <div className="hiraola-product_content">
                                                         <div className="product-desc_info">
@@ -116,7 +131,9 @@ function ProductSlider({ mainName, products }) {
                                                                     className="product-name"
                                                                     href="single-product.html"
                                                                 >
-                                                                    {i.product_name}
+                                                                    {
+                                                                        i.product_name
+                                                                    }
                                                                 </a>
                                                             </h6>
                                                             <div className="price-box">
@@ -129,7 +146,6 @@ function ProductSlider({ mainName, products }) {
                                                                     )} ₺`}
                                                                 </span>
                                                             </div>
-
                                                         </div>
                                                     </div>
                                                 </div>

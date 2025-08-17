@@ -30,7 +30,7 @@ class ProductResources extends JsonResource
                     'color' => $stock->color,
                     'size' => $stock->size,
                     'stock' => $stock->stock,
-                    'in_wishlist' => isset($stock->in_wishlist_exists) ? (bool) $stock->in_wishlist_exists : false,
+                    'in_wishlist' => isset($stock->wishlisted_by_exists) ? (bool) $stock->wishlisted_by_exists : false,
                 ];
             }),
             // 'in_cart' => isset($this->in_carts_exists) ? (bool) $this->in_carts_exists : false,

@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Http\Resources\WishProductResources;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use PhpParser\Node\Stmt\TryCatch;
+use Illuminate\Support\Facades\DB;
 class WishlistController extends Controller
 {
     public function index(Request $request)
@@ -33,39 +35,53 @@ class WishlistController extends Controller
 
     public function toggle(Request $request)
     {
-        //return response()->json($request->product_slug);
+        //return response()->json($request->all());
         if (auth()->check()) {
-            $productId = Product::where('slug', operator: $request->product_slug)->value('id');
+            $productId = Product::find($request->product_number);
             if (!$productId) {
                 return response()->json([
                     'message' => 'Ürün Bulunamadı.',
                     'status' => 'error'
                 ], 404);
             }
+            //return response()->json($productId->id);
             $request->validate([
-                'product_slug' => 'required|exists:products,slug',
-                'product_varient_id' => [
+                'product_number' => 'required|exists:products,id',
+                'product_stock_id' => [
                     'required',
                     Rule::exists('product_stocks', 'id')->where(function ($query) use ($productId) {
-                        $query->where('product_id', $productId);
+                        $query->where('product_id', $productId->id);
                     }),
                 ],
+                'price' => 'required|numeric|min:0'
             ]);
-
-            $user = auth()->user();
-            //return response()->json($productId);
-            $exists = $user->wishlist()
-                ->where('product_id', $productId)
-                ->wherePivot('product_stock_id', $request->product_varient_id)
-                ->exists();
-            if ($exists) {
-                $user->wishlist()->newPivotStatement()
-                    ->where(['user_id' => $user->id, 'product_id' => $productId, 'product_stock_id' => $request->product_varient_id])->delete();
-                return response()->json(['status' => 'removed']);
-            } else {
-                $user->wishlist()->attach($productId, ['price' => $request->price, 'product_stock_id' => $request->product_varient_id]);
-                return response()->json(['status' => 'added']);
+            DB::beginTransaction();
+            try {
+                $user = auth()->user();
+                //return response()->json($productId);
+                $exists = $user->wishlist()
+                    ->where('product_id', $productId->id)
+                    ->wherePivot('product_stock_id', $request->product_stock_id)
+                    ->exists();
+                if ($exists) {
+                    $user->wishlist()->newPivotStatement()
+                        ->where(['user_id' => $user->id, 'product_id' => $productId->id, 'product_stock_id' => $request->product_stock_id])->delete();
+                        DB::commit();
+                    return response()->json(['status' => 'removed']);
+                } else {
+                    $user->wishlist()->attach($productId, ['price' => $request->price, 'product_stock_id' => $request->product_stock_id]);
+                    DB::commit();
+                    return response()->json(['status' => 'added']);
+                }
+            } catch (\Throwable $th) {
+                DB::rollBack();
+                return response()->json([
+                    'message' => 'Beklenmeyen bir hata oluştu.',
+                    'status' => 'error',
+                    'err' => $th->getMessage()
+                ], 500);
             }
+
         } else {
             return response()->json([
                 'message' => 'Lütfen Giriş Yapınız',

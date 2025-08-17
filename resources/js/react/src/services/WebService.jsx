@@ -9,10 +9,11 @@ export const getSingleProduct = async (category, slug, token) => {
 };
 
 export const addWishToList = async (productObj, token) => {
-    const { product_slug, price, product_varient_id } = productObj;
     return await api.post(
         "/api/me/wishlist",
-        { product_slug, price, product_varient_id },
+        { product_number: productObj.product_number,
+          price: productObj.price,
+          product_stock_id: productObj.product_stock_id },
         getConfig(token)
     );
 };
@@ -32,13 +33,17 @@ export const addCartToList = async (id, stock_id, token) => {
     }
 };
 
-// export const addCartToAuth = async (cart, token) => {
-//     return await api.put(
-//         "/api/me/cart",
-//         { cart },
-//         getConfig(token)
-//     );
-// };
+export const updateCartQuantity = async (product, quantity, token) => {
+    return await api.put(
+        "/api/me/cart",
+        {
+            product_id: product.product_number,
+            product_stock_id: product.stock_number,
+            quantity: quantity
+        },
+        getConfig(token)
+    );
+};
 
 export const getWishList = async (token) => {
     return await api.get("/api/me/wishlist", getConfig(token));

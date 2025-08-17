@@ -23,11 +23,7 @@ class HomeResources extends JsonResource
             'product_price' => $this->price,
             'category_slug' => $this->category->slug,
             'grouped_stock_by_id' => $this->groupedStockById()->first(),
-            'updated_at' => $this->stock->map(function ($stock) {
-                return [
-                    'updated_at' => $stock->updated_at
-                ];
-            }),
+            'last_stock_update' => $this->stock->max('updated_at'),
         ];
     }
 }

@@ -132,20 +132,8 @@ function MyAccount() {
                                         role="tab"
                                         aria-selected="false"
                                     >
-                                        Logout
+                                        Güvenli Çıkış
                                     </a>
-                                </li>
-                                <li className="nav-item">
-                                    <Link
-                                        className="nav-link"
-                                        //id="account-logout-tab"
-                                        type="submit"
-                                        to={"/login"}
-                                        role="tab"
-                                        aria-selected="false"
-                                    >
-                                        Login
-                                    </Link>
                                 </li>
                             </ul>
                         </div>

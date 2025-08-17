@@ -111,7 +111,7 @@ function Home() {
                 </div>
             </div>
 
-            <div className="about-us-area my-3">
+            <div className="about-us-area mb-5">
                 <div className="container">
                     <div className="row">
                         <div className="col-12 text-center">
@@ -272,7 +272,7 @@ function Home() {
                 products={productsDi ?? productsDi}
             />
 
-            <div className="hiraola-banner_area-2 mb-5">
+            {/* <div className="hiraola-banner_area-2 mb-5">
                 <div className="container">
                     <div className="row">
                         <div className="col-lg-6">
@@ -299,7 +299,7 @@ function Home() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             <ProductSliderWithTab
                 mainName={"EŞSİZ PIRLANTA SERİMİZ"}

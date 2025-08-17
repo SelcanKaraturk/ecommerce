@@ -64,7 +64,7 @@ function ProductDetail() {
             }));
             setOptions(orderedOptions(newOptions)); //veriyi küçükten büyüğe sırala
         }
-        // console.log(product)
+        console.log(product)
     }, [product]);
 
     useEffect(() => {
@@ -85,12 +85,13 @@ function ProductDetail() {
     };
 
     const changeWishStatue = (e) => {
+        console.log(e);
         setProduct((prev) => ({
             ...prev,
-            stock:
+            product_stock:
                 prev.product_stock?.map((i) =>
-                    i?.color === selectedColor
-                        ? { ...i, wishlisted_by_exists: e }
+                    i == selectedStock
+                        ? { ...i, in_wishlist: e }
                         : i
                 ) || [],
         }));
@@ -116,6 +117,9 @@ function ProductDetail() {
         const { value } = val;
         setSelectedSize(value);
     };
+    const selectedStock = product?.product_stock.find(
+        (i) => i.color === selectedColor && i.size == 12
+    );
     return (
         <>
             {!loading ? (
@@ -272,31 +276,12 @@ function ProductDetail() {
                                                         {product && (
                                                             <WishlistButton
                                                                 productObj={{
-                                                                    product_slug:
-                                                                        product.product_slug,
-                                                                    price: product.product_price,
-                                                                    myWish:
-                                                                        product.product_stock.find(
-                                                                            (
-                                                                                i
-                                                                            ) =>
-                                                                                i.color ===
-                                                                                selectedColor
-                                                                        )
-                                                                            ?.wishlisted_by_exists ??
-                                                                        false,
-                                                                    product_varient_id:
-                                                                        product.product_stock?.find(
-                                                                            (
-                                                                                i
-                                                                            ) =>
-                                                                                i.color ===
-                                                                                selectedColor
-                                                                        )?.id,
+                                                                    product_number: product?.product_number,
+                                                                    price: product?.product_price,
+                                                                    product_stock_id: selectedStock?.stock_number,
+                                                                    myWish: selectedStock?.in_wishlist,
                                                                 }}
-                                                                changeWishStatue={
-                                                                    changeWishStatue
-                                                                }
+                                                                changeWishStatue={changeWishStatue}
                                                             />
                                                         )}
                                                     </li>

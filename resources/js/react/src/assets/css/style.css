@@ -343,20 +343,16 @@ button {
 
 /* ---Hiraola's Product Sticker---*/
 .sticker,
-.sticker-2 {
-    position: absolute;
-    top: 20px;
-    left: 20px;
+.sticker-2,
+.sticker-3 {
     width: 45px;
     height: 20px;
     line-height: 18px;
     font-size: 11px;
-    text-transform: uppercase;
     text-align: center;
     color: #ffffff;
-    text-transform: uppercase;
 }
-.sticker:before,
+/* .sticker:before,
 .sticker-2:before {
     content: "";
     width: 0;
@@ -366,15 +362,25 @@ button {
     left: 9px;
     top: 100%;
     position: absolute;
-}
+} */
 
 .sticker-2 {
     background: #ff4000;
-    right: 20px;
-    left: auto;
+     width: 55px;
 }
-.sticker-2:before {
-    border-color: #ff4000 transparent transparent transparent;
+
+.sticker-3 {
+    background: #595959;
+     width: 50px;
+}
+ .sticker-wrapper {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+}
+.sticker-wrapper :nth-child(1){
+   margin-right: 5px;
 }
 
 /* ---Hiraola's Section Title--- */
@@ -1630,7 +1636,7 @@ button.li-btn,
     .single_product:hover,
 .template-color-2 .latest-blog_slider .list-slide_item .single_product:hover,
 .template-color-2 .shop-product-wrap .list-slide_item .single_product:hover {
-    border-color: #be8658;
+    border-color: #cda557;
 }
 .template-color-2 .hiraola-product_slider .slick-arrow,
 .template-color-2 .hiraola-product-tab_slider-2 .slick-arrow,
@@ -1650,25 +1656,25 @@ button.li-btn,
 }
 .template-color-2 .hiraola-testimonial_slider .slick-arrow:hover,
 .template-color-2 .hiraola-brand_slider .slick-arrow:hover {
-    color: #be8658;
+    color: #cda557;
 }
 .template-color-2 .product-tab > ul > li > a.active {
-    color: #be8658;
+    color: #cda557;
 }
 .template-color-2 .rating-box > ul > li > i {
-    color: #be8658;
+    color: #cda557;
 }
 .template-color-2 .widgets-essential_stuff > ul > li > i {
-    color: #be8658;
+    color: #cda557;
 }
 .template-color-2 .newsletter-form_wrap .subscribe-form .newsletter-btn {
-    background-color: #be8658;
+    background-color: #cda557;
 }
 .template-color-2 .hiraola-social_link > ul > li > a:hover {
-    background-color: #be8658;
+    background-color: #cda557;
 }
 .template-color-2 .footer-bottom_area .footer-bottom_nav .copyright > span > a {
-    color: #be8658;
+    color: #cda557;
 }
 .template-color-2 #scrollUp i {
     margin-top: 16px;
@@ -8412,13 +8418,16 @@ button.li-btn:hover {
     margin-top: -1px;
 }
 .account-page-area .myaccount-tab-trigger li a {
-    border: 1px solid #444444;
+    border: 1px solid #c5c5c5;
     display: block;
-    background: #595959;
-    color: #ffffff;
-    text-transform: uppercase;
+    /* background: #595959; */
+    color: #595959;
     font-weight: 600;
     padding: 10px 20px;
+    border-bottom: none;
+}
+.account-page-area .myaccount-tab-trigger li:last-child a{
+    border-bottom: 1px solid #c5c5c5;
 }
 .account-page-area .myaccount-tab-trigger li a.active {
     background: #cda557;

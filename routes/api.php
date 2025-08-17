@@ -56,7 +56,7 @@ Route::post('/register', [AuthController::class, 'register']);
 
 Route::prefix('/{lang}')->where(['lang' => 'tr|en|de'])->group(function () {
     Route::get('/', [ProductController::class, 'index']);
-    Route::get('/{category}/{slug}', [ProductController::class, 'show']);
+    Route::get('/{category}/{slug}', [ProductController::class, 'show'])->middleware('auth:sanctum');
 });
 //->middleware( ['auth:sanctum'])
 Route::prefix('me')->middleware(['auth:sanctum', 'verified'])->group(function () {
@@ -68,6 +68,7 @@ Route::prefix('me')->middleware(['auth:sanctum', 'verified'])->group(function ()
     Route::get('/cart', [CartController::class, 'index']);
     Route::post('/cart/toggle', [CartController::class, 'toggleItem']);
     Route::post('/cart/delete', [CartController::class, 'destroy']);
+    Route::put('/cart', [CartController::class, 'update']);
 });
 
 Route::get('/cart', [CartCookieController::class, 'show']);

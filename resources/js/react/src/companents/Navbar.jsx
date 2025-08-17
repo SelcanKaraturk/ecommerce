@@ -30,7 +30,7 @@ function Navbar() {
                             <div className="header-logo h-100">
                                 <NavLink to="/tr">
                                     <img
-                                        src="/src/assets/images/valor_logo_transparent_125px.png"
+                                        src="/src/assets/images/valor.png"
                                         alt="Hiraola's Header Logo"
                                     />
                                 </NavLink>
@@ -314,7 +314,7 @@ function Navbar() {
                                     <li>
                                         <Link
                                             className="wishlist-btn"
-                                            to="/me/wishlist"
+                                            to="/tr/favorilerim"
                                         >
                                             <i className="ion-android-favorite-outline"></i>
                                         </Link>
@@ -356,7 +356,7 @@ function Navbar() {
                                     <li>
                                         <Link
                                             className="minicart-btn toolbar-btn"
-                                            to={"/me"}
+                                            to={"/tr/hesabim"}
                                         >
                                             <i className="ion-android-person"></i>
                                         </Link>
