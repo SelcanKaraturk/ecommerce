@@ -26,15 +26,15 @@ class DatabaseSeeder extends Seeder
         // Schema::enableForeignKeyConstraints();
 
         // \App\Models\User::factory(10)->create();
-        \App\Models\Category::factory()->count(10)->create();
-        \App\Models\Product::factory()->count(10)->create();
+        // \App\Models\Category::factory()->count(10)->create();
+        // \App\Models\Product::factory()->count(10)->create();
 
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
         $this->call([
-            //ProductSeeder::class
+            ProductSeeder::class
 
         ]);
     }

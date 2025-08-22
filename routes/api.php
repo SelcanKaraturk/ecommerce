@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\CmsController;
+use App\Http\Controllers\Api\Admin\AdminAuthController;
+use App\Http\Controllers\Api\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
@@ -9,6 +13,7 @@ use App\Http\Controllers\Api\User\CartController;
 use App\Http\Controllers\Auth\AuthController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Models\User;
+use PhpParser\Node\Expr\FuncCall;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -58,6 +63,16 @@ Route::prefix('/{lang}')->where(['lang' => 'tr|en|de'])->group(function () {
     Route::get('/', [ProductController::class, 'index']);
     Route::get('/{category}/{slug}', [ProductController::class, 'show'])->middleware('auth:sanctum');
 });
+Route::prefix('/admin')->middleware(['auth:sanctum', 'role:admin'])->group(function (){
+    Route::get('/',[AdminAuthController::class, 'show']);
+    Route::post('/logout',[AdminAuthController::class, 'logout']);
+    Route::get('/dashboard',[CmsController::class, 'index']);
+    Route::apiResource('products', AdminProductController::class);
+    Route::apiResource('categories', AdminCategoryController::class);
+});
+Route::post('/admin/login',[AdminAuthController::class, 'login']);
+
+
 //->middleware( ['auth:sanctum'])
 Route::prefix('me')->middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/', [AuthController::class, 'show']);

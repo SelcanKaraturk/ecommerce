@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use Exception;
@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Auth\Events\Login;
 
 
-class AuthController extends Controller
+class AdminAuthController extends Controller
 {
     public function register(Request $request)
     {
@@ -35,7 +35,7 @@ class AuthController extends Controller
             ]);
 
             // Rol ata
-            $user->assignRole('user');
+            $user->assignRole('admin');
             $user->sendEmailVerificationNotification();
 
             // Her şey yolunda, commit et
@@ -56,30 +56,26 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-
         $request->validate([
-            'email' => 'required|email',
+            'email' => 'required|exists:users,email',
             'password' => 'required|min:6',
         ]);
 
         DB::beginTransaction();
         try {
             $user = User::where('email', $request->email)->first();
-            if(!$user->email_verified_at){
-                return response()->json(['error' => 'Merhaba '.$user->name.' işleminize devam edebilmek için hesabınızı doğrulamanız gerekmektedir. Lütfen emailinizi kontrol ediniz.']);
-            }
 
             if (!$user || !Hash::check($request->password, $user->password)) {
                 return response()->json(['error' => 'Kullanıcı adı ya da şifre hatalı']);
+            }elseif(!$user->hasRole('admin')){
+                return response()->json(['error' => 'Bu alana giriş izniniz bulunmamaktadır.']);
             }
-            event(new Login(auth()->getDefaultDriver(), $user, false));
-            //return response()->json(['guard'=>auth()->getDefaultDriver()]);
             DB::commit();
             return response()->json([
                 'user' => $user,
                 'currentToken' => $user->createToken('new_user')->plainTextToken,
                 'message' => 'Giriş Başarılı'
-            ])->withCookie(cookie()->forget('cart_items'));
+            ]);
 
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -97,14 +93,14 @@ class AuthController extends Controller
     public function show(Request $request)
     {
         return response()->json([
-            'user' => $request->user(),
-            'currentToken' => $request->bearerToken()
+            'user' => $request->user()->getRoleNames()->first(),
+            'status' => 'success'
         ]);
     }
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'sorun var']);
+        return response()->json(['message' => 'Başarıyla Çıkış Yaptınız']);
     }
 
 }

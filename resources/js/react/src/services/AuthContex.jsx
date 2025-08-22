@@ -79,7 +79,11 @@ export const AuthProvider = ({ children }) => {
     };
 
     const login = async (credentials) => {
-        return await api.post("/api/login", credentials); // withCredentials zaten global ayarda var
+        return await api.post("/api/login", credentials);
+    };
+
+    const adminLogin = async (credentials) => {
+        return await api.post("/api/admin/login", credentials);
     };
 
     //     try {
@@ -103,6 +107,13 @@ export const AuthProvider = ({ children }) => {
         return await api.post("/api/me/logout", {}, getConfig(accessToken));
     };
 
+    const apiAdminLogout = async () => {
+        return await api.post("/api/admin/logout", {}, getConfig(accessToken));
+    };
+
+    const checkRole = async () => {
+        return await api.get("/api/admin",getConfig(accessToken));
+    };
     return (
         <AuthContext.Provider
             value={{
@@ -122,6 +133,9 @@ export const AuthProvider = ({ children }) => {
                 setMiniCart,
                 openModal,
                 setOpenModal,
+                adminLogin,
+                apiAdminLogout,
+                checkRole
             }}
         >
             {children}

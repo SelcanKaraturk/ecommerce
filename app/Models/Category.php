@@ -32,13 +32,12 @@ class Category extends Model
         'images' => 'array',
     ];
 
-    public function getRouteKeyName()
-    {
-        return 'slug';
-    }
+    // public function getRouteKeyName()
+    // {
+    //     return 'slug';
+    // }
 
     protected $hidden = [
         'id',
-        'parent_id'
     ];
 }

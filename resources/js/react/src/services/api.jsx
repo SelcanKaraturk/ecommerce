@@ -7,10 +7,10 @@ const api = axios.create({
   withXSRFToken: true,
 });
 
-export const getConfig = (token) => {
+export const getConfig = (token, contentType = "application/json") => {
     const config ={
         headers:{
-            "Content-type":"application/json",
+            "Content-type": contentType,
             "Authorization": `Bearer ${token}`
         }
     }
