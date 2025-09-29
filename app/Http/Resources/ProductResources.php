@@ -23,16 +23,17 @@ class ProductResources extends JsonResource
             'product_price' => $this->price,
             'category_slug' => $this->category->slug,
             'grouped_stock_by_color' => $this->groupStockByColor(),
-            'product_stock' => $this->stock->map(function ($stock) {
-                return [
-                    'stock_number' => $stock->id,
-                    'product_number' => $stock->product_id,
-                    'color' => $stock->color,
-                    'size' => $stock->size,
-                    'stock' => $stock->stock,
-                    'in_wishlist' => isset($stock->wishlisted_by_exists) ? (bool) $stock->wishlisted_by_exists : false,
-                ];
-            }),
+            'total_stock'    => $this->stock_sum_stock ?? $this->stock->sum('stock') ?? 0,
+            // 'product_stock' => $this->stock->map(function ($stock) {
+            //     return [
+            //         'stock_number' => $stock->id,
+            //         'product_number' => $stock->product_id,
+            //         'color' => $stock->color,
+            //         'size' => $stock->size,
+            //         'stock' => $stock->stock,
+            //         'in_wishlist' => isset($stock->wishlisted_by_exists) ? (bool) $stock->wishlisted_by_exists : false,
+            //     ];
+            // }),
             // 'in_cart' => isset($this->in_carts_exists) ? (bool) $this->in_carts_exists : false,
         ];
     }

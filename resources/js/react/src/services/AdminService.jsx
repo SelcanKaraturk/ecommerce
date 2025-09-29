@@ -16,3 +16,10 @@ export const updateCategory = async (category_slug, data, token) => {
     return await api.post(`/api/admin/categories/${category_slug}`, data, getConfig(token, "multipart/form-data"));
 };
 
+export const deleteCategory = async (category_slug, token) => {
+    return await api.delete(`/api/admin/categories/${category_slug}`, getConfig(token));
+};
+
+export const createCategory = async (data, token) => {
+    return await api.post(`/api/admin/categories`, data, getConfig(token, "multipart/form-data"));
+};

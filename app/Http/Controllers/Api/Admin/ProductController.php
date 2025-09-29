@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ProductResources;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -15,8 +16,9 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with('category')->get();
-        return response()->json($products);
+        $products = Product::with(['category:id,slug','stock:product_id,color'])->withSum('stock', 'stock')->get();
+        //return response()->json($products);
+         return response()->json(ProductResources::collection($products));
     }
 
     /**

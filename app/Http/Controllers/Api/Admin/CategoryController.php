@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\CategoryResources;
 use App\Models\Category;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 class CategoryController extends Controller
 {
     /**
@@ -17,12 +18,11 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::with([
-            'children' => function ($q) {
-                $q->whereColumn('id', '!=', 'parent_id');
-            },
+            'children',
             'parent:id,slug'
         ])->get();
         return response()->json(['status' => 'success', 'categories' => CategoryResources::collection($categories)]);
+        //return response()->json(['msg'=>$categories]);
     }
 
     /**
@@ -43,7 +43,67 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'parent_slug' => 'nullable',
+            'images' => 'nullable|array',
+            'files.*' => 'nullable|file|image|max:5120', // yeni yüklenecek dosyalar
+        ]);
+
+
+        DB::transaction(function () use ($validated, $request) {
+
+            $category = Category::where('slug', Str::slug($validated['name']))->first();
+            // Slug kontrolü ve üretimi
+            if (isset($category)) {
+                $baseSlug = Str::slug($validated['name']);
+                $newSlug = $baseSlug;
+                $counter = 1;
+                while (
+                    Category::where('slug', $newSlug)
+                        ->exists()
+                ) {
+                    $newSlug = $baseSlug . '-' . $counter++;
+                }
+            } else {
+                $newSlug = Str::slug($validated['name']);
+            }
+
+            $parent = null;
+            if (!empty($validated['parent_slug'])) {
+                $parent = Category::where('slug', $validated['parent_slug'])->value('id');
+            }
+
+            $allImages = [];
+            // Yeni yüklenen dosyaları işle
+            if ($request->hasFile('images')) {
+                foreach ((array) $request->file('images') as $img) {
+                    if ($img instanceof \Illuminate\Http\UploadedFile) {
+                        $path = $img->store('categories', 'public');
+                        $allImages[] = $path;
+                    }
+                }
+            }
+
+           // Oluştur
+            Category::create([
+                'name' => $validated['name'],
+                'slug' => $newSlug,
+                'parent_id' => $parent ?? null,
+                'images' => $allImages,
+            ]);
+       });
+        //  return response()->json([
+        //         'name' => $validated['name'],
+        //         'slug' => $newSlug,
+        //         'parent_id' => $parent->id,
+        //         'images' => $allImages,
+        //     ]);
+        return response()->json([
+            'message' => 'Kategori başarıyla eklendi',
+            'status' => 'success',
+            'data' => $this->indexData($request->bearerToken()),
+        ]);
     }
 
     /**
@@ -80,34 +140,77 @@ class CategoryController extends Controller
      */
     public function update(Request $request, $slug)
     {
-
+        //return response()->json(['data' => $request->all()]);
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'parent_slug' => 'nullable|exists:categories,slug',
-            'images.*' => 'nullable',
+            'images' => 'nullable|array',
+            'files.*' => 'nullable|file|image|max:5120', // yeni yüklenecek dosyalar
         ]);
-        $category = Category::where('slug', $slug);
-        $parent = Category::where('slug', $validated['parent_slug'])->firstOrFail();
-        $allImages = $request->input('images');
-        foreach ($request->allFiles() as $img) {
-            // eğer dosya ise -> store et
-            if ($img instanceof \Illuminate\Http\UploadedFile) {
-                $path = $img->store('categories', 'public');
-                $allImages[] = $path;
-            }
-        }
 
-        $category->update([
-            'name' => $validated['name'],
-            'parent_id' => $parent->id ?? null,
-            'images' => json_encode($allImages), // db'de json cast varsa direkt $allImages
-        ]);
+
+        DB::transaction(function () use ($validated, $slug, $request, &$category) {
+
+            $category = Category::where('slug', $slug)->firstOrFail();
+
+            $parent = null;
+            if (!empty($validated['parent_slug'])) {
+                $parent = Category::where('slug', $validated['parent_slug'])->value('id');
+            }
+
+            $allImages = $request->input('images', []);
+
+            // Yeni yüklenen dosyaları işle
+            if ($request->hasFile('images')) {
+                foreach ((array) $request->file('images') as $img) {
+                    if ($img instanceof \Illuminate\Http\UploadedFile) {
+                        $path = $img->store('categories', 'public');
+                        $allImages[] = $path;
+                    }
+                }
+            }
+
+            // Slug kontrolü ve üretimi
+            if ($validated['name'] !== $category->name) {
+                $baseSlug = Str::slug($validated['name']);
+                $newSlug = $baseSlug;
+                $counter = 1;
+                while (
+                    Category::where('slug', $newSlug)
+                        ->where('id', '!=', $category->id)
+                        ->exists()
+                ) {
+                    $newSlug = $baseSlug . '-' . $counter++;
+                }
+            } else {
+                $newSlug = $category->slug;
+            }
+
+            // Güncelle
+            $category->update([
+                'name' => $validated['name'],
+                'slug' => $newSlug,
+                'parent_id' => $parent ?? null,
+                'images' => $allImages,
+            ]);
+        });
 
         return response()->json([
             'message' => 'Kategori başarıyla güncellendi',
             'status' => 'success',
-            'data' => $category
+            'data' => $this->indexData($request->bearerToken()),
         ]);
+    }
+
+    public function indexData($token)
+    {
+        $categories = Category::with([
+            'children' => function ($q) {
+                $q->whereColumn('id', '!=', 'parent_id');
+            },
+            'parent:id,slug'
+        ])->get();
+        return CategoryResources::collection($categories);
     }
 
     /**
@@ -116,8 +219,17 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($slug)
     {
-        //
+        $category = Category::where('slug', $slug)->with('children')->firstOrFail();
+
+        DB::transaction(function () use (&$category) {
+            $category->delete();
+        });
+
+        return response()->json([
+            'message' => 'Kategori ve tüm alt kategorileri başarıyla silindi.',
+            'status' => 'success',
+        ]);
     }
 }

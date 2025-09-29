@@ -15,17 +15,27 @@ class Category extends Model
         "parent_id",
     ];
 
-    public function products(){
+    public function products()
+    {
         return $this->hasMany(Product::class);
     }
 
-    public function children(){
-        return $this->hasMany(Category::class,"parent_id")
-         ->where('id', '!=', $this->id);
+    public function children()
+    {
+        return $this->hasMany(Category::class, "parent_id")->with('children');
     }
 
-    public function parent(){
-        return $this->belongsTo(Category::class,"parent_id");
+    public function parent()
+    {
+        return $this->belongsTo(Category::class, "parent_id");
+    }
+    public function deleteWithChildren()
+    {
+        foreach ($this->children as $child) {
+            $child->deleteWithChildren();
+        }
+
+        $this->delete();
     }
 
     protected $casts = [

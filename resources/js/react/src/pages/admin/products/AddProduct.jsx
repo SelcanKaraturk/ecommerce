@@ -1,36 +1,46 @@
-import React, { useEffect, useState } from "react";
+import { Add, Close, Delete } from "@mui/icons-material";
 import {
+    Box,
     Button,
     Dialog,
-    DialogTitle,
-    DialogContent,
     DialogActions,
-    TextField,
-    IconButton,
+    DialogContent,
+    DialogTitle,
     FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
     Grid,
-    Box,
+    IconButton,
+    InputLabel,
+    MenuItem,
+    Select,
+    TextField,
+    Typography,
 } from "@mui/material";
-import { Edit, Delete, Close } from "@mui/icons-material";
-import { updateCategory } from "../../../services/AdminService";
+import React, { useState } from "react";
 import { useAuth } from "../../../services/AuthContex";
-import { toast } from "react-toastify";
+import ValidateError from "../../auth/ValidateError";
 
-export default function EditCategory({ category, onUpdated, categories }) {
+function AddProduct() {
     const [open, setOpen] = useState(false);
     const [form, setForm] = useState({
-        name: category.name,
-        parent_slug: category.parent_slug || "",
-        images: category.images || [],
+        name: "",
+        parent_slug: "",
+        images: [],
     });
+    const [preview, setPreview] = useState([]);
+    const [errors, setErrors] = useState(null);
     const { accessToken } = useAuth();
-    const [preview, setPreview] = useState(category.images);
+
+    const handleCancel = () => {
+        setForm({
+            name: "",
+            parent_slug: "",
+            images: [],
+        });
+        setPreview([]);
+        setOpen(false); // modal kapat
+    };
 
     const handleChange = (e) => {
-        console.log(e.target);
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
@@ -47,46 +57,6 @@ export default function EditCategory({ category, onUpdated, categories }) {
         }
     };
 
-    const handleSubmit = async () => {
-        try {
-            const formData = new FormData();
-            formData.append("name", form.name);
-            console.log(form.parent_slug);
-            if (form.parent_slug)
-                formData.append("parent_slug", form.parent_slug);
-            if (form.images) {
-                form.images.forEach((file) => {
-                    formData.append("images[]", file);
-                });
-            }
-
-            formData.append("_method", "PUT");
-            //  formData.forEach((e)=>console.log(e));
-
-            const { data } = await updateCategory(
-                category.slug,
-                formData,
-                accessToken
-            );
-            if (data.status === "success") {
-                onUpdated(data.data);
-                toast.success(data.message);
-                setOpen(false);
-            }else{
-                toast.error('Beklenmeyen Bir Hata Oluştu.');
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    };
-    useEffect(() => {
-        setForm({
-            name: category.name,
-            parent_slug: category.parent_slug || "",
-            images: category.images || [],
-        });
-    }, [category]);
-
     const handleImageDelete = (index) => {
         // preview'den çıkar
         const newPreview = [...preview];
@@ -99,30 +69,56 @@ export default function EditCategory({ category, onUpdated, categories }) {
         setForm({ ...form, images: newImages });
     };
 
-    const handleCancel = () => {
-        setForm({
-            name: category.name,
-            parent_slug: category.parent_slug || "",
-            images: category.images || [],
-        });
-        setPreview(category.images);
-        setOpen(false); // modal kapat
+    const handleSubmit = async () => {
+        try {
+            const formData = new FormData();
+            formData.append("name", form.name);
+            formData.append("parent_slug", form.parent_slug);
+            if (form.images) {
+                form.images.forEach((file) => {
+                    formData.append("images[]", file);
+                });
+            }
+            //  formData.forEach((e)=>console.log(e));
+
+            const { data } = await createCategory(formData, accessToken);
+
+            if (data.status === "success") {
+                onCreated(data.data);
+                toast.success(data.message);
+                setOpen(false);
+                setForm({
+                    name: "",
+                    parent_slug: "",
+                    images: [],
+                });
+            } else {
+                toast.error("Beklenmeyen Bir Hata Oluştu.");
+            }
+        } catch (error) {
+            if (error?.response?.status === 422) {
+                setErrors(error.response.data.errors);
+            }
+            console.error(error);
+        }
     };
+
     return (
         <>
-            <IconButton
-                sx={{ mr: 1 }}
-                onClick={() => setOpen(true)}
-                size="small"
-                color="success"
-                aria-label="update"
-            >
-                <Edit />
-            </IconButton>
+            <Box display="flex" justifyContent="flex-end" mb={2}>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<Add />}
+                    onClick={() => setOpen(true)}
+                >
+                    ÜRÜN EKLE
+                </Button>
+            </Box>
 
             <Dialog open={open} disableEscapeKeyDown fullWidth maxWidth="sm">
                 <DialogTitle sx={{ m: 0, p: 2 }}>
-                    Kategori Düzenle
+                    Ürün Ekle
                     <IconButton
                         aria-label="close"
                         onClick={handleCancel}
@@ -146,30 +142,44 @@ export default function EditCategory({ category, onUpdated, categories }) {
                     }}
                 >
                     <TextField
-                        label="Kategori Adı"
+                        error={!!errors?.name}
+                        label="Ürün Adı"
                         name="name"
                         value={form.name}
                         onChange={handleChange}
                         fullWidth
                         sx={{ mt: 1 }}
                     />
+                    {ValidateError(errors, "name")}
 
+                    <Typography
+                        sx={{
+                            fontSize: "12px !important",
+                            color: "#595959 !important",
+                            marginBottom: "-18px",
+                        }}
+                    >
+                        *Üst kategori seçmemeniz halinde ana kategori olarak
+                        kaydedilir!
+                    </Typography>
                     <FormControl fullWidth>
                         <InputLabel>Üst Kategori</InputLabel>
                         <Select
+                            error={!!errors?.parent_slug}
                             name="parent_slug"
-                            value={form.parent_slug || ""} // varsayılan parent_slug olsun
                             onChange={handleChange}
+                            value={form.parent_slug}
                         >
-                            {categories
-                                .filter((c) => c.slug !== category.slug) // kendisini seçemesin
+                            {/* {categories && categories
+                                // .filter((c) => c.slug !== category.slug) // kendisini seçemesin
                                 .map((c) => (
                                     <MenuItem key={c.slug} value={c.slug}>
                                         {c.name}
                                     </MenuItem>
-                                ))}
+                                ))} */}
                         </Select>
                     </FormControl>
+                    {ValidateError(errors, "parent_slug")}
 
                     <Button variant="outlined" component="label">
                         Resim Yükle
@@ -181,6 +191,7 @@ export default function EditCategory({ category, onUpdated, categories }) {
                             multiple
                         />
                     </Button>
+                    {ValidateError(errors, "files")}
 
                     {preview && (
                         <Grid container spacing={2} sx={{ mt: 1 }}>
@@ -257,3 +268,5 @@ export default function EditCategory({ category, onUpdated, categories }) {
         </>
     );
 }
+
+export default AddProduct;

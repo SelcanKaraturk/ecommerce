@@ -3,7 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-
+use Illuminate\Support\Facades\Storage;
 class CategoryResources extends JsonResource
 {
     /**
@@ -14,18 +14,16 @@ class CategoryResources extends JsonResource
      */
     public function toArray($request)
     {
-         return [
+        return [
             'name' => $this->name,
             'slug' => $this->slug,
-            'images' => $this->images,
-            'parent_slug' => $this->parent->slug,
-            'children' => $this->children->map(function ($child) {
-                return [
-                    'name' => $child->name,
-                    'slug' => $child->slug,
-                    'images' => $child->images,
-                ];
+            'images' => collect($this->images)->map(function ($img) {
+                return str_starts_with($img, 'http')
+                    ? $img
+                    : url(Storage::url($img));
             }),
+            'parent_slug' => $this->parent?->slug, // parent olmayabilir
+            'children' => CategoryResources::collection($this->whenLoaded('children')),
 
         ];
     }
