@@ -1,0 +1,7 @@
+.text-editor .ql-editor > * {
+    color: #000;
+}
+
+.text-editor .ql-editor {
+    min-height: 200px;
+}

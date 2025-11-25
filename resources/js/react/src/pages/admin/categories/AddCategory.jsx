@@ -154,11 +154,17 @@ function AddCategory({ categories, onCreated }) {
                     />
                     {ValidateError(errors, "name")}
 
-                    <Typography sx={{ fontSize: "12px !important", color:'#595959 !important', marginBottom: '-18px' }}>
-                             *Üst kategori seçmemeniz halinde ana kategori olarak kaydedilir!
-                        </Typography>
+                    <Typography
+                        sx={{
+                            fontSize: "12px !important",
+                            color: "#595959 !important",
+                            marginBottom: "-18px",
+                        }}
+                    >
+                        *Üst kategori seçmemeniz halinde ana kategori olarak
+                        kaydedilir!
+                    </Typography>
                     <FormControl fullWidth>
-
                         <InputLabel>Üst Kategori</InputLabel>
                         <Select
                             error={!!errors?.parent_slug}
@@ -192,7 +198,7 @@ function AddCategory({ categories, onCreated }) {
                     {preview && (
                         <Grid container spacing={2} sx={{ mt: 1 }}>
                             {preview.map((i, index) => (
-                                <Grid item xs={4} key={index}>
+                                <Grid size={3} key={index}>
                                     <Box
                                         sx={{
                                             position: "relative",

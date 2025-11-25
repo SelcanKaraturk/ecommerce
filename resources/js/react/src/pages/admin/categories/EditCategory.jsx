@@ -61,13 +61,14 @@ export default function EditCategory({ category, onUpdated, categories }) {
             }
 
             formData.append("_method", "PUT");
-            //  formData.forEach((e)=>console.log(e));
+              formData.forEach((e)=>console.log(e));
 
             const { data } = await updateCategory(
                 category.slug,
                 formData,
                 accessToken
             );
+            console.log(data);
             if (data.status === "success") {
                 onUpdated(data.data);
                 toast.success(data.message);
@@ -185,7 +186,7 @@ export default function EditCategory({ category, onUpdated, categories }) {
                     {preview && (
                         <Grid container spacing={2} sx={{ mt: 1 }}>
                             {preview.map((i, index) => (
-                                <Grid item xs={4} key={index}>
+                                <Grid size={3} key={index}>
                                     <Box
                                         sx={{
                                             position: "relative",

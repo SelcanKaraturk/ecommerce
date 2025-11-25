@@ -58,7 +58,7 @@ function AppRoutes() {
             <Route path="admin/login" element={<AdminLogin/>} />
             <Route path="admin/logout" element={<Navigate to="/admin/login" />} />
             <Route path="admin" element={<AuthLayout/>}>
-                    <Route path="" index element={<Dashboard/>}/>
+                <Route path="" index element={<Dashboard/>}/>
                 <Route path="products" element={<AdminProducts/>} />
                 <Route path="categories" element={<AdminCategories/>} />
             </Route>

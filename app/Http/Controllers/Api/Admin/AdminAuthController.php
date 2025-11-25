@@ -38,7 +38,6 @@ class AdminAuthController extends Controller
             $user->assignRole('admin');
             $user->sendEmailVerificationNotification();
 
-            // Her şey yolunda, commit et
             DB::commit();
 
             return response()->json(['message' => 'Lütfen Hesabınızı Doğrulayınız','status'=>'success']);

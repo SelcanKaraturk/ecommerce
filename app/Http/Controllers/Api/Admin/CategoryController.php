@@ -80,7 +80,7 @@ class CategoryController extends Controller
                 foreach ((array) $request->file('images') as $img) {
                     if ($img instanceof \Illuminate\Http\UploadedFile) {
                         $path = $img->store('categories', 'public');
-                        $allImages[] = $path;
+                        $allImages[] = 'categories/' . basename($path);
                     }
                 }
             }
@@ -149,7 +149,7 @@ class CategoryController extends Controller
         ]);
 
 
-        DB::transaction(function () use ($validated, $slug, $request, &$category) {
+         DB::transaction(function () use ($validated, $slug, $request, &$category) {
 
             $category = Category::where('slug', $slug)->firstOrFail();
 
@@ -158,14 +158,20 @@ class CategoryController extends Controller
                 $parent = Category::where('slug', $validated['parent_slug'])->value('id');
             }
 
-            $allImages = $request->input('images', []);
+            $allImages = [];
+             // Eski yüklenen dosyaları işle
+            if ($request->has('images')) {
+                foreach ($request->input('images') as $old) {
+                    $allImages[] = str_replace(url('storage') . '/', '', $old);
+                }
+            }
 
             // Yeni yüklenen dosyaları işle
             if ($request->hasFile('images')) {
                 foreach ((array) $request->file('images') as $img) {
                     if ($img instanceof \Illuminate\Http\UploadedFile) {
                         $path = $img->store('categories', 'public');
-                        $allImages[] = $path;
+                        $allImages[] = 'categories/' . basename($path);
                     }
                 }
             }
@@ -193,7 +199,7 @@ class CategoryController extends Controller
                 'parent_id' => $parent ?? null,
                 'images' => $allImages,
             ]);
-        });
+         });
 
         return response()->json([
             'message' => 'Kategori başarıyla güncellendi',

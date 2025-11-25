@@ -23,3 +23,8 @@ export const deleteCategory = async (category_slug, token) => {
 export const createCategory = async (data, token) => {
     return await api.post(`/api/admin/categories`, data, getConfig(token, "multipart/form-data"));
 };
+
+export const createProduct = async (data, token) => {
+    return await api.post(`/api/admin/products`, data, getConfig(token, "multipart/form-data"));
+};
+

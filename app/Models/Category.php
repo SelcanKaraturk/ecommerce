@@ -15,9 +15,16 @@ class Category extends Model
         "parent_id",
     ];
 
+    // public function products()
+    // {
+    //     return $this->hasMany(Product::class);
+    // }
+
     public function products()
     {
-        return $this->hasMany(Product::class);
+        return $this->belongsToMany(Product::class, 'category_product')
+                    ->withTimestamps();
+                    //->withPivot('position'); // pivot alanları varsa ekle
     }
 
     public function children()
@@ -37,6 +44,7 @@ class Category extends Model
 
         $this->delete();
     }
+
 
     protected $casts = [
         'images' => 'array',

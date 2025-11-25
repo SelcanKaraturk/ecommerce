@@ -6,10 +6,13 @@ import { useAuth } from "../../../services/AuthContex";
 import {  IconButton, Stack, Box } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
 import AddProduct from "./AddProduct";
+import useCategories from "../../../services/hooks/useCategories";
+import EditProduct from "./EditProduct";
 
 function Products() {
     const [products, setProducts] = useState([]);
     const { accessToken } = useAuth();
+    const {categories} = useCategories();
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -54,11 +57,12 @@ function Products() {
 
     const columns = [
         { field: "product_number", headerName: "ID", width: 60 },
-        { field: "product_name", headerName: "Ürün Adı", flex: 1 },
+        { field: "product_name", headerName: "Ürün Adı", width: 150 },
         {
             field: "product_images",
             headerName: "Görseller",
             width: 150,
+            sortable: false, filterable: false,
             renderCell: (params) => (
                 <Stack direction="row" spacing={1}>
                     {params.value?.slice(0, 2).map((img, i) => (
@@ -80,7 +84,13 @@ function Products() {
             width: 120,
             type: "number",
         },
-        { field: "category_slug", headerName: "Kategori", width: 120 },
+        { field: "categories", headerName: "Kategori", width: 120, sortable: false, filterable: false,
+            renderCell:(params) => (
+                <span>
+                    {params.row.categories?.map((i)=> i.name).join(",") || "-"}
+                </span>
+            )
+         },
         {
             field: "grouped_stock_by_color",
             headerName: "Renkler",
@@ -109,14 +119,7 @@ function Products() {
             filterable: false,
             renderCell: (params) => (
                 <Stack direction="row" spacing={1}>
-                    <IconButton
-                        size="small"
-                        color="success"
-                        aria-label="update"
-                        onClick={() => handleUpdate(category)}
-                    >
-                        <Edit />
-                    </IconButton>
+                    <EditProduct categories = {categories} product={params.row}/>
                     <IconButton
                         size="small"
                         color="error"
@@ -133,10 +136,14 @@ function Products() {
         page: 0,
         pageSize: 10,
     });
+
+    const onCreated = (data) => {
+        setProducts(data);
+    };
     return (
         <div>
             <Box>
-                <AddProduct/>
+                <AddProduct categories = {categories} onCreated={onCreated}/>
                 <Paper sx={{ height: 400, width: "100%" }}>
                     <DataGrid
                         rows={products}

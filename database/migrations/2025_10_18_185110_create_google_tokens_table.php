@@ -13,9 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('main_categories', function (Blueprint $table) {
+        Schema::create('google_tokens', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('access_token');
+            $table->string('refresh_token')->nullable();
+            $table->integer('expires_in')->nullable();
             $table->timestamps();
         });
     }
@@ -27,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('main_categories');
+        Schema::dropIfExists('google_tokens');
     }
 };

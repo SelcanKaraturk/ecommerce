@@ -12,15 +12,21 @@ class Product extends Model
     protected $fillable = [
         "name",
         "slug",
-        "category_id",
         "content",
         "images",
+        "discount",
         "price"
     ];
 
-    public function category()
+    // public function category()
+    // {
+    //     return $this->belongsTo(Category::class);
+    // }
+     public function categories()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsToMany(Category::class, 'category_product')
+                    ->withTimestamps();
+                    //->withPivot('position'); // pivot alanları varsa ekle
     }
 
     public function wishlistedBy()

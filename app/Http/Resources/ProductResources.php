@@ -21,7 +21,8 @@ class ProductResources extends JsonResource
             'product_images' => $this->images,
             'product_content' => $this->content,
             'product_price' => $this->price,
-            'category_slug' => $this->category->slug,
+            'product_discount' => $this->discount,
+            'categories' => $this->categories,
             'grouped_stock_by_color' => $this->groupStockByColor(),
             'total_stock'    => $this->stock_sum_stock ?? $this->stock->sum('stock') ?? 0,
             // 'product_stock' => $this->stock->map(function ($stock) {

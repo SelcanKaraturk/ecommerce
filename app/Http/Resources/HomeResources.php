@@ -18,10 +18,10 @@ class HomeResources extends JsonResource
             'product_number' => $this->id,
             'product_name' => $this->name,
             'product_slug' => $this->slug,
-            'product_images' => $this->images,
+           'product_images' => $this->images,
             'product_content' => $this->content,
             'product_price' => $this->price,
-            'category_slug' => $this->category->slug,
+            'category_slug' =>  $this->categories->pluck('slug'),
             'grouped_stock_by_id' => $this->groupedStockById()->first(),
             'last_stock_update' => $this->stock->max('updated_at'),
         ];

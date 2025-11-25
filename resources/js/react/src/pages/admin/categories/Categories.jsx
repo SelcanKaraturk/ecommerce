@@ -21,7 +21,7 @@ import {
     Delete,
 } from "@mui/icons-material";
 import {
-    getCategoryAll,
+    // getCategoryAll,
     getCategory,
     deleteCategory,
 } from "../../../services/AdminService";
@@ -29,6 +29,7 @@ import { useAuth } from "../../../services/AuthContex";
 import EditCategory from "./EditCategory";
 import { toast } from "react-toastify";
 import AddCategory from "./AddCategory";
+import useCategories from "../../../services/hooks/useCategories";
 
 function Row({ category, categories, onUpdated, level = 0, setCategories }) {
     const [open, setOpen] = useState(false);
@@ -149,23 +150,24 @@ function Row({ category, categories, onUpdated, level = 0, setCategories }) {
 }
 
 function Categories() {
-    const [categories, setCategories] = useState([]);
+    // const [categories, setCategories] = useState([]);
     const { accessToken } = useAuth();
+    const {categories, setCategories} = useCategories();
 
-    useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                const { data } = await getCategoryAll(accessToken);
-                if (data.status === "success") {
-                    setCategories(data.categories);
-                }
-            } catch (error) {
-                console.log(error);
-                setCategories([]);
-            }
-        };
-        fetchProducts();
-    }, []);
+    // useEffect(() => {
+    //     const fetchProducts = async () => {
+    //         try {
+    //             const { data } = await getCategoryAll(accessToken);
+    //             if (data.status === "success") {
+    //                 setCategories(data.categories);
+    //             }
+    //         } catch (error) {
+    //             console.log(error);
+    //             setCategories([]);
+    //         }
+    //     };
+    //     fetchProducts();
+    // }, []);
 
     const onUpdated = (data) => {
         setCategories(data);

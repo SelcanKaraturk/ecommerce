@@ -52,6 +52,9 @@ function Home() {
         nextArrow: <TabNextArrow />,
         prevArrow: <TabPrevArrow />,
     };
+    useEffect(()=>{
+        console.log(productsDi)
+    },[productsDi])
     console.log(productsDi);
 
     return (

@@ -23,23 +23,6 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        Schema::create('categories', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('slug')->unique();
-
-            // root kategoriler için NULL olabilir
-            $table->unsignedBigInteger('parent_id')->nullable();
-
-            // foreign key tanımı
-            $table->foreign('parent_id')
-                ->references('id')
-                ->on('categories')
-                ->onDelete('cascade'); // parent silinirse çocukları da silinsin
-
-            $table->json('images')->nullable();
-            $table->timestamps();
-        });
     }
 
     /**

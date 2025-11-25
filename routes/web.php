@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\File;
-
+use App\Http\Controllers\GoogleController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -14,9 +14,16 @@ use Illuminate\Support\Facades\File;
 |
 */
 
- Route::get('/', function () {
-    return view('layouts/welcome');
- });
+//  Route::get('/', function () {
+//     return view('layouts/welcome');
+//  });
+Route::get('/google/redirect', [GoogleController::class, 'redirect']);
+Route::get('/google/callback', [GoogleController::class, 'callback']);
+
+Route::get('/{any}', function () {
+    return view('welcome');
+})->where('any', '.*');
+
 
 
 // Route::get('/{any}', function () {

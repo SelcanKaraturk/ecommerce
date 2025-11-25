@@ -22,8 +22,8 @@ class ProductController extends Controller
     {
         // $productsDi = Product::whereRelation("category", "parent_id", 1)->with(['stock','groupedStock'])
         //     ->latest()->take(12)->get();
-            $productsDi = Product::whereRelation("category", "parent_id", 1)
-            ->with(['stock'])
+            $productsDi = Product::whereRelation("categories", "category_id",1)
+            ->with(['stock', 'categories:id,slug'])
             ->latest()
             ->take(12)
             ->get()
@@ -31,14 +31,14 @@ class ProductController extends Controller
                 $product->groupedStockById = $product->stock->groupBy('product_id');
                 return $product;
             });
-        $productsGold = Product::whereRelation("category", "parent_id", 2)
+        $productsGold = Product::whereRelation("categories", "category_id", 2)
             ->latest()->take(12)->get();
-        $categoryDi = Category::find(1)->children()->with("products")->get();
-
+        //$categoryDi = Category::find(1)->children()->with("products")->get();
+            // return response()->json(['data'=>HomeResources::collection($productsDi)]);
         return response()->json(data: [
             'productsDi' => HomeResources::collection($productsDi),
-            'productsGold' => ProductResources::collection($productsGold),
-            'categoryDi' => $categoryDi,
+            //'productsGold' => ProductResources::collection($productsGold),
+           //'categoryDi' => $categoryDi,
             $request->bearerToken()
         ]);
     }
