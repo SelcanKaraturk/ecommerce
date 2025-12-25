@@ -31,7 +31,7 @@ import { toast } from "react-toastify";
 import AddCategory from "./AddCategory";
 import useCategories from "../../../services/hooks/useCategories";
 
-function Row({ category, categories, onUpdated, level = 0, setCategories }) {
+function Row({ category, categories, onUpdated, setCategories, level = 0 }) {
     const [open, setOpen] = useState(false);
     const { accessToken } = useAuth();
     const [sending, setSending] = useState(false);
@@ -74,14 +74,18 @@ function Row({ category, categories, onUpdated, level = 0, setCategories }) {
     return (
         <>
             <TableRow>
-                <TableCell>
+                <TableCell style={{ width: "50px" }}>
                     {category.children?.length > 0 && (
                         <IconButton size="small" onClick={() => setOpen(!open)}>
                             {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
                         </IconButton>
                     )}
                 </TableCell>
-                <TableCell style={{ paddingLeft: `${level * 20}px` }}>
+                <TableCell style={{
+                    paddingLeft: `${level * 16}px`,
+                    paddingTop: level > 0 ? 8 : undefined,
+                    paddingBottom: level > 0 ? 8 : undefined
+                }}>
                     {category.name}
                 </TableCell>
                 <TableCell>
@@ -95,52 +99,47 @@ function Row({ category, categories, onUpdated, level = 0, setCategories }) {
                     )}
                 </TableCell>
                 <TableCell>
-                   <div className="d-flex align-items-center">
-                     <EditCategory
-                        category={category}
-                        categories={categories}
-                        onUpdated={onUpdated}
-                    />
-                    {sending ? (
-                        <CircularProgress size="sm" sx={{width:'15px'}} />
-                    ) : (
-                        <IconButton
-                            size="small"
-                            color="error"
-                            aria-label="delete"
-                            onClick={() => handleDelete(category)}
-                        >
-                            <Delete />
-                        </IconButton>
-                    )}
-                   </div>
+                    <div className="d-flex align-items-center">
+                        <EditCategory
+                            category={category}
+                            categories={categories}
+                            onUpdated={onUpdated}
+                        />
+                        {sending ? (
+                            <CircularProgress size="sm" sx={{ width: '15px' }} />
+                        ) : (
+                            <IconButton
+                                size="small"
+                                color="error"
+                                aria-label="delete"
+                                onClick={() => handleDelete(category)}
+                            >
+                                <Delete />
+                            </IconButton>
+                        )}
+                    </div>
                 </TableCell>
             </TableRow>
 
             {/* Recursive Collapse */}
             {category.children?.length > 0 && (
                 <TableRow>
-                    <TableCell
-                        colSpan={4}
-                        style={{ paddingBottom: 0, paddingTop: 0 }}
-                    >
+                    <TableCell colSpan={4} style={{ padding: 0, border: 0 }}>
                         <Collapse in={open} timeout="auto" unmountOnExit>
-                            <Box margin={1}>
-                                <Table size="small">
-                                    <TableBody>
-                                        {category.children.map((child) => (
-                                            <Row
-                                                key={child.slug}
-                                                category={child}
-                                                categories={categories}
-                                                onUpdated={onUpdated}
-                                                level={level + 1}
-                                                setCategories={setCategories}
-                                            />
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </Box>
+                            <Table size="small">
+                                <TableBody>
+                                    {category.children.map((child) => (
+                                        <Row
+                                            key={child.slug}
+                                            category={child}
+                                            categories={categories}
+                                            onUpdated={onUpdated}
+                                            setCategories={setCategories}
+                                            level={level + 1}
+                                        />
+                                    ))}
+                                </TableBody>
+                            </Table>
                         </Collapse>
                     </TableCell>
                 </TableRow>
@@ -150,24 +149,8 @@ function Row({ category, categories, onUpdated, level = 0, setCategories }) {
 }
 
 function Categories() {
-    // const [categories, setCategories] = useState([]);
     const { accessToken } = useAuth();
-    const {categories, setCategories} = useCategories();
-
-    // useEffect(() => {
-    //     const fetchProducts = async () => {
-    //         try {
-    //             const { data } = await getCategoryAll(accessToken);
-    //             if (data.status === "success") {
-    //                 setCategories(data.categories);
-    //             }
-    //         } catch (error) {
-    //             console.log(error);
-    //             setCategories([]);
-    //         }
-    //     };
-    //     fetchProducts();
-    // }, []);
+    const { categories, setCategories } = useCategories();
 
     const onUpdated = (data) => {
         setCategories(data);
@@ -201,6 +184,7 @@ function Categories() {
                                     onUpdated={onUpdated}
                                     token={accessToken}
                                     setCategories={setCategories}
+                                    level={0}
                                 />
                             ))}
                     </TableBody>

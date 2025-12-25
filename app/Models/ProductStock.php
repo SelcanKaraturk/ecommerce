@@ -10,7 +10,6 @@ class ProductStock extends Model
     use HasFactory;
     protected $guarded = [];
 
-
     public function wishlistedBy()
     {
         return $this->hasMany(Wishlist::class, 'product_stock_id', 'id');

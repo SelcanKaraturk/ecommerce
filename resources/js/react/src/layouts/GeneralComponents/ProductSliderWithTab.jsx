@@ -49,7 +49,7 @@ function ProductSliderWithTab({ mainName, categoryProducts }) {
     return (
         <>
             <div className="hiraola-product-tab_area-2 tabs">
-                <div className="container">
+                <div className="container-fluid">
                     <div className="row">
                         <div className="col-lg-12">
                             <div className="product-tab">

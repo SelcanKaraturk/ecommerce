@@ -7,7 +7,7 @@ function Footer() {
         {/* <!-- Begin Hiraola's Footer Area --> */}
         <div className="hiraola-footer_area">
             <div className="footer-top_area">
-                <div className="container">
+                <div className="container-fluid">
                     <div className="row">
                         <div className="col-lg-4">
                             <div className="footer-widgets_info">

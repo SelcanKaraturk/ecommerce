@@ -14,6 +14,22 @@ function AuthLayout() {
 
     const navigate = useNavigate();
     const drawerWidth = 240;
+
+    useEffect(() => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js';
+        script.async = true;
+        script.onload = () => {
+            document.dispatchEvent(new Event('ckeditor-loaded'));
+        };
+        document.head.appendChild(script);
+
+        return () => {
+            if (document.head.contains(script)) {
+                document.head.removeChild(script);
+            }
+        };
+    }, []);
     useEffect(() => {
         const fetchAdmin = async () => {
             try {

@@ -63,7 +63,7 @@ function Home() {
                 <div className="main-slider">
                     <Slider {...settingsMainSlider}>
                         <div className="single-slide animation-style-01 bg-4">
-                            <div className="container">
+                            <div className="container-fluid">
                                 <div className="slider-content">
                                     {/* <h5>
                                         <span>Black Friday</span> This Week
@@ -146,7 +146,7 @@ function Home() {
             </div>
 
             <div className="hiraola-banner_area-3 categories">
-                <div className="container">
+                <div className="container-fluid">
                     <div className="row">
                         <div className="col-md-4 position-relative">
                             <div className="banner-item img-hover_effect">
@@ -232,7 +232,7 @@ function Home() {
             /> */}
 
             <div className="static-banner_area">
-                <div className="container">
+                <div className="container-fluid">
                     <div className="row static-banner-image custimize justify-center">
                         <div className="col-md-5">
                             <h2>“Sadece Size Özel,</h2>

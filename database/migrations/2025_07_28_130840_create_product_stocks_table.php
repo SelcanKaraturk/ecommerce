@@ -19,6 +19,8 @@ return new class extends Migration {
             $table->smallInteger('size')->nullable();
             $table->integer('stock')->default(0);
             $table->timestamps();
+
+             $table->unique(['product_id', 'color', 'size']);
         });
     }
 

@@ -1,4 +1,4 @@
-import api from "./api";
+import api, {getConfig} from "./api";
 import Cookies from 'js-cookie';
 import axios from 'axios';
 
@@ -57,3 +57,10 @@ export const logout = async () => {
     return api.post("/api/logout",{},{headers:{'X-XSRF-TOKEN': token}, withCredentials:true});
 };
 
+export const updateProfile = async (data, token) => {
+    return api.post("/api/me/update-profile", data, getConfig(token) );
+};
+
+export const updatePassword = async (data, token) => {
+    return api.post("/api/me/update-password", data, getConfig(token) );
+};

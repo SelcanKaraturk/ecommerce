@@ -58,7 +58,7 @@ function ProductSlider({ mainName, products }) {
     return (
         <>
             <div className="hiraola-product_area hiraola-product_area-2 section-space_add">
-                <div className="container">
+                <div className="container-fluid">
                     <div className="row">
                         <div className="col-lg-12">
                             <div className="hiraola-section_title">

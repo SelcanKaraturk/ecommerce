@@ -5,3 +5,14 @@
 .text-editor .ql-editor {
     min-height: 200px;
 }
+
+.slick-prev,
+.slick-next {
+    background-image: url('/fonts/slick/slick.svg');
+}
+
+@font-face {
+    font-family: 'slick';
+    src: url('/fonts/slick/slick.ttf') format('truetype');
+}
+

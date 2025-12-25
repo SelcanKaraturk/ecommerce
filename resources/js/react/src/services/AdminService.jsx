@@ -28,3 +28,12 @@ export const createProduct = async (data, token) => {
     return await api.post(`/api/admin/products`, data, getConfig(token, "multipart/form-data"));
 };
 
+
+export const updateProduct = async (productId, data, token) => {
+    // Eğer data bir FormData ise _method ekle
+    if (data instanceof FormData) {
+        data.append('_method', 'PUT');
+    }
+    return await api.post(`/api/admin/products/${productId}`, data, getConfig(token, "multipart/form-data"));
+};
+

@@ -17,7 +17,6 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const fetchData = async () => {
-            // Başta loading hep true
             setLoading(true);
 
             if (!accessToken) {

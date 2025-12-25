@@ -23,7 +23,7 @@ class ProductResources extends JsonResource
             'product_price' => $this->price,
             'product_discount' => $this->discount,
             'categories' => $this->categories,
-            'grouped_stock_by_color' => $this->groupStockByColor(),
+            'variants' => $this->variants(),
             'total_stock'    => $this->stock_sum_stock ?? $this->stock->sum('stock') ?? 0,
             // 'product_stock' => $this->stock->map(function ($stock) {
             //     return [
@@ -39,18 +39,34 @@ class ProductResources extends JsonResource
         ];
     }
 
-    protected function groupStockByColor()
+    // protected function groupStockByColor()
+    // {
+    //     if (!$this->relationLoaded('stock')) {
+    //         return [];
+    //     }
+
+    //     return $this->stock
+    //         ->groupBy('color')
+    //         ->map(function ($items, $color) {
+    //             return [
+    //                 'color' => $color
+    //             ];
+    //         })
+    //         ->values();
+    // }
+     protected function variants()
     {
         if (!$this->relationLoaded('stock')) {
             return [];
         }
 
         return $this->stock
-            ->groupBy('color')
-            ->map(function ($items, $color) {
+            ->map(function ($item) {
                 return [
-                    'color' => $color
-                ];
+                    'color' => $item->color,
+                    'size' => $item->size,
+                    'quantity' => $item->stock,
+                    ];
             })
             ->values();
     }

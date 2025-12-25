@@ -307,8 +307,11 @@
     position: relative;
   }
 }
+.container-fluid{
+  padding: 0 5%;
+}
 .header-bottom_area.header-bottom_area-2 .container-fliud {
-  padding: 0 10%;
+  padding: 0 5%;
   position: relative;
 }
 @media only screen and (min-width: 992px) and (max-width: 1199px) {

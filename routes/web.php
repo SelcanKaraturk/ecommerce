@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\File;
 use App\Http\Controllers\GoogleController;
+use App\Http\Controllers\CategoryController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -17,6 +18,7 @@ use App\Http\Controllers\GoogleController;
 //  Route::get('/', function () {
 //     return view('layouts/welcome');
 //  });
+Route::get('/veri', [CategoryController::class, 'index']);
 Route::get('/google/redirect', [GoogleController::class, 'redirect']);
 Route::get('/google/callback', [GoogleController::class, 'callback']);
 
@@ -38,3 +40,4 @@ Route::get('/{any}', function () {
 // Route::get('/{any}', function () {
 //     return File::get(public_path('index.html'));
 // })->where('any', '^(?!api|assets|storage|build|js|css|images).*$');
+

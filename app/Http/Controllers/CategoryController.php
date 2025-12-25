@@ -15,7 +15,8 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
+        $data = Category::find(1);
+        dd($data);
     }
 
     /**

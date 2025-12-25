@@ -1041,11 +1041,11 @@
     /*----------------------------------------*/
     /*  Star Rating Js
 /*----------------------------------------*/
-    $(function () {
-        $('.star-rating').barrating({
-            theme: 'fontawesome-stars',
-        });
-    });
+    // $(function () {
+    //     $('.star-rating').barrating({
+    //         theme: 'fontawesome-stars',
+    //     });
+    // });
 
     /*-------------------------------------------------*/
     /* Hiraola's Sticky Sidebar
@@ -1064,25 +1064,25 @@
     /*--------------------------------
     Price Slider Active
 -------------------------------- */
-    var sliderrange = $('#slider-range');
-    var amountprice = $('#amount');
-    $(function () {
-        sliderrange.slider({
-            range: true,
-            min: 20,
-            max: 100,
-            values: [0, 100],
-            slide: function (event, ui) {
-                amountprice.val('$' + ui.values[0] + ' - $' + ui.values[1]);
-            },
-        });
-        amountprice.val(
-            '$' +
-                sliderrange.slider('values', 0) +
-                ' - $' +
-                sliderrange.slider('values', 1)
-        );
-    });
+    // var sliderrange = $('#slider-range');
+    // var amountprice = $('#amount');
+    // $(function () {
+    //     sliderrange.slider({
+    //         range: true,
+    //         min: 20,
+    //         max: 100,
+    //         values: [0, 100],
+    //         slide: function (event, ui) {
+    //             amountprice.val('$' + ui.values[0] + ' - $' + ui.values[1]);
+    //         },
+    //     });
+    //     amountprice.val(
+    //         '$' +
+    //             sliderrange.slider('values', 0) +
+    //             ' - $' +
+    //             sliderrange.slider('values', 1)
+    //     );
+    // });
     /*----------------------------------------*/
     /*  Hiraola's Slick Carousel
  /*----------------------------------------*/

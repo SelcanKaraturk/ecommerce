@@ -8,11 +8,12 @@ import { Edit, Delete } from "@mui/icons-material";
 import AddProduct from "./AddProduct";
 import useCategories from "../../../services/hooks/useCategories";
 import EditProduct from "./EditProduct";
-
+import "./css/Product.css";
 function Products() {
     const [products, setProducts] = useState([]);
     const { accessToken } = useAuth();
     const {categories} = useCategories();
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -20,9 +21,11 @@ function Products() {
                 const { data } = await getProductAll(accessToken);
                 console.log(data);
                 setProducts(data);
+                setLoading(false);
             } catch (error) {
                 console.log(error);
                 setProducts([]);
+                setLoading(false);
             }
         };
         fetchProducts();
@@ -54,7 +57,13 @@ function Products() {
     //         product_images: ["https://via.placeholder.com/40"],
     //     },
     // ]);
-
+    const handleUpdated = (data) => {
+        setProducts((pre) => {
+            return pre.map((prod) =>
+                prod.product_number === data.product_number ? data : prod
+            );
+        });   
+    };
     const columns = [
         { field: "product_number", headerName: "ID", width: 60 },
         { field: "product_name", headerName: "Ürün Adı", width: 150 },
@@ -68,7 +77,7 @@ function Products() {
                     {params.value?.slice(0, 2).map((img, i) => (
                         <img
                             key={i}
-                            src={img}
+                            src={"/storage/"+img}
                             alt="Ürün"
                             width={40}
                             height={40}
@@ -119,7 +128,7 @@ function Products() {
             filterable: false,
             renderCell: (params) => (
                 <Stack direction="row" spacing={1}>
-                    <EditProduct categories = {categories} product={params.row}/>
+                    <EditProduct categories = {categories} product={params.row} onUpdated={handleUpdated} />
                     <IconButton
                         size="small"
                         color="error"
@@ -138,23 +147,29 @@ function Products() {
     });
 
     const onCreated = (data) => {
-        setProducts(data);
+        setProducts([data, ...products]);
     };
     return (
         <div>
             <Box>
                 <AddProduct categories = {categories} onCreated={onCreated}/>
-                <Paper sx={{ height: 400, width: "100%" }}>
-                    <DataGrid
-                        rows={products}
-                        columns={columns}
-                        getRowId={(row) => row.product_number} // <-- burası önemli
-                        paginationModel={paginationModel}
-                        onPaginationModelChange={setPaginationModel}
-                        pageSizeOptions={[10, 20, 30]}
-                        sx={{ border: 0 }}
-                    />
-                </Paper>
+                {loading ? <div>Loading...</div> : 
+                <div className="data-wrapper">
+                    <Paper sx={{ height: 400, width: "100%" }}>
+                        <DataGrid
+                            rows={products}
+                            columns={columns}
+                            getRowId={(row) => row.product_number} // <-- burası önemli
+                            paginationModel={paginationModel}
+                            onPaginationModelChange={setPaginationModel}
+                            pageSizeOptions={[10, 20, 30]}
+                            sx={{ border: 0 }}
+                        />
+                        
+                    </Paper>
+                </div>
+                }
+                
             </Box>
         </div>
     );

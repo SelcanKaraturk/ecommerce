@@ -30,7 +30,7 @@ function Navbar() {
                             <div className="header-logo h-100">
                                 <NavLink to="/tr">
                                     <img
-                                        src="/src/assets/images/valor.png"
+                                        src="/assets/images/valor.png"
                                         alt="Hiraola's Header Logo"
                                     />
                                 </NavLink>

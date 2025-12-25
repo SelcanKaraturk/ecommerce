@@ -84,6 +84,10 @@ Route::prefix('me')->middleware(['auth:sanctum', 'verified'])->group(function ()
     Route::post('/cart/toggle', [CartController::class, 'toggleItem']);
     Route::post('/cart/delete', [CartController::class, 'destroy']);
     Route::put('/cart', [CartController::class, 'update']);
+    
+    // my account routes
+    Route::post('/update-profile', [AuthController::class, 'updatePersonalInfo']);
+    Route::post('/update-password', [AuthController::class, 'updatePassword']);
 });
 
 Route::get('/cart', [CartCookieController::class, 'show']);

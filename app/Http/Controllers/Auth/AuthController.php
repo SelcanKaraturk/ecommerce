@@ -107,4 +107,45 @@ class AuthController extends Controller
         return response()->json(['message' => 'sorun var']);
     }
 
+    // my account - personal info update
+    public function updatePersonalInfo(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|min:2|max:50',
+            'lastname' => 'required|min:2|max:50',
+            'email' => 'required|email|unique:users,email,' . $request->user()->id,
+            'phone' => ['required', 'regex:/^5[0-9]{9}$/'],
+            'birthdate' => ['required', 'date', 'before_or_equal:2011-12-31'],
+        ]);
+
+         $user = $request->user();
+        // $user->name = $validated['name'] . ' ' . $validated['lastname'];
+        // $user->email = $validated['email'];
+        // $user->save();
+
+        return response()->json(['message' => 'Kişisel bilgiler başarıyla güncellendi.', 
+        'user' => $user, 'status' => 'success','data'=>$request->all()]);
+    }
+
+    // my account - password update
+    public function updatePassword(Request $request)
+    {
+        $validated = $request->validate([
+            'oldpassword' => 'required',
+            'newpassword' => 'required|min:6|confirmed',
+            'newpassword_confirmation' => 'required|min:6',
+        ]);
+
+        $user = $request->user();
+
+        if (!Hash::check($validated['oldpassword'], $user->password)) {
+            return response()->json(['error' => 'Mevcut şifre yanlış.']);
+        }
+
+        $user->password = Hash::make($validated['newpassword']);
+        // $user->save();
+
+        return response()->json(['message' => 'Şifre başarıyla güncellendi.', 'status' => 'success']);
+    }
+
 }

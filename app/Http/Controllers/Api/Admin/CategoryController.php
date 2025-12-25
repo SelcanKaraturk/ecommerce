@@ -47,7 +47,7 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
             'parent_slug' => 'nullable',
             'images' => 'nullable|array',
-            'files.*' => 'nullable|file|image|max:5120', // yeni yüklenecek dosyalar
+            'images.*' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:5120',
         ]);
 
 
@@ -144,8 +144,10 @@ class CategoryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'parent_slug' => 'nullable|exists:categories,slug',
-            'images' => 'nullable|array',
-            'files.*' => 'nullable|file|image|max:5120', // yeni yüklenecek dosyalar
+            'images' => ['nullable', 'array'],
+            'images.*' => ['sometimes', 'image', 'mimes:jpeg,jpg,png,gif,webp'],
+            'existing_images' => ['nullable', 'array'],
+            'existing_images.*' => ['string'],
         ]);
 
 
@@ -158,23 +160,16 @@ class CategoryController extends Controller
                 $parent = Category::where('slug', $validated['parent_slug'])->value('id');
             }
 
-            $allImages = [];
-             // Eski yüklenen dosyaları işle
-            if ($request->has('images')) {
-                foreach ($request->input('images') as $old) {
-                    $allImages[] = str_replace(url('storage') . '/', '', $old);
-                }
-            }
-
-            // Yeni yüklenen dosyaları işle
-            if ($request->hasFile('images')) {
-                foreach ((array) $request->file('images') as $img) {
-                    if ($img instanceof \Illuminate\Http\UploadedFile) {
-                        $path = $img->store('categories', 'public');
-                        $allImages[] = 'categories/' . basename($path);
+            // Resim işlemleri: yeni yüklenenler + eskiler
+                $allImages = $request->input('existing_images', []);
+                if ($request->hasFile('images')) {
+                    foreach ((array) $request->file('images') as $img) {
+                        if ($img->isValid()) {
+                            $path = $img->store('categories', 'public');
+                            $allImages[] = $path;
+                        }
                     }
                 }
-            }
 
             // Slug kontrolü ve üretimi
             if ($validated['name'] !== $category->name) {

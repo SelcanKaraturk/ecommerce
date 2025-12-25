@@ -20,56 +20,15 @@ import ValidateError from "../../auth/ValidateError";
 import { createCategory } from "../../../services/AdminService";
 import { useAuth } from "../../../services/AuthContex";
 import { toast } from "react-toastify";
-
+import useForm from "../../../services/hooks/useForm";
 function AddCategory({ categories, onCreated }) {
-    const [open, setOpen] = useState(false);
-    const [form, setForm] = useState({
+    const { form, setForm, handleChange, handleFileChange, preview, handleImageDelete, handleCancel, open, setOpen } = useForm({
         name: "",
         parent_slug: "",
         images: [],
     });
-    const [preview, setPreview] = useState([]);
     const [errors, setErrors] = useState(null);
     const { accessToken } = useAuth();
-
-    const handleCancel = () => {
-        setForm({
-            name: "",
-            parent_slug: "",
-            images: [],
-        });
-        setPreview([]);
-        setOpen(false); // modal kapat
-    };
-
-    const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
-    };
-
-    const handleFileChange = (e) => {
-        const files = Array.from(e.target.files); // birden fazla dosya seçilebilir
-        if (files.length > 0) {
-            setForm((prev) => ({
-                ...prev,
-                images: [...(prev.images || []), ...files],
-            }));
-
-            const newPreviews = files.map((file) => URL.createObjectURL(file));
-            setPreview((prev) => [...(prev || []), ...newPreviews]);
-        }
-    };
-
-    const handleImageDelete = (index) => {
-        // preview'den çıkar
-        const newPreview = [...preview];
-        newPreview.splice(index, 1);
-        setPreview(newPreview);
-
-        // form.images'den de çıkar
-        const newImages = [...form.images];
-        newImages.splice(index, 1);
-        setForm({ ...form, images: newImages });
-    };
 
     const handleSubmit = async () => {
         try {
@@ -117,156 +76,158 @@ function AddCategory({ categories, onCreated }) {
                     KATEGORİ EKLE
                 </Button>
             </Box>
-
-            <Dialog open={open} disableEscapeKeyDown fullWidth maxWidth="sm">
-                <DialogTitle sx={{ m: 0, p: 2 }}>
-                    Kategori Ekle
-                    <IconButton
-                        aria-label="close"
-                        onClick={handleCancel}
-                        sx={{
-                            position: "absolute",
-                            right: 8,
-                            top: 8,
-                            color: (theme) => theme.palette.grey[500],
-                        }}
-                    >
-                        <Close />
-                    </IconButton>
-                </DialogTitle>
-                <DialogContent
-                    sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 2,
-                        mt: 1,
-                        mb: 2,
-                    }}
-                >
-                    <TextField
-                        error={!!errors?.name}
-                        label="Kategori Adı"
-                        name="name"
-                        value={form.name}
-                        onChange={handleChange}
-                        fullWidth
-                        sx={{ mt: 1 }}
-                    />
-                    {ValidateError(errors, "name")}
-
-                    <Typography
-                        sx={{
-                            fontSize: "12px !important",
-                            color: "#595959 !important",
-                            marginBottom: "-18px",
-                        }}
-                    >
-                        *Üst kategori seçmemeniz halinde ana kategori olarak
-                        kaydedilir!
-                    </Typography>
-                    <FormControl fullWidth>
-                        <InputLabel>Üst Kategori</InputLabel>
-                        <Select
-                            error={!!errors?.parent_slug}
-                            name="parent_slug"
-                            onChange={handleChange}
-                            value={form.parent_slug}
+            {open && (
+                <Dialog open={open} fullWidth maxWidth="sm">
+                    <DialogTitle sx={{ m: 0, p: 2 }}>
+                        Kategori Ekle
+                        <IconButton
+                            aria-label="close"
+                            onClick={handleCancel}
+                            sx={{
+                                position: "absolute",
+                                right: 8,
+                                top: 8,
+                                color: (theme) => theme.palette.grey[500],
+                            }}
                         >
-                            {categories
-                                // .filter((c) => c.slug !== category.slug) // kendisini seçemesin
-                                .map((c) => (
-                                    <MenuItem key={c.slug} value={c.slug}>
-                                        {c.name}
-                                    </MenuItem>
-                                ))}
-                        </Select>
-                    </FormControl>
-                    {ValidateError(errors, "parent_slug")}
-
-                    <Button variant="outlined" component="label">
-                        Resim Yükle
-                        <input
-                            type="file"
-                            hidden
-                            accept="image/*"
-                            onChange={handleFileChange}
-                            multiple
+                            <Close />
+                        </IconButton>
+                    </DialogTitle>
+                    <DialogContent
+                        sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 2,
+                            mt: 1,
+                            mb: 2,
+                        }}
+                    >
+                        <TextField
+                            error={!!errors?.name}
+                            label="Kategori Adı"
+                            name="name"
+                            value={form.name}
+                            onChange={handleChange}
+                            fullWidth
+                            sx={{ mt: 1 }}
                         />
-                    </Button>
-                    {ValidateError(errors, "files")}
+                        {ValidateError(errors, "name")}
 
-                    {preview && (
-                        <Grid container spacing={2} sx={{ mt: 1 }}>
-                            {preview.map((i, index) => (
-                                <Grid size={3} key={index}>
-                                    <Box
-                                        sx={{
-                                            position: "relative",
-                                            width: "120px",
-                                            height: "120px",
-                                            borderRadius: 2,
-                                            overflow: "hidden",
-                                            "&:hover .overlay": {
-                                                opacity: 1,
-                                            },
-                                        }}
-                                    >
-                                        <img
-                                            src={i}
-                                            alt=""
-                                            style={{
-                                                width: "100%",
-                                                height: "100%",
-                                                objectFit: "cover",
-                                                display: "block",
-                                            }}
-                                        />
+                        <Typography
+                            sx={{
+                                fontSize: "12px !important",
+                                color: "#595959 !important",
+                                marginBottom: "-18px",
+                            }}
+                        >
+                            *Üst kategori seçmemeniz halinde ana kategori olarak
+                            kaydedilir!
+                        </Typography>
+                        <FormControl fullWidth>
+                            <InputLabel>Üst Kategori</InputLabel>
+                            <Select
+                                error={!!errors?.parent_slug}
+                                name="parent_slug"
+                                onChange={handleChange}
+                                value={form.parent_slug}
+                            >
+                                {categories
+                                    // .filter((c) => c.slug !== category.slug) // kendisini seçemesin
+                                    .map((c) => (
+                                        <MenuItem key={c.slug} value={c.slug}>
+                                            {c.name}
+                                        </MenuItem>
+                                    ))}
+                            </Select>
+                        </FormControl>
+                        {ValidateError(errors, "parent_slug")}
 
-                                        {/* overlay ve delete icon */}
+                        <Button variant="outlined" component="label">
+                            Resim Yükle
+                            <input
+                                type="file"
+                                hidden
+                                accept="image/*"
+                                onChange={handleFileChange}
+                                multiple
+                            />
+                        </Button>
+                        {ValidateError(errors, "files")}
+
+                        {preview && (
+                            <Grid container spacing={2} sx={{ mt: 1 }}>
+                                {preview.map((i, index) => (
+                                    <Grid size={3} key={index}>
                                         <Box
-                                            className="overlay"
                                             sx={{
-                                                position: "absolute",
-                                                top: 0,
-                                                left: 0,
-                                                width: "100%",
-                                                height: "100%",
-                                                bgcolor: "rgba(0,0,0,0.5)", // koyu arka plan
-                                                backdropFilter: "blur(4px)", // blur efekti
-                                                display: "flex",
-                                                justifyContent: "center",
-                                                alignItems: "center",
-                                                opacity: 0,
-                                                transition: "opacity 0.3s",
+                                                position: "relative",
+                                                width: "120px",
+                                                height: "120px",
+                                                borderRadius: 2,
+                                                overflow: "hidden",
+                                                "&:hover .overlay": {
+                                                    opacity: 1,
+                                                },
                                             }}
                                         >
-                                            <IconButton
-                                                sx={{ color: "white" }}
-                                                onClick={() =>
-                                                    handleImageDelete(index)
-                                                } // kendi delete fonksiyonun
-                                            >
-                                                <Delete />
-                                            </IconButton>
-                                        </Box>
-                                    </Box>
-                                </Grid>
-                            ))}
-                        </Grid>
-                    )}
-                </DialogContent>
+                                            <img
+                                                src={i}
+                                                alt=""
+                                                style={{
+                                                    width: "100%",
+                                                    height: "100%",
+                                                    objectFit: "cover",
+                                                    display: "block",
+                                                }}
+                                            />
 
-                <DialogActions>
-                    <Button onClick={handleCancel}>Vazgeç</Button>
-                    <Button
-                        onClick={handleSubmit}
-                        variant="contained"
-                        color="primary"
-                    >
-                        Kaydet
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                                            {/* overlay ve delete icon */}
+                                            <Box
+                                                className="overlay"
+                                                sx={{
+                                                    position: "absolute",
+                                                    top: 0,
+                                                    left: 0,
+                                                    width: "100%",
+                                                    height: "100%",
+                                                    bgcolor: "rgba(0,0,0,0.5)", // koyu arka plan
+                                                    backdropFilter: "blur(4px)", // blur efekti
+                                                    display: "flex",
+                                                    justifyContent: "center",
+                                                    alignItems: "center",
+                                                    opacity: 0,
+                                                    transition: "opacity 0.3s",
+                                                }}
+                                            >
+                                                <IconButton
+                                                    sx={{ color: "white" }}
+                                                    onClick={() =>
+                                                        handleImageDelete(index)
+                                                    } // kendi delete fonksiyonun
+                                                >
+                                                    <Delete />
+                                                </IconButton>
+                                            </Box>
+                                        </Box>
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        )}
+                    </DialogContent>
+
+                    <DialogActions>
+                        <Button onClick={handleCancel}>Vazgeç</Button>
+                        <Button
+                            onClick={handleSubmit}
+                            variant="contained"
+                            color="primary"
+                        >
+                            Kaydet
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            )}
+
         </>
     );
 }
