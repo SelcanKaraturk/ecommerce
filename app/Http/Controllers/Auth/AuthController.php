@@ -97,7 +97,7 @@ class AuthController extends Controller
     public function show(Request $request)
     {
         return response()->json([
-            'user' => $request->user(),
+            'user' => $request->user()->load('roles','addresses'),
             'currentToken' => $request->bearerToken()
         ]);
     }
@@ -147,5 +147,80 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Şifre başarıyla güncellendi.', 'status' => 'success']);
     }
+
+    // my account - create address
+    public function createAddress(Request $request) {
+        $validated = $request->validate([
+            'name' => 'required|min:2|max:50',
+            'lastname' => 'required|min:2|max:50',
+            'title' => 'required|min:2|max:50',
+            'phone' => ['required', 'regex:/^5[0-9]{9}$/'],
+            'city' => 'required|string',
+            'district' => 'required|string',
+            'neighborhood' => 'required|string',
+            'address' => 'required|string|min:10|max:700',
+        ]);
+        DB::beginTransaction();
+        try {
+            $user = $request->user();
+            // İsim ve soyisim baş harfleri büyük olacak şekilde birleştiriliyor
+            $fullName = ucwords(strtolower(trim($validated['name']))) . ' ' . ucwords(strtolower(trim($validated['lastname'])));
+            $addressData = $validated;
+            $addressData['name'] = $fullName;
+            unset($addressData['lastname']);
+            $newAddress = $user->addresses()->create($addressData);
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error','error' => 'Adresiniz eklenirken bir hata oluştu.'], 500);
+        }
+
+        return response()->json(['message' => 'Adres başarıyla eklendi.', 'status' => 'success', 'data' =>  $newAddress ]);
+    }
+
+    // my account - update address
+    public function updateAddress(Request $request) {
+        $validated = $request->validate([
+            'id' => 'required|exists:user_addresses,id',
+            'name' => 'required|min:2|max:50',
+            'title' => 'required|min:2|max:50',
+            'phone' => ['required', 'regex:/^5[0-9]{9}$/'],
+            'city' => 'required|string',
+            'district' => 'required|string',
+            'neighborhood' => 'required|string',
+            'address' => 'required|string|min:10|max:700',
+        ]);
+
+        $user = $request->user();
+        $address = $user->addresses()->where('id', $validated['id'])->firstOrFail();
+        Db::beginTransaction();
+        try {
+            $address->update($validated);
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error','error' => 'Adresiniz güncellenirken beklenmeyen bir hata oluştu.'], 500);
+        }
+        
+        return response()->json(['message' => 'Adres başarıyla güncellendi.', 'status' => 'success', 'data' => $address ]);
+    }
+
+    // my account - delete address
+    public function deleteAddress(Request $request, $id) {
+        $user = $request->user();
+        $address = $user->addresses()->where('id', $id)->firstOrFail();
+
+        DB::beginTransaction();
+        try {
+            $address->delete();
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error','error' => 'Adresiniz kaldırılırken beklenmeyen bir hata oluştu.'], 500);
+        }
+
+        return response()->json(['message' => 'Adresiniz başarıyla kaldırıldı.', 'status' => 'success']);
+    }       
+
 
 }

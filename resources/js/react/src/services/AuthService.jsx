@@ -64,3 +64,15 @@ export const updateProfile = async (data, token) => {
 export const updatePassword = async (data, token) => {
     return api.post("/api/me/update-password", data, getConfig(token) );
 };
+
+export const addAddress = async (data, token) => {
+    return api.post("/api/me/create-address", data, getConfig(token) );
+};
+
+export const updateAddressService = async (data, token) => {
+    return api.post(`/api/me/update-address/${data.id}`, data, getConfig(token) );
+};
+
+export const deleteAddress = async (id, token) => {
+    return api.delete(`/api/me/delete-address/${id}`, getConfig(token) );
+};

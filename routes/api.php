@@ -88,6 +88,9 @@ Route::prefix('me')->middleware(['auth:sanctum', 'verified'])->group(function ()
     // my account routes
     Route::post('/update-profile', [AuthController::class, 'updatePersonalInfo']);
     Route::post('/update-password', [AuthController::class, 'updatePassword']);
+    Route::post('/create-address', [AuthController::class, 'createAddress']);
+    Route::post('/update-address/{id}', [AuthController::class, 'updateAddress']);
+    Route::delete('/delete-address/{id}', [AuthController::class, 'deleteAddress']);
 });
 
 Route::get('/cart', [CartCookieController::class, 'show']);
