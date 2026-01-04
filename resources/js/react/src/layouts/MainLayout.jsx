@@ -8,9 +8,11 @@ import "slick-carousel/slick/slick-theme.css";
 function Main() {
   return (
     <>
-    <Navbar/>
+      <Navbar/>
+      <main style={{ minHeight: 'calc(100vh - 626px)' }}>
         <Outlet/>
-    <Footer/>
+      </main>
+      <Footer/>
     </>
   )
 }

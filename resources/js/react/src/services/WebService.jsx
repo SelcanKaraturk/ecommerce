@@ -5,7 +5,13 @@ export const homeData = async () => {
 };
 
 export const getSingleProduct = async (category, slug, token) => {
-    return await api.get(`/api/tr/${category}/${slug}`, getConfig(token));
+    let url;
+    if (category) {
+        url = `/api/tr/${category}/${slug}`;
+    } else {
+        url = `/api/tr/${slug}`;
+    }
+    return await api.get(url, getConfig(token));
 };
 
 export const addWishToList = async (productObj, token) => {

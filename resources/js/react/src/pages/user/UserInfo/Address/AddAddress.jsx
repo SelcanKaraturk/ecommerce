@@ -20,7 +20,7 @@ import ValidateError from '../../../auth/ValidateError';
 import { toast } from 'react-toastify';
 
 function AddAddress({ accessToken, onCreateAddress}) {
-    const { form, setForm, handleChange, handleCancel, open, setOpen } = useForm({
+    const { form, setForm, handleChange, resetForm, open, setOpen, handleCancel } = useForm({
         name: '',
         lastname: '',
         phone: '',
@@ -41,12 +41,13 @@ function AddAddress({ accessToken, onCreateAddress}) {
             if (data.status === 'success') {
                 toast.success(data.message || "Adres başarıyla eklendi.");
                 onCreateAddress(data?.data); // Adres eklendiğinde yapılacak işlemler
-                handleCancel(); // Formu kapat
+                resetForm(); // Formu kapat
+                setErrors(null);
+                setOpen(false);
             }else{
                 toast.warning("Beklenmeyen bir durum oluştu Lütfen daha sonra tekrar deneyiniz ya da destek ile iletişime geçiniz.");
             }
         } catch (error) {
-            console.log('Adres ekleme hatası catch:', error);
             if(error?.response?.data?.status === 'error'){
                 toast.error(error.response.data.error || "Adres eklenirken beklenmeyen bir hata oluştu.");
             }

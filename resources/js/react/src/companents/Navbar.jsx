@@ -6,7 +6,7 @@ import { Badge } from "@mui/material";
 
 function Navbar() {
 
-    const { accessToken, cart, miniCart, setMiniCart } = useAuth();
+    const { accessToken, cart, miniCart, setMiniCart, loading } = useAuth();
     const navigate = useNavigate();
     const subTotal = (cartList) => {
         return cartList.reduce((total, item) => {
@@ -20,6 +20,16 @@ function Navbar() {
                 totalPrice: subTotal(cart),
             },
         });
+    };
+    const handleUserIconClick = (e) => {
+        e.preventDefault();
+        console.log("User Icon Clicked", loading, accessToken);
+        if (loading) return; // loading bitmeden hiçbir şey yapma
+        if (!accessToken) {
+            navigate("/login");
+        } else {
+            navigate("/tr/hesabim");
+        }
     };
     return (
         <header className="header-main_area header-main_area-2">
@@ -354,12 +364,12 @@ function Navbar() {
                                         </a>
                                     </li>
                                     <li>
-                                        <Link
+                                        <a
                                             className="minicart-btn toolbar-btn"
-                                            to={"/tr/hesabim"}
+                                            href={"#"} onClick={handleUserIconClick}
                                         >
                                             <i className="ion-android-person"></i>
-                                        </Link>
+                                        </a>
                                     </li>
                                 </ul>
                             </div>
@@ -390,9 +400,8 @@ function Navbar() {
                 </div>
             </div>
             <div
-                className={`offcanvas-minicart_wrapper ${
-                    miniCart ? "open" : ""
-                }`}
+                className={`offcanvas-minicart_wrapper ${miniCart ? "open" : ""
+                    }`}
                 id="miniCart"
             >
                 <div className="offcanvas-menu-inner">
@@ -415,7 +424,7 @@ function Navbar() {
 
                                         <div className="product-item_img">
                                             <img
-                                                 src={item.product_images?.[0]}
+                                                src={item.product_images?.[0]}
                                                 alt="Hiraola's Product Image"
                                             />
                                         </div>

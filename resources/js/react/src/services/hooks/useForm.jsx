@@ -41,7 +41,7 @@ export default function useForm(initialState = {}) {
     const resetForm = () => setForm(initialState);
     const handleCancel = () => {
         resetForm();
-        setPreview(initialState.images || []);
+        setPreview(initialState?.images || []);
         setOpen(false); // modal kapat
     };
 

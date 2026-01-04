@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import { toast } from "react-toastify";
 import { ErrorServices } from "./ErrorServices";
 import api, { getConfig } from "./api";
@@ -14,6 +15,7 @@ export const AuthProvider = ({ children }) => {
     const [cart, setCart] = useState([]);
     const [miniCart, setMiniCart] = useState(false);
     const [openModal, setOpenModal] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -102,8 +104,28 @@ export const AuthProvider = ({ children }) => {
     //     }
     // };
 
-    const logout = async () => {
-        return await api.post("/api/me/logout", {}, getConfig(accessToken));
+
+    const logout = async (e) => {
+        e.preventDefault();
+        try {
+            const { data } = await api.post("/api/me/logout", {}, getConfig(accessToken));
+
+            if (data?.message) {
+                userLogout(data.message);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    // Tüm uygulamada kullanılabilir userLogout fonksiyonu
+    const userLogout = async (message = null) => {
+        setCurrentUser("");
+        setAccessToken(null);
+        localStorage.removeItem("currentToken");
+        setCart([]);
+        if (message) toast.success(message);
+        navigate("/login");
     };
 
     const apiAdminLogout = async () => {
@@ -111,7 +133,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const checkRole = async () => {
-        return await api.get("/api/admin",getConfig(accessToken));
+        return await api.get("/api/admin", getConfig(accessToken));
     };
     return (
         <AuthContext.Provider
@@ -119,6 +141,7 @@ export const AuthProvider = ({ children }) => {
                 loading,
                 setLoading,
                 logout,
+                userLogout,
                 errorShow,
                 registerForm,
                 login,

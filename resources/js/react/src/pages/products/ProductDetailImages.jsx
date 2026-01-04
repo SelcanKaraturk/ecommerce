@@ -60,11 +60,11 @@ function ProductDetailImages({ images }) {
                 <div id="gallery" className="sp-img_slider">
                     <Slider {...settingsTabSlider}>
                         {images.length > 0 &&
-                        images.map((img, idx) => (
+                        images.map((i, idx) => (
                                 <img
                                 key={idx}
-                                src={img}
-                                onClick={() => setActiveImage(img)}
+                                src={i && i.startsWith('blob:') ? i : `/storage/${i}`}
+                                onClick={() => setActiveImage(i)}
                                 alt="Alt görsel"
                                 style={{
                                     cursor: "pointer",

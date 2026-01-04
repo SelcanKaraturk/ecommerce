@@ -43,7 +43,7 @@ Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) 
     }
 
     // Frontend'e yönlendir
-    return Redirect::to( 'http://localhost:5173/login');
+    return Redirect::to( env('APP_URL', 'http://127.0.0.1:8000') . '/login');
 })->middleware(['signed'])->name('verification.verify');
 
 // Tekrar doğrulama linki yollamak
@@ -61,7 +61,9 @@ Route::post('/register', [AuthController::class, 'register']);
 
 Route::prefix('/{lang}')->where(['lang' => 'tr|en|de'])->group(function () {
     Route::get('/', [ProductController::class, 'index']);
-    Route::get('/{category}/{slug}', [ProductController::class, 'show'])->middleware('auth:sanctum');
+    // category opsiyonel
+    Route::get('/{slug}', [ProductController::class, 'show']);
+    Route::get('/{category}/{slug}', [ProductController::class, 'show']);
 });
 Route::prefix('/admin')->middleware(['auth:sanctum', 'role:admin'])->group(function (){
     Route::get('/',[AdminAuthController::class, 'show']);

@@ -111,20 +111,47 @@ class AuthController extends Controller
     public function updatePersonalInfo(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|min:2|max:50',
-            'lastname' => 'required|min:2|max:50',
-            'email' => 'required|email|unique:users,email,' . $request->user()->id,
-            'phone' => ['required', 'regex:/^5[0-9]{9}$/'],
+            'name'      => 'required|min:2|max:50',
+            'lastname'  => 'required|min:2|max:50',
+            'email'     => 'required|email|unique:users,email,' . $request->user()->id, // mevcut kullanıcı hariç
+            'phone'     => ['required', 'regex:/^5[0-9]{9}$/'],
             'birthdate' => ['required', 'date', 'before_or_equal:2011-12-31'],
         ]);
 
-         $user = $request->user();
-        // $user->name = $validated['name'] . ' ' . $validated['lastname'];
-        // $user->email = $validated['email'];
-        // $user->save();
+        $user = $request->user();
 
-        return response()->json(['message' => 'Kişisel bilgiler başarıyla güncellendi.', 
-        'user' => $user, 'status' => 'success','data'=>$request->all()]);
+        // Kullanıcı yetki kontrolü
+        if ($user->id !== (int) $request->input('userNumber')) {
+            $user->currentAccessToken()->delete();
+            return response()->json([
+                'error'  => 'Bu işlemi yapmaya yetkiniz yoktur',
+                'status' => 'error403'
+            ], 403);
+        }
+
+        // Email değişikliği kontrolü ve doğrulama
+        if ($user->email !== $validated['email']) {
+            $user->email = $validated['email'];
+            $user->email_verified_at = null;
+            $user->save();
+            $user->sendEmailVerificationNotification();
+            $user->currentAccessToken()->delete();
+        }
+
+        // Doğum tarihi formatını düzelt
+        $request->merge([
+            'birthdate' => date('Y-m-d', strtotime(substr($request->birthdate, 0, 10)))
+        ]);
+
+        // Diğer alanları güncelle
+        $user->update($request->except('userNumber', 'email'));
+        $user->load('roles','addresses');
+
+        return response()->json([
+            'message' => 'Bilgileriniz başarıyla güncellendi.',
+            'user'    => $user,
+            'status'  => 'success'
+        ]);
     }
 
     // my account - password update
@@ -138,14 +165,28 @@ class AuthController extends Controller
 
         $user = $request->user();
 
-        if (!Hash::check($validated['oldpassword'], $user->password)) {
-            return response()->json(['error' => 'Mevcut şifre yanlış.']);
+        if ($user->id !== $request->input('user_id')) {
+            $request->user()->currentAccessToken()->delete();
+            return response()->json(['error' => 'Bu işlemi yapmaya yetkiniz yoktur', 'status' => 'error403'], 403);
         }
 
-        $user->password = Hash::make($validated['newpassword']);
-        // $user->save();
+        DB::beginTransaction();
+        try {
+            $user = User::findOrFail($user->id);
 
-        return response()->json(['message' => 'Şifre başarıyla güncellendi.', 'status' => 'success']);
+            if (!Hash::check($validated['oldpassword'], $user->password)) {
+                return response()->json(['error' => 'Mevcut şifreniz yanlış.', 'status' => 'error'], 400);
+            }   
+
+            $user->password = Hash::make($validated['newpassword']);
+            $user->save();
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'İşleminiz gerçekleştirilemedi.', 'status' => 'error'], 404);
+        }
+
+        return response()->json(['message' => 'Şifreniz başarıyla güncellendi.', 'status' => 'success']);
     }
 
     // my account - create address

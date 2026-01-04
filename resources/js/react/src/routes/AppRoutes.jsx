@@ -9,7 +9,7 @@ import Contact from "../pages/Contact";
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
 import MyAccount from "../pages/user/MyAccount";
-import PrivateRoutes from "./PrivateRoutes";
+import PrivateRoute from "./PrivateRoute";
 import GuestRoute from "./GuestRoute";
 import WishList from "../pages/user/WishList";
 import ProductDetail from "../pages/products/ProductDetail";
@@ -31,39 +31,41 @@ function AppRoutes() {
                     <Route index element={<Home />} />
                     <Route path="altin" element={<Products />} />
                     <Route path="pirlanta" element={<Products />} />
+                    <Route path="snr-uretim/:slug" element={<ProductDetail />} />
                     <Route path=":category/:slug" element={<ProductDetail />} />
                     <Route path="hakkimizda" element={<AboutUs />} />
                     <Route path="iletisim" element={<Contact />} />
                     <Route path="checkout" element={<Checkout />} />
-                    <Route path="sepet" element={<Cart/>}/>
-
-                    <Route path="hesabim" element={<MyAccount />} />
-                    <Route path="favorilerim" element={<WishList/>}/>
+                    <Route path="sepet" element={<Cart />} />
+                    <Route element={<PrivateRoute />}>
+                        <Route path="hesabim" element={<MyAccount />} />
+                        <Route path="favorilerim" element={<WishList />} />
+                    </Route>
                 </Route>
             </Route>
 
             {/* Auth Rotaları */}
             <Route element={<MainLayout />}>
 
-                <Route path="login" element={<Login/>} />  {/* <GuestRoute><Login/></GuestRoute> */}
+                <Route path="login" element={<Login />} />  {/* <GuestRoute><Login/></GuestRoute> */}
                 <Route path="register" element={<Register />} />
                 <Route path="logout" element={<Navigate to="/tr" />} />
-                <Route path="verify-email" element={<VerifyEmail/>} />
+                <Route path="verify-email" element={<VerifyEmail />} />
 
-                 {/* <Route path="/tr" > element={<PrivateRoutes roles={["user"]} />}
+                {/* <Route path="/tr" > element={<PrivateRoutes roles={["user"]} />}
                 </Route> */}
             </Route>
 
-                {/* Admin Routes */}
-            <Route path="admin/login" element={<AdminLogin/>} />
+            {/* Admin Routes */}
+            <Route path="admin/login" element={<AdminLogin />} />
             <Route path="admin/logout" element={<Navigate to="/admin/login" />} />
-            <Route path="admin" element={<AuthLayout/>}>
-                <Route path="" index element={<Dashboard/>}/>
-                <Route path="products" element={<AdminProducts/>} />
-                <Route path="categories" element={<AdminCategories/>} />
+            <Route path="admin" element={<AuthLayout />}>
+                <Route path="" index element={<Dashboard />} />
+                <Route path="products" element={<AdminProducts />} />
+                <Route path="categories" element={<AdminCategories />} />
             </Route>
 
-            <Route path="*" element={<Navigate to="/" />}/>
+            <Route path="*" element={<Navigate to="/" />} />
         </Routes>
     );
 }

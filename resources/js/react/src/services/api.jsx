@@ -17,13 +17,13 @@ export const getConfig = (token, contentType = "application/json") => {
     return config;
 }
 
-// api.interceptors.request.use((config) => {
-//   const token = Cookies.get('XSRF-TOKEN');
-//   if (token) {
-//     config.headers['X-XSRF-TOKEN'] = decodeURIComponent(token); // bu çok kritik
-//   }
-//   return config;
-// });
+
+// Tüm isteklere X-Locale header'ı ekle
+api.interceptors.request.use((config) => {
+    const locale = localStorage.getItem('locale') || 'tr';
+    config.headers['X-Locale'] = locale;
+    return config;
+});
 
 
 export default api;

@@ -162,11 +162,94 @@ return [
     |
     */
 
-    'custom' => [
-        'attribute-name' => [
-            'rule-name' => 'custom-message',
+        'custom' => [
+            'name' => [
+                'required' => 'Please enter your name.',
+                'min' => 'Your name must be at least :min characters.',
+                'max' => 'Your name may not be greater than :max characters.',
+            ],
+            'lastname' => [
+                'required' => 'Please enter your surname.',
+                'min' => 'Your surname must be at least :min characters.',
+                'max' => 'Your surname may not be greater than :max characters.',
+            ],
+            'email' => [
+                'required' => 'Please enter your email address.',
+                'email' => 'Please enter a valid email address.',
+                'unique' => 'This email address is already registered.',
+            ],
+            'password' => [
+                'required' => 'Please enter your password.',
+                'min' => 'Your password must be at least :min characters.',
+                'confirmed' => 'Password confirmation does not match.',
+            ],
+            'oldpassword' => [
+                'required' => 'Please enter your current password.',
+            ],
+            'newpassword' => [
+                'required' => 'Please enter your new password.',
+                'min' => 'Your new password must be at least :min characters.',
+                'confirmed' => 'Password confirmation does not match.',
+            ],
+            'newpassword_confirmation' => [
+                'required' => 'Please re-enter your new password.',
+                'min' => 'Your new password must be at least :min characters.',
+            ],
+            'phone' => [
+                'required' => 'Please enter your phone number.',
+                'regex' => 'Phone number must start with 5 and be 10 digits.',
+            ],
+            'birthdate' => [
+                'required' => 'Please enter your birthdate.',
+                'date' => 'Please enter a valid birthdate.',
+                'before_or_equal' => 'Your birthdate must be on or before 2011-12-31.',
+            ],
+            'title' => [
+                'required' => 'Please enter the address title.',
+                'min' => 'Address title must be at least :min characters.',
+                'max' => 'Address title may not be greater than :max characters.',
+            ],
+            'city' => [
+                'required' => 'Please select a city.',
+                'string' => 'Invalid city name.',
+            ],
+            'district' => [
+                'required' => 'Please select a district.',
+                'string' => 'Invalid district name.',
+            ],
+            'neighborhood' => [
+                'required' => 'Please select a neighborhood.',
+                'string' => 'Invalid neighborhood name.',
+            ],
+            'address' => [
+                'required' => 'Please enter your address.',
+                'string' => 'Invalid address.',
+                'min' => 'Your address must be at least :min characters.',
+                'max' => 'Your address may not be greater than :max characters.',
+            ],
+            'id' => [
+                'required' => 'Address ID is missing.',
+                'exists' => 'Address not found.',
+            ],
         ],
-    ],
+
+        'attributes' => [
+            'name' => 'Name',
+            'lastname' => 'Surname',
+            'email' => 'Email address',
+            'password' => 'Password',
+            'oldpassword' => 'Current password',
+            'newpassword' => 'New password',
+            'newpassword_confirmation' => 'New password confirmation',
+            'phone' => 'Phone number',
+            'birthdate' => 'Birthdate',
+            'title' => 'Address title',
+            'city' => 'City',
+            'district' => 'District',
+            'neighborhood' => 'Neighborhood',
+            'address' => 'Address',
+            'id' => 'Address ID',
+        ],
 
     /*
     |--------------------------------------------------------------------------

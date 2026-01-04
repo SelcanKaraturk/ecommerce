@@ -3,7 +3,7 @@ import React from "react";
 function Loading({style}) {
     return (
         <>
-            <div className={`loading-spinner ${style}`}>
+            <div className={`loading-spinner ${style}`} >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="50"

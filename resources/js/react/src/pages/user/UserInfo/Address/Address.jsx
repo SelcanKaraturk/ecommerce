@@ -63,22 +63,22 @@ function Address() {
                 }} />
             </div>
 
-            <div class="row g-3">
-                {currentUser?.addresses.map(addr => (
-                    <div class="col-12 col-sm-6 col-md-4" key={addr.id}>
-                        <div class="address-card">
-                            <div class="address-icon position-relative mt-3"><AddressIcon /></div>
-                            <h6 class="address-title text-center mb-3 mt-4">{addr.title}</h6>
-                            <div class="address-body">
+            <div className="row g-3">
+                {currentUser?.addresses.map((addr, idx) => (
+                    <div className={`col-12 col-md-6 col-lg-4${idx >= 3 ? ' mt-50-address' : ''}${idx === 2 ? ' mt-md-50-address' : ''}${idx === 1 ? ' mt-sm-50-address' : ''}`} key={addr.id}>
+                        <div className="address-card">
+                            <div className="address-icon position-relative mt-3"><AddressIcon /></div>
+                            <h6 className="address-title text-center mb-3 mt-4">{addr.title}</h6>
+                            <div className="address-body">
                                 <p>{addr.name}</p>
                                 <p>{addr.neighborhood}</p>
-                                <p class="address-text">{addr.address}</p>
+                                <p className="address-text">{addr.address}</p>
                                 <p>{addr.district} / {addr.city}</p>
                                 <p>{addr.phone}</p>
                             </div>
 
-                            <div class="address-actions">
-                                <button style={{ width: '45px' }} onClick={() => handleDeleteAddress(addr.id)} class="btn btn-outline-secondary btn-sm hiraola-btn hiraola-btn_sm">Sil</button>
+                            <div className="address-actions">
+                                <button style={{ width: '45px' }} onClick={() => handleDeleteAddress(addr.id)} className="btn btn-outline-secondary btn-sm hiraola-btn hiraola-btn_sm">Sil</button>
                                 <UpdateAddress initialValues={addr} />
                             </div>
                         </div>

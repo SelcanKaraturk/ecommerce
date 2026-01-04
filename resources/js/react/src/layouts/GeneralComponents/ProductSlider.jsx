@@ -77,7 +77,7 @@ function ProductSlider({ mainName, products }) {
                                                 <div className="single_product">
                                                     <div className="product-img">
                                                         <Link
-                                                            to={`/tr/${category}/${i.product_slug}`}
+                                                            to={`/tr/${category === 'sinirli-uretim' ? 'snr-uretim' : category}/${i.product_slug}`}
                                                         >
                                                             <img
                                                                 className="primary-img"

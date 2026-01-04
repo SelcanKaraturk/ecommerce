@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\HomeResources;
 use App\Http\Resources\ProductResources;
 use App\Models\Category;
-use Illuminate\Http\Request;
 use App\Models\Product;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\PersonalAccessToken;
 
@@ -22,7 +22,7 @@ class ProductController extends Controller
     {
         // $productsDi = Product::whereRelation("category", "parent_id", 1)->with(['stock','groupedStock'])
         //     ->latest()->take(12)->get();
-            $productsDi = Product::whereRelation("categories", "category_id",1)
+        $productsDi = Product::whereRelation('categories', 'category_id', 1)
             ->with(['stock', 'categories:id,slug'])
             ->latest()
             ->take(12)
@@ -31,14 +31,16 @@ class ProductController extends Controller
                 $product->groupedStockById = $product->stock->groupBy('product_id');
                 return $product;
             });
-        $productsGold = Product::whereRelation("categories", "category_id", 2)
-            ->latest()->take(12)->get();
-        //$categoryDi = Category::find(1)->children()->with("products")->get();
-            // return response()->json(['data'=>HomeResources::collection($productsDi)]);
+        $productsGold = Product::whereRelation('categories', 'category_id', 2)
+            ->latest()
+            ->take(12)
+            ->get();
+        // $categoryDi = Category::find(1)->children()->with("products")->get();
+        // return response()->json(['data'=>HomeResources::collection($productsDi)]);
         return response()->json(data: [
             'productsDi' => HomeResources::collection($productsDi),
-            //'productsGold' => ProductResources::collection($productsGold),
-           //'categoryDi' => $categoryDi,
+            // 'productsGold' => ProductResources::collection($productsGold),
+            // 'categoryDi' => $categoryDi,
             $request->bearerToken()
         ]);
     }
@@ -70,21 +72,25 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($lang, $category, $slug)
+    public function show($lang, $categoryOrSlug, $slug = null)
     {
+        // category opsiyonel  if ($slug === null) {
+        if ($slug === null) {
+            $slug = $categoryOrSlug;
+        }
         if (!auth()->check()) {
-            $product = Product::where("slug", $slug)
-                ->with(['stock' => function ($query){
-                     $query->withExists([
-                            'wishlistedBy' => function ($q) {
-                                $q->whereNull('user_id');
-                            }
-                        ]);
+            $product = Product::where('slug', $slug)
+                ->with(['stock' => function ($query) {
+                    $query->withExists([
+                        'wishlistedBy' => function ($q) {
+                            $q->whereNull('user_id');
+                        }
+                    ]);
                 }, 'groupedStock'])
                 // ->addSelect(['in_carts_exists' => \DB::raw('false')])
                 ->firstOrFail();
         } else {
-            $product = Product::where("slug", $slug)
+            $product = Product::where('slug', $slug)
                 ->with([
                     'stock' => function ($query) {
                         $query->withExists([
@@ -92,7 +98,7 @@ class ProductController extends Controller
                                 $q->where('user_id', auth()->id());
                             }
                         ]);
-                        //$query->whereIn('size',[12]);
+                        // $query->whereIn('size',[12]);
                     },
                     'groupedStock',
                 ])
@@ -105,9 +111,10 @@ class ProductController extends Controller
                 ])
                 ->firstOrFail();
         }
-        //dd($product);
+        // dd($product);
 
-        return response()->json(new ProductResources($product));
+        //return response()->json(new ProductResources($product));
+        return response()->json(['data' => new ProductResources($product)]);
     }
 
     /**

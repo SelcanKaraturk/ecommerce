@@ -28,50 +28,65 @@ function ProductDetail() {
         async function fetchData() {
             try {
                 setLoading(true);
-                const { data } = await getSingleProduct(
-                    category,
-                    slug,
-                    accessToken
-                );
+                let res;
+                if (category) {
+                    res = await getSingleProduct(
+                        category,
+                        slug,
+                        accessToken
+                    );
+                } else {
+                    res = await getSingleProduct(
+                        null,
+                        slug,
+                        accessToken
+                    );
+                }
+
+                const { data } = res.data;
+                console.log("Fetched product data:", data);
                 setProduct({ ...data, category: category });
                 setLoading(false);
             } catch (error) {
                 setLoading(false);
-                //console.log(error);
+                console.log(error);
                 setProduct();
             }
         }
         fetchData();
     }, []);
+    console.log("ProductDetail render");
+    console.log("category render", category);
+    console.log("slug render", slug);
 
-    useEffect(() => {
-        if (product && !selectedColor) {
-            color_state
-                ? setSelectedColor(color_state)
-                : setSelectedColor(
-                      product.grouped_stock_by_color?.[0]?.color ?? ""
-                  ); //product verisi gelince ilk başta gelen ilk rengi seç
-        }
-        if (product && !options) {
-            //product verisi gelince ilk başta stock daki sizeları options olarak ekle
-            const sizes = product.product_stock?.[0].color;
-            const variant = product.product_stock.filter(
-                (i) => i.color == sizes
-            );
-            const newOptions = variant.map((e) => ({
-                value: e.size,
-                label: e.size,
-            }));
-            setOptions(orderedOptions(newOptions)); //veriyi küçükten büyüğe sırala
-        }
-        console.log(product)
-    }, [product]);
+    // useEffect(() => {
+    //     if (product && !selectedColor) {
+    //         color_state
+    //             ? setSelectedColor(color_state)
+    //             : setSelectedColor(
+    //                 product.grouped_stock_by_color?.[0]?.color ?? ""
+    //             ); //product verisi gelince ilk başta gelen ilk rengi seç
+    //     }
+    //     if (product && !options) {
+    //         //product verisi gelince ilk başta stock daki sizeları options olarak ekle
+    //         const sizes = product.product_stock?.[0].color;
+    //         const variant = product.product_stock.filter(
+    //             (i) => i.color == sizes
+    //         );
+    //         const newOptions = variant.map((e) => ({
+    //             value: e.size,
+    //             label: e.size,
+    //         }));
+    //         setOptions(orderedOptions(newOptions)); //veriyi küçükten büyüğe sırala
+    //     }
+    //     console.log(product)
+    // }, [product]);
 
-    useEffect(() => {
-        if (options && !selectedSize) {
-            size ? setSelectedSize(size) : setSelectedSize(options[3].value); //başlangıçta options dizisinin 3. öğesini ekle
-        }
-    }, [options]);
+    // useEffect(() => {
+    //     if (options && !selectedSize) {
+    //         size ? setSelectedSize(size) : setSelectedSize(options[3].value); //başlangıçta options dizisinin 3. öğesini ekle
+    //     }
+    // }, [options]);
 
     // const handleCartClick = (val) => {
     //     //sepete ekle tıklanınca product objesini güncelle
@@ -98,28 +113,28 @@ function ProductDetail() {
     };
 
     const color = ["Beyaz Altın", "Sarı", "Rose"];
-    useEffect(() => {
-        if (product) {
-            const variant =
-                product.product_stock.find(
-                    (i) => i.color === selectedColor && i.size == selectedSize
-                ) ?? null;
-            setSelectedVariant(variant);
-            // console.log(product);
-        }
-    }, [product, selectedColor, selectedSize]);
+    // useEffect(() => {
+    //     if (product) {
+    //         const variant =
+    //             product.product_stock.find(
+    //                 (i) => i.color === selectedColor && i.size == selectedSize
+    //             ) ?? null;
+    //         setSelectedVariant(variant);
+    //         // console.log(product);
+    //     }
+    // }, [product, selectedColor, selectedSize]);
 
-    useEffect(() => {
-        console.log(selectedVariant);
-    }, [selectedVariant]);
+    // useEffect(() => {
+    //     console.log(selectedVariant);
+    // }, [selectedVariant]);
 
-    const selectSizeChange = (val) => {
-        const { value } = val;
-        setSelectedSize(value);
-    };
-    const selectedStock = product?.product_stock.find(
-        (i) => i.color === selectedColor && i.size == 12
-    );
+    // const selectSizeChange = (val) => {
+    //     const { value } = val;
+    //     setSelectedSize(value);
+    // };
+    // const selectedStock = product?.product_stock.find(
+    //     (i) => i.color === selectedColor && i.size == 12
+    // );
     return (
         <>
             {!loading ? (
@@ -165,7 +180,8 @@ function ProductDetail() {
                                                 </h5>
                                             </div>
                                             <span className="reference">
-                                                {product?.product_content}
+
+                                                {product?.product_content?.replace(/<[^>]+>/g, '')}
                                             </span>
 
                                             <div className="sp-essential_stuff mt-3">
@@ -195,21 +211,21 @@ function ProductDetail() {
                                                     isSearchable={true}
                                                     name="size"
                                                     options={options && options}
-                                                    onChange={selectSizeChange}
+                                                // onChange={selectSizeChange}
                                                 />
                                             </div>
-                                            {(!selectedVariant ||
+                                            {/* {(!selectedVariant ||
                                                 selectedVariant.stock == 0) && (
-                                                <div className="text-small">
-                                                    *İstediğiniz ölçüde ürün
-                                                    stoklarımızda mevcut
-                                                    değildir. Sipariş vermeniz
-                                                    halinde 1-7 iş günü
-                                                    içerisinde size özel
-                                                    üretilip tarafınıza gönderim
-                                                    sağlanır.
-                                                </div>
-                                            )}
+                                                    <div className="text-small">
+                                                        *İstediğiniz ölçüde ürün
+                                                        stoklarımızda mevcut
+                                                        değildir. Sipariş vermeniz
+                                                        halinde 1-7 iş günü
+                                                        içerisinde size özel
+                                                        üretilip tarafınıza gönderim
+                                                        sağlanır.
+                                                    </div>
+                                                )} */}
 
                                             <div className="product-size_box">
                                                 <div>
@@ -224,7 +240,7 @@ function ProductDetail() {
                                                             gap: 2,
                                                         }}
                                                     >
-                                                        {product?.grouped_stock_by_color.map(
+                                                        {product?.variants.map(
                                                             (item) => (
                                                                 <div>
                                                                     <ToggleButton
@@ -234,15 +250,14 @@ function ProductDetail() {
                                                                         aria-label="left aligned"
                                                                     >
                                                                         <img
-                                                                            src={`/src/assets/images/color/${
-                                                                                item.color ==
+                                                                            src={`/src/assets/images/color/${item.color ==
                                                                                 color[0]
-                                                                                    ? "metalic.png"
-                                                                                    : item.color ==
-                                                                                      color[1]
+                                                                                ? "metalic.png"
+                                                                                : item.color ==
+                                                                                    color[1]
                                                                                     ? "gold.png"
                                                                                     : "rose.png"
-                                                                            }`}
+                                                                                }`}
                                                                             alt=""
                                                                         />
                                                                     </ToggleButton>
@@ -278,8 +293,8 @@ function ProductDetail() {
                                                                 productObj={{
                                                                     product_number: product?.product_number,
                                                                     price: product?.product_price,
-                                                                    product_stock_id: selectedStock?.stock_number,
-                                                                    myWish: selectedStock?.in_wishlist,
+                                                                    // product_stock_id: selectedStock?.stock_number,
+                                                                    // myWish: selectedStock?.in_wishlist,
                                                                 }}
                                                                 changeWishStatue={changeWishStatue}
                                                             />
