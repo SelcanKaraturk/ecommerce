@@ -19,7 +19,7 @@ function Products() {
         const fetchProducts = async () => {
             try {
                 const { data } = await getProductAll(accessToken);
-                console.log(data);
+                console.log("ürün data",data);
                 setProducts(data);
                 setLoading(false);
             } catch (error) {

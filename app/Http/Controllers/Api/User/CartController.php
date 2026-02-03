@@ -29,18 +29,24 @@ class CartController extends Controller
     }
     public function toggleItem(Request $request)
     {
+
         $validated = $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'product_stock_id' => 'required|exists:product_stocks,id'
+            'product_slug' => 'required|exists:products,slug',
+            'color' => 'required|string',
+            'size' => 'required'
         ]);
 
         $user = $request->user();
-        $productId = Product::find($validated['product_id'])->id;
-        $productStockId = ProductStock::find($validated['product_stock_id'])->id;
-
-        if (!$productId || !$productStockId) {
+        $product = Product::where('slug', $validated['product_slug'])->first();
+        if (!$product) {
             return response()->json(['message' => 'Üzgünüm Ürünü bulamadım. Kontrol ederek işleminizi yeniden gepçekleştiriniz.', 'status' => 'error']);
         }
+        $productId = $product->id;
+        $productStock = $product->productStocks()->where('color', $validated['color'])->where('size', $validated['size'])->first();
+        if (!$productStock) {
+            return response()->json(['message' => 'Üzgünüm, bu renk ve ölçüde stok bulunamadı.', 'status' => 'error']);
+        }
+        $productStockId = $productStock->id;
 
         if ($user) {
             // login olmuşsa user cart üzerinden toggle
@@ -90,17 +96,36 @@ class CartController extends Controller
 
     public function update(Request $request)
     {
-       // return response()->json($request->all());
         $validated = $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'product_stock_id' => 'required|exists:product_stocks,id',
-            'quantity' => 'required|exists:product_stocks,id',
+            'product_slug' => 'required',
+            'product_stock_id' => 'required',
+            'quantity' => 'required|integer|min:1',
         ]);
+
         $user = $request->user();
+        // product_id ve product_stock_id artık slug ve stock_number ile geliyor, bunları id'ye çevir
+        $product = Product::where('slug', $validated['product_slug'])->first();
+        $productStock = $product ? $product->productStocks()->find($validated['product_stock_id']) : null;
+        
+        if (!$product) {
+            return response()->json([
+                'message' => 'Ürün bulunamadı.',
+                'status' => 'error'
+            ], 404);
+        }
+        
+        
+        $productStock = $product ? $product->productStocks()->where('stock_number', $validated['product_stock_id'])->first() : null;
+        if (!$product || !$productStock) {
+            return response()->json([
+                'message' => 'Ürün veya stok bulunamadı.',
+                'status' => 'error'
+            ], 404);
+        }
         $exist = CartItem::
             where('cart_id', $user->cart->id)
-            ->where('product_id', $validated['product_id'])
-            ->where('product_stock_id', $validated['product_stock_id'])->first();
+            ->where('product_id', $product->id)
+            ->where('product_stock_id', $productStock->id)->first();
 
         DB::beginTransaction();
         try {

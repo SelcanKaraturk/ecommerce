@@ -24,6 +24,7 @@ class HomeResources extends JsonResource
             'category_slug' =>  $this->categories->pluck('slug'),
             'grouped_stock_by_id' => $this->groupedStockById()->first(),
             'last_stock_update' => $this->stock->max('updated_at'),
+            'allow_out_of_stock_cart' => $this->allow_out_of_stock_cart,
         ];
     }
 }

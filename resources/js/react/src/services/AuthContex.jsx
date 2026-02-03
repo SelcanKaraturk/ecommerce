@@ -36,6 +36,7 @@ export const AuthProvider = ({ children }) => {
                     getConfig(accessToken)
                 );
                 setCart(data);
+                console.log(data);
             } catch (error) {
                 console.log("Auth fetch error:", error);
                 if (error.response?.status === 401) {
@@ -59,6 +60,7 @@ export const AuthProvider = ({ children }) => {
         const fetchCart = async () => {
             try {
                 const { data } = await api.get("api/cart");
+                console.log(data);
                 setCart(data);
             } catch (error) {
                 console.log(error);
@@ -86,23 +88,6 @@ export const AuthProvider = ({ children }) => {
     const adminLogin = async (credentials) => {
         return await api.post("/api/admin/login", credentials);
     };
-
-    //     try {
-    //         const { data } = await getAuth();
-
-    //         if (data.auth === true) {
-    //             setUser(data.user);
-    //             setHasUser(true);
-    //         } else {
-    //             setHasUser(false);
-    //         }
-    //     } catch (error) {
-    //         console.error("auth kontrolü başarısız:", error);
-    //         setHasUser(false);
-    //     } finally {
-    //         setLoading(false); // 🔐 Her durumda çalışır
-    //     }
-    // };
 
 
     const logout = async (e) => {

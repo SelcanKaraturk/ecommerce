@@ -55,7 +55,7 @@ function Home() {
     useEffect(()=>{
         console.log(productsDi)
     },[productsDi])
-    console.log(productsDi);
+    //console.log(productsDi);
 
     return (
         <>

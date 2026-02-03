@@ -15,7 +15,8 @@ class Product extends Model
         "content",
         "images",
         "discount",
-        "price"
+        "price",
+        "allow_out_of_stock_cart"
     ];
 
     // public function category()

@@ -392,5 +392,8 @@
     background-color: #bfa133;
     color: #fff;
     height: 18px;
-    font-size: 0.70em;
+    font-size: 0.60em;
+    border-radius: 50%;
+    top: 33px;
+    padding: 0;
 }

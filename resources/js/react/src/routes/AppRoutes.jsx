@@ -33,9 +33,10 @@ function AppRoutes() {
                     <Route path="pirlanta" element={<Products />} />
                     <Route path="snr-uretim/:slug" element={<ProductDetail />} />
                     <Route path=":category/:slug" element={<ProductDetail />} />
+                    <Route path=":slug" element={<ProductDetail />} />
                     <Route path="hakkimizda" element={<AboutUs />} />
                     <Route path="iletisim" element={<Contact />} />
-                    <Route path="checkout" element={<Checkout />} />
+                    <Route path="odeme" element={<Checkout />} />
                     <Route path="sepet" element={<Cart />} />
                     <Route element={<PrivateRoute />}>
                         <Route path="hesabim" element={<MyAccount />} />

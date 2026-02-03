@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import "./ProductDetail.css";
 import "../../assets/js/plugins/jquery.elevateZoom-3.0.8.min";
@@ -10,19 +10,20 @@ import CartButton from "../../layouts/GeneralComponents/CartButton";
 import Loading from "../../layouts/GeneralComponents/Loading";
 import Select from "react-select";
 import { ToggleButtonGroup, ToggleButton } from "@mui/material";
-import { orderedOptions } from "../../services/Helper";
+import { getSizeOptions, groupVariantsByColor } from "../../services/Helper";
 
 function ProductDetail() {
     const [loading, setLoading] = useState(false);
     const [product, setProduct] = useState(null);
     const { slug, category } = useParams();
     const { accessToken } = useAuth();
-    const [selectedColor, setSelectedColor] = useState("");
     const [selectedVariant, setSelectedVariant] = useState();
+    const [sizes, setSizes] = useState([]);
     const [selectedSize, setSelectedSize] = useState();
-    const [options, setOptions] = useState(null);
-    const location = useLocation();
-    const { color_state, size } = location.state ?? {};
+    const [colors, setColors] = useState([]);
+    const [selectedColor, setSelectedColor] = useState("");
+    const [err, setErr] = useState(null);
+    const [colorError, setColorError] = useState(false);
 
     useEffect(() => {
         async function fetchData() {
@@ -55,47 +56,49 @@ function ProductDetail() {
         }
         fetchData();
     }, []);
-    console.log("ProductDetail render");
-    console.log("category render", category);
-    console.log("slug render", slug);
 
-    // useEffect(() => {
-    //     if (product && !selectedColor) {
-    //         color_state
-    //             ? setSelectedColor(color_state)
-    //             : setSelectedColor(
-    //                 product.grouped_stock_by_color?.[0]?.color ?? ""
-    //             ); //product verisi gelince ilk başta gelen ilk rengi seç
-    //     }
-    //     if (product && !options) {
-    //         //product verisi gelince ilk başta stock daki sizeları options olarak ekle
-    //         const sizes = product.product_stock?.[0].color;
-    //         const variant = product.product_stock.filter(
-    //             (i) => i.color == sizes
-    //         );
-    //         const newOptions = variant.map((e) => ({
-    //             value: e.size,
-    //             label: e.size,
-    //         }));
-    //         setOptions(orderedOptions(newOptions)); //veriyi küçükten büyüğe sırala
-    //     }
-    //     console.log(product)
-    // }, [product]);
+    useEffect(() => {
+        if (product) {
+            const availableSizes = getSizeOptions(product.variants);
+            setSizes(availableSizes);
+            setSelectedSize(availableSizes[0]);
+            //console.log("Available sizes:", availableSizes);
+            const grouped = groupVariantsByColor(product.variants);
+            //console.log("Grouped variants by color:", grouped);
+            const availableColors = Object.keys(grouped).filter(color => Array.isArray(grouped[color]) && grouped[color].length > 0);
+            setColors(availableColors);
+            if (availableColors.length === 1) {
+                setSelectedColor(availableColors[0]);
+            }
+        }
+    }, [product]);
 
-    // useEffect(() => {
-    //     if (options && !selectedSize) {
-    //         size ? setSelectedSize(size) : setSelectedSize(options[3].value); //başlangıçta options dizisinin 3. öğesini ekle
-    //     }
-    // }, [options]);
+    useEffect(() => {
+        if (selectedColor) {
+            console.log("Selected color changed:", selectedColor);
+            console.log("selected size:", selectedSize);
+        }
+    }, [selectedColor]);
 
-    // const handleCartClick = (val) => {
-    //     //sepete ekle tıklanınca product objesini güncelle
-    //     setProduct((prev) => ({ ...prev, in_carts_exists: val.inCart }));
-    // };
+    const setError = (msg) => {
+        setErr(msg);
+        //     setTimeout(() => {
+        //         setErr(null);
+        //     }, 40000);
+    };
+
+
+
+    // console.log("ProductDetail render", product);
+    // console.log("category render", category);
+    // console.log("slug render", slug);
+    // console.log("colors render", colors);
 
     const radioColorChange = (event, newValue) => {
         if (newValue !== null) {
             setSelectedColor(newValue);
+        } else {
+            setSelectedColor("");
         }
     };
 
@@ -112,26 +115,18 @@ function ProductDetail() {
         }));
     };
 
-    const color = ["Beyaz Altın", "Sarı", "Rose"];
-    // useEffect(() => {
-    //     if (product) {
-    //         const variant =
-    //             product.product_stock.find(
-    //                 (i) => i.color === selectedColor && i.size == selectedSize
-    //             ) ?? null;
-    //         setSelectedVariant(variant);
-    //         // console.log(product);
-    //     }
-    // }, [product, selectedColor, selectedSize]);
+    useEffect(() => {
+        setSelectedVariant({ color: selectedColor, size: selectedSize });
+    }, [selectedColor, selectedSize]);
 
-    // useEffect(() => {
-    //     console.log(selectedVariant);
-    // }, [selectedVariant]);
+    useEffect(() => {
+        console.log(selectedVariant);
+    }, [selectedVariant]);
 
-    // const selectSizeChange = (val) => {
-    //     const { value } = val;
-    //     setSelectedSize(value);
-    // };
+    const selectSizeChange = (val) => {
+        const { value } = val;
+        setSelectedSize(value);
+    };
     // const selectedStock = product?.product_stock.find(
     //     (i) => i.color === selectedColor && i.size == 12
     // );
@@ -143,7 +138,7 @@ function ProductDetail() {
                     <div className="breadcrumb-area">
                         <div className="container">
                             <div className="breadcrumb-content">
-                                <h2>Other</h2>
+                                <h2></h2>
                                 <ul>
                                     <li>
                                         <Link to="/tr">Ana Sayfa</Link>
@@ -159,24 +154,22 @@ function ProductDetail() {
                     {/* <!-- Hiraola's Breadcrumb Area End Here --> */}
 
                     {/* <!-- Begin Hiraola's Single Product Area --> */}
-                    <div className="sp-area">
-                        <div className="container">
+                    <div className="sp-area mb-5">
+                        <div className="container-fluid">
                             <div className="sp-nav">
-                                <div className="row">
-                                    <div className="col-lg-5 col-md-5">
-                                        {product && (
+                                <div className="row gap-5">
+                                    {product?.product_images.length > 0 && (
+                                        <div className="col-lg-4 col-md-4">
                                             <ProductDetailImages
                                                 images={product.product_images}
                                             />
-                                        )}
-                                    </div>
-                                    <div className="col-lg-7 col-md-7">
+                                        </div>
+                                    )}
+                                    <div className="col-lg-5 col-md-5">
                                         <div className="sp-content">
                                             <div className="sp-heading">
                                                 <h5>
-                                                    <a href="#">
-                                                        {product?.product_name}
-                                                    </a>
+                                                    {product?.product_name}
                                                 </h5>
                                             </div>
                                             <span className="reference">
@@ -187,91 +180,87 @@ function ProductDetail() {
                                             <div className="sp-essential_stuff mt-3">
                                                 <ul>
                                                     <li>
-                                                        {product?.product_price.toLocaleString(
-                                                            "tr-TR",
-                                                            {
+                                                        {product?.product_discount ? (<>
+                                                            <span className="old-price">{product?.product_price.toLocaleString("tr-TR", {
                                                                 minimumFractionDigits: 2,
-                                                            }
-                                                        )}{" "}
+                                                            })}</span>
+                                                            <span className="ms-2">{(product?.product_price - (product?.product_discount / 100) * product?.product_price).toLocaleString("tr-TR", {
+                                                                minimumFractionDigits: 2,
+                                                            })}</span>
+                                                        </>) : (product?.product_price.toLocaleString("tr-TR", {
+                                                            minimumFractionDigits: 2,
+                                                        }))}
                                                         ₺
                                                     </li>
                                                 </ul>
                                             </div>
-                                            <div className="product-size_box d-flex">
-                                                <span>Ölçü :</span>
-                                                <Select
-                                                    className="basic-single"
-                                                    classNamePrefix="select"
-                                                    value={
-                                                        selectedSize && {
-                                                            value: selectedSize,
-                                                            label: selectedSize,
+                                            {product?.variants[0]?.size && (
+                                                <div className="product-size_box d-flex">
+                                                    <span className="fw-bold">Ölçü :</span>
+                                                    <Select
+                                                        className="basic-single"
+                                                        classNamePrefix="select"
+                                                        value={
+                                                            selectedSize && {
+                                                                value: selectedSize,
+                                                                label: selectedSize,
+                                                            }
                                                         }
-                                                    }
-                                                    isSearchable={true}
-                                                    name="size"
-                                                    options={options && options}
-                                                // onChange={selectSizeChange}
-                                                />
-                                            </div>
-                                            {/* {(!selectedVariant ||
-                                                selectedVariant.stock == 0) && (
-                                                    <div className="text-small">
-                                                        *İstediğiniz ölçüde ürün
-                                                        stoklarımızda mevcut
-                                                        değildir. Sipariş vermeniz
-                                                        halinde 1-7 iş günü
-                                                        içerisinde size özel
-                                                        üretilip tarafınıza gönderim
-                                                        sağlanır.
-                                                    </div>
-                                                )} */}
+                                                        isSearchable={true}
+                                                        name="size"
+                                                        options={sizes && sizes.map(size => ({ value: size, label: size }))}
+                                                        onChange={selectSizeChange}
+                                                    />
+                                                </div>
+                                            )}
 
-                                            <div className="product-size_box">
-                                                <div>
-                                                    <ToggleButtonGroup
-                                                        value={selectedColor}
-                                                        exclusive
-                                                        onChange={
-                                                            radioColorChange
-                                                        }
-                                                        sx={{
-                                                            display: "flex",
-                                                            gap: 2,
-                                                        }}
+                                            {err && (
+                                                <div className="text-danger mt-3" style={{ fontSize: '13px' }}>
+                                                    <span dangerouslySetInnerHTML={{ __html: err }} />
+                                                </div>
+                                            )}
+
+                                            {Array.isArray(colors) && colors.length > 0 && (
+                                                <div className="product-size_box">
+                                                    <div
+                                                        style={colorError ? {
+                                                            border: '1px solid #ffa6a6',
+                                                            width: 'fit-content',
+                                                            paddingRight: '5px',
+                                                        } : {}}
                                                     >
-                                                        {product?.variants.map(
-                                                            (item) => (
-                                                                <div>
+                                                        <ToggleButtonGroup
+                                                            value={selectedColor}
+                                                            exclusive
+                                                            onChange={radioColorChange}
+                                                            sx={{
+                                                                display: "flex",
+                                                                gap: 2,
+                                                            }}
+                                                        >
+                                                            {colors.map((color) => (
+                                                                <div className={`color-wrap pe-2 ${color}`} key={color}>
                                                                     <ToggleButton
-                                                                        value={
-                                                                            item.color
-                                                                        }
+                                                                        value={color}
                                                                         aria-label="left aligned"
                                                                     >
                                                                         <img
-                                                                            src={`/src/assets/images/color/${item.color ==
-                                                                                color[0]
+                                                                            src={`/assets/images/color/${color === "Beyaz Altın"
                                                                                 ? "metalic.png"
-                                                                                : item.color ==
-                                                                                    color[1]
+                                                                                : color === "Gold"
                                                                                     ? "gold.png"
                                                                                     : "rose.png"
                                                                                 }`}
-                                                                            alt=""
+                                                                            alt={color}
                                                                         />
                                                                     </ToggleButton>
-                                                                    <span>
-                                                                        {
-                                                                            item.color
-                                                                        }
-                                                                    </span>
+                                                                    <span>{color}</span>
                                                                 </div>
-                                                            )
-                                                        )}
-                                                    </ToggleButtonGroup>
+                                                            ))}
+                                                        </ToggleButtonGroup>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            )}
 
                                             <div className="qty-btn_area">
                                                 <ul>
@@ -281,9 +270,12 @@ function ProductDetail() {
                                                                 product={
                                                                     product
                                                                 }
-                                                                productVarient={
+                                                                variant={
                                                                     selectedVariant
                                                                 }
+                                                                setError={setError}
+                                                                slug={slug}
+                                                                onColorErrorChange={setColorError}
                                                             />
                                                         )}
                                                     </li>

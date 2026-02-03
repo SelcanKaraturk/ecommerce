@@ -1,60 +1,106 @@
 import React, { useState, useEffect } from "react";
-import { destroyCart, updateCartQuantity } from "../../services/WebService";
+import { destroyCart, matchCart, updateCartQuantityService } from "../../services/WebService";
 import { useAuth } from "../../services/AuthContex";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Loading from "../../layouts/GeneralComponents/Loading";
-import {CircularProgress} from "@mui/material";
+import { CircularProgress } from "@mui/material";
 import ModalShow from "../../layouts/GeneralComponents/ModalShow";
 
+
 function Cart() {
-    const { accessToken, setCart, cart, setMiniCart,setOpenModal } = useAuth();
+    const { accessToken, setCart, cart, setMiniCart, setOpenModal } = useAuth();
     const [load, setLoad] = useState(false);
     const [deleteLoadId, setDeleteLoadId] = useState(null);
     const [cargo, setCargo] = useState(0);
+    const [cartMatched, setCartMatched] = useState(false);
     const navigate = useNavigate();
 
+    // Cart ilk defa dolduğunda matchCart çalışsın, loop oluşmasın
+    useEffect(() => {
+        if (!cartMatched && cart && cart.length > 0) {
+            setLoad(true);
+            const matchCartData = async () => {
+                try {
+                    const { data } = await matchCart(cart, accessToken || undefined);
 
-    const totalCoast = (price, quantity) => {
-        const coast = price * quantity;
+                    if (data && data.items) {
+                        console.log(data);
+                        setCart(data.items);
+                    }
+                } catch (error) {
+                    console.log(error);
+                } finally {
+                    setLoad(false);
+                    setCartMatched(true);
+                }
+            };
+            matchCartData();
+        }
+    }, [cart, accessToken, cartMatched]);
+
+
+    const totalCoast = (price, quantity, discount) => {
+        const priceAfterDiscount = discount ? price - (price * (discount / 100)) : price;
+        const coast = priceAfterDiscount * quantity;
         return `${coast.toLocaleString("tr-TR", {
             minimumFractionDigits: 2,
         })} ₺`;
     };
+
     const updateQuantity = (product, type, preQuantity) => {
         console.log(product);
-        if (type === "inc" && product.stock === 0) {
-            setOpenModal(<>✨ Seçtiğiniz ürün şu anda stoklarımızda bulunmamaktadır, sizin için özel olarak hazırlanacaktır. <br/>
-                📦 Daha fazla adet sipariş etmek isterseniz, ekibimizle WhatsApp üzerinden memnuniyetle iletişime geçebilirsiniz.</>);
-        } else if (type === "inc" && preQuantity + 1 > product.stock) {
-            setOpenModal(<>✨ Seçtiğiniz üründe daha fazla stok yoktur. <br/>
-                📦 Daha fazla adet sipariş etmek isterseniz, ekibimizle WhatsApp üzerinden memnuniyetle iletişime geçebilirsiniz.</>);
-        } else {
-            const newQty =
-                type === "inc"
-                    ? preQuantity + 1
-                    : preQuantity > 1
+        if (product.stock_status === "no_stock" && !product.allow_out_of_stock_cart) {
+            setOpenModal(<>✨Seçtiğiniz ürün stoklarımızda bulunmamakta ve tekli alımlarda özel üretim yapılamamaktadır. Toptan siparişiniz için lütfen <b> WhatsApp </b> üzerinden bizimle iletişime geçiniz.</>);
+            return;
+        }
+
+        const newQty =
+            type === "inc"
+                ? preQuantity + 1
+                : preQuantity > 1
                     ? preQuantity - 1
                     : 1;
+        if (product.stock && product.stock < newQty && !product.allow_out_of_stock_cart) {
+            setOpenModal(<>Seçtiğiniz ürün için mevcut stok adedinden daha fazla sipariş verilememektedir. Toptan alımlarınız için lütfen <b> WhatsApp </b> üzerinden bizimle iletişime geçiniz.</>);
+            return;
+        }
+        if (product.stock_status === "no_stock" && product.allow_out_of_stock_cart && newQty > 5) {
+            setOpenModal(<>✨Seçtiğiniz üründen 5 adetten fazla sipariş verilememektedir. Toptan siparişiniz için lütfen <b> WhatsApp </b> üzerinden bizimle iletişime geçiniz.</>);
+            return;
+        }
+        if (product.stock_status === "in_stock" && product.allow_out_of_stock_cart && (newQty - product.stock) > 5) {
+            setOpenModal(<>✨Seçtiğiniz üründen {(product.stock)} adet vardır. Stok dışı üretebileceğiniz adet en fazla 5 tir. Toptan siparişiniz için lütfen <b> WhatsApp </b> üzerinden bizimle iletişime geçiniz.</>);
+            return;
+        }
+        if (accessToken) {
+            updateCartQuantity(product, newQty);
+        } else {
             setCart((prevList) =>
                 prevList.map((item) =>
-                    item.product_number === product.product_number &&
-                    item.stock_number === product.stock_number
+                    item.product_slug === product.product_slug &&
+                        item.product_stock_number === product.product_stock_number
                         ? { ...item, quantity: newQty }
                         : item
                 )
             );
-            if(accessToken){
-                updateUserQuantity(product, newQty)
-            }
         }
     };
-    const updateUserQuantity = async(cart, quantity)=>{
+
+    const updateCartQuantity = async (product, quantity) => {
         try {
-            const {data} = await updateCartQuantity(cart, quantity, accessToken);
-            if(data.error){
+            const { data } = await updateCartQuantityService(product, quantity, accessToken);
+            if (data.status === 'error') {
                 toast.error(data.message);
-            }else if(data.status === 'success'){
+            } else if (data.status === 'success') {
+                setCart((prevList) =>
+                    prevList.map((item) =>
+                        item.product_slug === product.product_slug &&
+                            item.product_stock_number === product.product_stock_number
+                            ? { ...item, quantity: quantity }
+                            : item
+                    )
+                );
                 toast.success(data.message);
             }
         } catch (error) {
@@ -63,16 +109,17 @@ function Cart() {
     }
     const subTotal = (cart) => {
         return cart.reduce((total, item) => {
-            return total + item.quantity * item.product_price;
+            const priceAfterDiscount = item.product_price - (item.product_price * (item.product_discount / 100));
+            return total + item.quantity * priceAfterDiscount;
         }, 0);
     };
 
     const handleCheckout = () => {
-        navigate("/tr/checkout");
+        navigate("/tr/odeme");
     };
 
     const goBackDetail = (item) => {
-        navigate(`/tr/${item.category_slug}/${item.product_slug}`, {
+        navigate(`/tr/${item.product_slug}`, {
             state: {
                 color_state: item.color,
                 size: item.size,
@@ -112,7 +159,6 @@ function Cart() {
         setDeleteLoadId(null);
     };
 
-
     return (
         <>
             {load ? (
@@ -126,16 +172,13 @@ function Cart() {
                                 <div className="col-md-9">
                                     <form action="javascript:void(0)">
                                         <div className="table-content">
+                                            <div className="total-count">
+                                                {cart?.length > 0
+                                                    ? `Sepetinizde (${cart.length}) ürün var`
+                                                    : "Sepetinizde ürün bulunmamaktadır"}
+                                            </div>
                                             <table className="table">
-                                                <thead>
-                                                    <tr>
-                                                        <th className="total-count">
-                                                            {cart?.length > 0
-                                                                ? `Sepetinizde (${cart.length}) ürün var`
-                                                                : "Sepetinizde ürün bulunmamaktadır"}
-                                                        </th>
-                                                    </tr>
-                                                </thead>
+                                                <thead></thead>
                                                 <tbody>
                                                     {cart?.length > 0 &&
                                                         cart.map(
@@ -143,9 +186,9 @@ function Cart() {
                                                                 <tr
                                                                     key={`${index}-${item.product_number}`}
                                                                 >
-                                                                    <td className="hiraola-product-remove">
+                                                                    <td style={{ width: '15px' }} className="hiraola-product-remove">
                                                                         {deleteLoadId ===
-                                                                        `${item.product_number}-${item.stock_number}` ? (
+                                                                            `${item.product_number}-${item.stock_number}` ? (
                                                                             <CircularProgress size="sm" />
                                                                         ) : (
                                                                             <a
@@ -171,15 +214,12 @@ function Cart() {
                                                                                 )
                                                                             }
                                                                         >
-                                                                            <img
-                                                                                src={
-                                                                                    item
-                                                                                        .product_images[0]
-                                                                                }
-                                                                                alt={
-                                                                                    item.product_name
-                                                                                }
-                                                                            />
+                                                                            {Array.isArray(item?.product_images) && item.product_images[0] ? (
+                                                                                <img
+                                                                                    src={`/storage/${item.product_images[0]}`}
+                                                                                    alt={item.product_name}
+                                                                                />
+                                                                            ) : ''}
                                                                         </a>
                                                                     </td>
                                                                     <td className="hiraola-product-name">
@@ -256,7 +296,8 @@ function Cart() {
                                                                         <span className="amount">
                                                                             {totalCoast(
                                                                                 item.product_price,
-                                                                                item.quantity
+                                                                                item.quantity,
+                                                                                item.product_discount
                                                                             )}
                                                                         </span>
                                                                     </td>
@@ -282,6 +323,7 @@ function Cart() {
                                                                 className="button"
                                                                 name="apply_coupon"
                                                                 type="submit"
+                                                                value="Uygula"
                                                             />
                                                         </div>
                                                     </div>
@@ -352,7 +394,7 @@ function Cart() {
                     </div>
                     {/* <!-- Hiraola's Cart Area End Here --> */}
 
-                    <ModalShow/>
+                    <ModalShow />
 
                 </>
             )}

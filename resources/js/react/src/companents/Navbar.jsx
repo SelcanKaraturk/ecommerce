@@ -10,7 +10,7 @@ function Navbar() {
     const navigate = useNavigate();
     const subTotal = (cartList) => {
         return cartList.reduce((total, item) => {
-            return total + item.quantity * item.product_price;
+            return total + item.quantity * (item.product_price - (item.product_price * (item.product_discount / 100)));
         }, 0);
     };
     const handleCheckout = () => {
@@ -23,12 +23,23 @@ function Navbar() {
     };
     const handleUserIconClick = (e) => {
         e.preventDefault();
-        console.log("User Icon Clicked", loading, accessToken);
+        //console.log("User Icon Clicked", loading, accessToken);
         if (loading) return; // loading bitmeden hiçbir şey yapma
         if (!accessToken) {
             navigate("/login");
         } else {
             navigate("/tr/hesabim");
+        }
+    };
+
+    const handleWishListIconClick = (e) => {
+        e.preventDefault();
+        //console.log("Wish Icon Clicked", loading, accessToken);
+        if (loading) return; // loading bitmeden hiçbir şey yapma
+        if (!accessToken) {
+            navigate("/login");
+        } else {
+            navigate("/tr/favorilerim");
         }
     };
     return (
@@ -324,7 +335,7 @@ function Navbar() {
                                     <li>
                                         <Link
                                             className="wishlist-btn"
-                                            to="/tr/favorilerim"
+                                            to={"#"} onClick={handleWishListIconClick}
                                         >
                                             <i className="ion-android-favorite-outline"></i>
                                         </Link>
@@ -422,9 +433,9 @@ function Navbar() {
                                         key={`${item.product_slug}-${index}`}
                                     >
 
-                                        <div className="product-item_img">
+                                        <div className="product-item_img d-flex align-items-center justify-content-center">
                                             <img
-                                                src={item.product_images?.[0]}
+                                                src={`/storage/${item.product_images?.[0]}`}
                                                 alt="Hiraola's Product Image"
                                             />
                                         </div>
@@ -433,12 +444,7 @@ function Navbar() {
                                                 {item.product_name || "Ürün adı"}
                                             </a>
                                             <span className="product-item_quantity pt-0">
-                                                {`${item.quantity} x ${item?.product_price?.toLocaleString(
-                                                    "tr-TR",
-                                                    {
-                                                        minimumFractionDigits: 2,
-                                                    }
-                                                )} ₺`}
+                                                {`${item.quantity} x ${(item.product_price-(item.product_price * (item.product_discount/100))).toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺`}
                                             </span>
                                             <span className="cart_variant"><i>Renk:</i> {item.color} - <i>Size:</i> {item.size}</span>
                                         </div>
@@ -456,21 +462,32 @@ function Navbar() {
                             {" ₺"}
                         </span>
                     </div>
-                    <div className="minicart-btn_area">
-                        <Link
-                            to="/tr/sepet"
-                            className="hiraola-btn hiraola-btn_dark hiraola-btn_fullwidth"
-                        >
-                            Sepete Git
-                        </Link>
-                    </div>
-                    <div className="minicart-btn_area">
-                        <a
-                            onClick={handleCheckout}
-                            className="hiraola-btn hiraola-btn_dark hiraola-btn_fullwidth"
-                        >
-                            Siparişi Tamamla
-                        </a>
+                    <div style={{
+                        position: "absolute",
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: "#fff",
+                        zIndex: 10,
+                        padding: 16,
+                    }}>
+                        <div className="minicart-btn_area">
+                            <Link
+                                to="/tr/sepet"
+                                className="hiraola-btn hiraola-btn_dark hiraola-btn_fullwidth"
+                                onClick={() => setMiniCart(false)}
+                            >
+                                Sepete Git
+                            </Link>
+                        </div>
+                        <div className="minicart-btn_area">
+                            <a
+                                onClick={handleCheckout}
+                                className="hiraola-btn hiraola-btn_dark hiraola-btn_fullwidth"
+                            >
+                                Siparişi Tamamla
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

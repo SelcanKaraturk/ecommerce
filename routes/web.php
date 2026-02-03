@@ -18,6 +18,7 @@ use App\Http\Controllers\CategoryController;
 //  Route::get('/', function () {
 //     return view('layouts/welcome');
 //  });
+
 Route::get('/veri', [CategoryController::class, 'index']);
 Route::get('/google/redirect', [GoogleController::class, 'redirect']);
 Route::get('/google/callback', [GoogleController::class, 'callback']);

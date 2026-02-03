@@ -49,8 +49,8 @@ function ProductDetailImages({ images }) {
             <div className="sp-img_area product-detail">
                 <div className="zoompro-border">
                     <InnerImageZoom
-                        src={activeImage && activeImage}
-                        zoomSrc={activeImage && activeImage}
+                        src={`/storage/${activeImage && activeImage}`}
+                        zoomSrc={`/storage/${activeImage && activeImage}`}
                         zoomType="hover"
                         zoomScale={1.3}
                         alt="Ürün Görseli"

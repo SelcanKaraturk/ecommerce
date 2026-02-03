@@ -113,7 +113,7 @@ class ProductController extends Controller
         }
         // dd($product);
 
-        //return response()->json(new ProductResources($product));
+        //return response()->json($product);
         return response()->json(['data' => new ProductResources($product)]);
     }
 

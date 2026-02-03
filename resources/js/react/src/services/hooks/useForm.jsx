@@ -50,7 +50,5 @@ export default function useForm(initialState = {}) {
         callback(form);
     };
 
-
-
     return { form, setForm, handleChange, handleFileChange, resetForm, preview, setPreview, handleImageDelete, handleCancel, open, setOpen, handleSubmit };
 }

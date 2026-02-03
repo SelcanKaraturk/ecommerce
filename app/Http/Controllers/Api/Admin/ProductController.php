@@ -20,8 +20,8 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::with(['categories:id,slug,name','stock'])->withSum('stock', 'stock')->orderByDesc('id')->get();
-        //return response()->json($products);
-         return response()->json(ProductResources::collection($products));
+        //return response()->json(['data'=>ProductResources::collection($products), 'user'=>auth()->user()->hasRole('admin')]);
+        return response()->json(ProductResources::collection($products));
     }
 
     /**

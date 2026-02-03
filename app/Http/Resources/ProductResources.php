@@ -15,7 +15,7 @@ class ProductResources extends JsonResource
     public function toArray($request)
     {
         return [
-            'product_number' => $this->id,
+            'product_number' => (auth()->user() && auth()->user()->hasRole('admin')) ? $this->id : null,
             'product_name' => $this->name,
             'product_slug' => $this->slug,
             'product_images' => $this->images,
@@ -25,6 +25,7 @@ class ProductResources extends JsonResource
             'categories' => $this->categories,
             'variants' => $this->variants(),
             'total_stock'    => $this->stock_sum_stock ?? $this->stock->sum('stock') ?? 0,
+            'allow_out_of_stock_cart' => $this->allow_out_of_stock_cart,
             // 'product_stock' => $this->stock->map(function ($stock) {
             //     return [
             //         'stock_number' => $stock->id,
@@ -63,6 +64,7 @@ class ProductResources extends JsonResource
         return $this->stock
             ->map(function ($item) {
                 return [
+                    // 'stock_number' => $item->id,
                     'color' => $item->color,
                     'size' => $item->size,
                     'quantity' => $item->stock,

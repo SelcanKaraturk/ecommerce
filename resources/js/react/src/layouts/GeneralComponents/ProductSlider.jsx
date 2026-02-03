@@ -81,20 +81,15 @@ function ProductSlider({ mainName, products }) {
                                                         >
                                                             <img
                                                                 className="primary-img"
-                                                                src={
-                                                                    i
-                                                                        .product_images[0]
-                                                                }
-                                                                alt="Hiraola's Product Image"
+                                                                src={`/storage/${i.product_images[0]}`}
+                                                                alt={i.product_name}
                                                             />
+                                                            {i.product_images.length > 1 && (
                                                             <img
                                                                 className="secondary-img"
-                                                                src={
-                                                                    i
-                                                                        .product_images[1]
-                                                                }
-                                                                alt="Hiraola's Product Image"
-                                                            />
+                                                                src={`/storage/${i.product_images[1]}`}
+                                                                alt={i.product_name}
+                                                            />)}
                                                         </Link>
                                                         <div className="sticker-wrapper">{i.grouped_stock_by_id ? (
                                                             i
@@ -127,14 +122,14 @@ function ProductSlider({ mainName, products }) {
                                                     <div className="hiraola-product_content">
                                                         <div className="product-desc_info">
                                                             <h6>
-                                                                <a
+                                                                <Link
                                                                     className="product-name"
-                                                                    href="single-product.html"
+                                                                    to={`/tr/${category === 'sinirli-uretim' ? 'snr-uretim' : category}/${i.product_slug}`}
                                                                 >
                                                                     {
                                                                         i.product_name
                                                                     }
-                                                                </a>
+                                                                </Link>
                                                             </h6>
                                                             <div className="price-box">
                                                                 <span className="new-price">

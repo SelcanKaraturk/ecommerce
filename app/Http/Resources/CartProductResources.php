@@ -15,8 +15,8 @@ class CartProductResources extends JsonResource
     public function toArray($request)
     {
         return [
-            'stock_number' => $this->id,
-            'product_number' => $this->product_id,
+            // 'stock_number' => $this->id,
+            'product_slug' => $this->slug,
             'color'=>$this->color,
             'size'=>$this->size,
             'stock'=>$this->stock,
@@ -25,8 +25,9 @@ class CartProductResources extends JsonResource
             'product_slug' => $this->product->slug,
             'product_content' => $this->product->content,
             'product_price' => $this->product->price,
+            'product_discount' => $this->product->discount,
             'product_images' => $this->product->images,
-            'category_slug' => $this->product->category?->slug
+            // 'category_slug' => $this->product->category?->slug
         ];
     }
 }
