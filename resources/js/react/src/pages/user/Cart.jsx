@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { destroyCart, matchCart, updateCartQuantityService } from "../../services/WebService";
+import { destroyCart, matchCart, updateCartQuantityService, updateCartCookieQuantityService } from "../../services/WebService";
 import { useAuth } from "../../services/AuthContex";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -10,34 +10,49 @@ import ModalShow from "../../layouts/GeneralComponents/ModalShow";
 
 function Cart() {
     const { accessToken, setCart, cart, setMiniCart, setOpenModal } = useAuth();
-    const [load, setLoad] = useState(false);
+    const [load, setLoad] = useState(true);
     const [deleteLoadId, setDeleteLoadId] = useState(null);
     const [cargo, setCargo] = useState(0);
-    const [cartMatched, setCartMatched] = useState(false);
+    const [cartMatched, setCartMatched] = useState(null);
     const navigate = useNavigate();
 
-    // Cart ilk defa dolduğunda matchCart çalışsın, loop oluşmasın
+    // Localdeki cart verisinin güncellenmesi için böylece tükenmiş ürünler sepetten çıkarılır
     useEffect(() => {
         if (!cartMatched && cart && cart.length > 0) {
-            setLoad(true);
             const matchCartData = async () => {
                 try {
                     const { data } = await matchCart(cart, accessToken || undefined);
-
+                    // console.log("matchCart response:", data);
                     if (data && data.items) {
-                        console.log(data);
                         setCart(data.items);
                     }
                 } catch (error) {
                     console.log(error);
                 } finally {
-                    setLoad(false);
                     setCartMatched(true);
+                    setLoad(false);
+
                 }
             };
             matchCartData();
+        } else if (Array.isArray(cart) && cart.length === 0) {
+            setCartMatched(false);
+            //setLoad(false);
         }
-    }, [cart, accessToken, cartMatched]);
+    }, [cart, accessToken]);
+
+    useEffect(() => {
+        if (cartMatched) {
+            setLoad(false);
+            console.log("Cart matched, loading set to false");
+        } else {
+            if (cart && cart.length > 0) {
+                setLoad(true);
+            } else {
+                setLoad(false);
+            }
+        }
+    }, [cartMatched]);
 
 
     const totalCoast = (price, quantity, discount) => {
@@ -76,16 +91,23 @@ function Cart() {
         if (accessToken) {
             updateCartQuantity(product, newQty);
         } else {
-            setCart((prevList) =>
-                prevList.map((item) =>
+            updateCartCookieQuantity(product, newQty);
+            setCart((prevList) => {
+                const updatedCart = prevList.map((item) =>
                     item.product_slug === product.product_slug &&
                         item.product_stock_number === product.product_stock_number
                         ? { ...item, quantity: newQty }
                         : item
-                )
-            );
+                );
+                
+                return updatedCart;
+            });
         }
     };
+
+    // useEffect(() => {
+    //     console.log("Cart updated new:", cart);
+    // }, [cart]);
 
     const updateCartQuantity = async (product, quantity) => {
         try {
@@ -107,10 +129,41 @@ function Cart() {
             console.log(error);
         }
     }
+
+    const updateCartCookieQuantity = async (product, quantity) => {
+        try {
+            const { data } = await updateCartCookieQuantityService(product, quantity);
+            console.log("updateCartCookieQuantity response:");
+            console.log(data);
+            if (data.status === 'error') {
+                toast.error(data.message);
+            } else if (data.status === 'success') {
+                setCart((prevList) =>
+                    prevList.map((item) =>
+                        item.product_slug === data.cartItem.product_slug &&
+                            item.product_stock_number === data.cartItem.product_stock_number
+                            ? { ...item, quantity: data.cartItem.quantity }
+                            : item
+                    )
+                );
+                toast.success(data.message);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
     const subTotal = (cart) => {
         return cart.reduce((total, item) => {
             const priceAfterDiscount = item.product_price - (item.product_price * (item.product_discount / 100));
             return total + item.quantity * priceAfterDiscount;
+        }, 0);
+    };
+
+    const totalGain = (cart) => {
+        return cart.reduce((total, item) => {
+            const priceAfterDiscount = item.product_price - (item.product_price * (item.product_discount / 100));
+            // Toplam indirim: (indirim öncesi fiyat - indirimli fiyat) * adet
+            return total + ((item.product_price - priceAfterDiscount) * item.quantity);
         }, 0);
     };
 
@@ -128,7 +181,7 @@ function Cart() {
     };
 
     const deleteCart = async (product) => {
-        setDeleteLoadId(`${product.product_number}-${product.stock_number}`);
+        setDeleteLoadId(`${product.product_slug}-${product.product_stock_number}`);
 
         try {
             const { data } = await destroyCart(
@@ -142,15 +195,7 @@ function Cart() {
             }
 
             if (data.status === "success") {
-                setCart(
-                    cart.filter(
-                        (i) =>
-                            !(
-                                i.stock_number === product.stock_number &&
-                                i.product_number === product.product_number
-                            )
-                    )
-                );
+                setCart(data.newCart);
                 toast.success(data.message);
             }
         } catch (error) {
@@ -164,18 +209,18 @@ function Cart() {
             {load ? (
                 <Loading />
             ) : (
-                <>
-                    {/* <!-- Begin Hiraola's Cart Area --> */}
+
+                cartMatched === true ? (<>
                     <div className="hiraola-cart-area">
-                        <div className="container">
+                        <div className="container-fluid">
                             <div className="row">
-                                <div className="col-md-9">
+                                <div className="col-md-8">
                                     <form action="javascript:void(0)">
                                         <div className="table-content">
                                             <div className="total-count">
                                                 {cart?.length > 0
-                                                    ? `Sepetinizde (${cart.length}) ürün var`
-                                                    : "Sepetinizde ürün bulunmamaktadır"}
+                                                    && `Sepetinizde (${cart.length}) ürün var`
+                                                }
                                             </div>
                                             <table className="table">
                                                 <thead></thead>
@@ -184,11 +229,11 @@ function Cart() {
                                                         cart.map(
                                                             (item, index) => (
                                                                 <tr
-                                                                    key={`${index}-${item.product_number}`}
+                                                                    key={`${index}-${item.product_stock_number}`}
                                                                 >
                                                                     <td style={{ width: '15px' }} className="hiraola-product-remove">
                                                                         {deleteLoadId ===
-                                                                            `${item.product_number}-${item.stock_number}` ? (
+                                                                            `${item.product_slug}-${item.product_stock_number}` ? (
                                                                             <CircularProgress size="sm" />
                                                                         ) : (
                                                                             <a
@@ -293,6 +338,16 @@ function Cart() {
                                                                         </div>
                                                                     </td>
                                                                     <td className="product-subtotal">
+                                                                        <p>
+                                                                            <span className="amount old">
+                                                                                {(item.product_price * item.quantity).toLocaleString(
+                                                                                    "tr-TR",
+                                                                                    {
+                                                                                        minimumFractionDigits: 2,
+                                                                                    }
+                                                                                )} ₺
+                                                                            </span>
+                                                                        </p>
                                                                         <span className="amount">
                                                                             {totalCoast(
                                                                                 item.product_price,
@@ -347,18 +402,41 @@ function Cart() {
                                                             {
                                                                 minimumFractionDigits: 2,
                                                             }
-                                                        )}
+                                                        )} ₺
                                                     </span>
                                                 </li>
                                                 <li>
+
                                                     Kargo
+
                                                     <span
                                                         style={{
                                                             color: "#67c36c",
                                                         }}
                                                     >
-                                                        Kargo Bedava
+                                                        <dfn style={{ color: '#666666', textDecoration: 'line-through', fontSize: '12px' }}>
+                                                            59,99₺
+                                                        </dfn> Kargo Bedava
                                                     </span>
+                                                </li>
+                                                <li className="d-flex justify-content-between" style={{ padding: '5px 5px' }}>
+                                                    <div className="d-flex justify-content-between w-100" style={{ padding: '5px 25px', backgroundColor: '#f8fffa', border: '1px solid #b7f5c6' }}>
+
+                                                        <span className="">
+                                                            Toplam Kazancınız
+                                                        </span>
+                                                        <span className="">
+                                                            {(
+                                                                totalGain(cart)
+                                                            ).toLocaleString(
+                                                                "tr-TR",
+                                                                {
+                                                                    minimumFractionDigits: 2,
+                                                                }
+                                                            )} ₺
+                                                        </span>
+
+                                                    </div>
                                                 </li>
                                                 <li className="d-flex justify-content-between">
                                                     <span className="fw-bolder">
@@ -373,7 +451,7 @@ function Cart() {
                                                             {
                                                                 minimumFractionDigits: 2,
                                                             }
-                                                        )}
+                                                        )} ₺
                                                     </span>
                                                 </li>
                                             </ul>
@@ -392,11 +470,37 @@ function Cart() {
                             </div>
                         </div>
                     </div>
-                    {/* <!-- Hiraola's Cart Area End Here --> */}
 
-                    <ModalShow />
+                    <ModalShow /></>
+                ) : cartMatched === false ? (
+                    <div className="checkout-area">
+                        <div className="container">
+                            <div className="row">
+                                <div className="col-12">
+                                    <div className="text-center">
+                                        <p className="fw-bold">Sepetiniz boş, ama fırsatlar dolu! <br /> Özel fırsatları kaçırmamak için alışverişe devam edin.</p>
 
-                </>
+                                        <button
+                                            style={{
+                                                background: '#595959',
+                                                color: '#fff',
+                                                border: 'none',
+                                                borderRadius: '6px',
+                                                padding: '8px 24px',
+                                                fontSize: '1rem',
+                                                cursor: 'pointer',
+                                                marginTop: '0',
+                                            }}
+                                            onClick={() => window.location.href = '/'}
+                                        >
+                                            Alışverişe Devam Et
+                                        </button> <br />
+                                        <img className="empty-card" src="/assets/images/fullCart.png" alt="Empty Cart" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>) : <Loading />
             )}
         </>
     );

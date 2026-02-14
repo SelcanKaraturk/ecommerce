@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
         () => localStorage.getItem("currentToken") || null
     );
     const [currentUser, setCurrentUser] = useState(null);
-    const [cart, setCart] = useState([]);
+    const [cart, setCart] = useState(null);
     const [miniCart, setMiniCart] = useState(false);
     const [openModal, setOpenModal] = useState(null);
     const navigate = useNavigate();

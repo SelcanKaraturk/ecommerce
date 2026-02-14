@@ -88,6 +88,7 @@ Route::prefix('me')->middleware(['auth:sanctum', 'verified'])->group(function ()
     Route::get('/cart', [CartController::class, 'index']);
     Route::post('/cart/toggle', [CartController::class, 'toggleItem']);
     Route::post('/cart/delete', [CartController::class, 'destroy']);
+    Route::put('/cart', [CartController::class, 'update']);
     
     // my account routes
     Route::post('/update-profile', [AuthController::class, 'updatePersonalInfo']);
@@ -101,7 +102,8 @@ Route::get('/cart', [CartCookieController::class, 'show']);
 Route::post('/cart/toggle', [CartCookieController::class, 'toggle']);
 Route::post('/cart/delete', [CartCookieController::class, 'destroy']);
 Route::post('/cart/products-info-match', [CartCookieController::class, 'matchProductsInfo']);
-Route::put('/cart', [CartController::class, 'update']);
+Route::put('/cart', [CartCookieController::class, 'update']);
+
 // Route::middleware(['throttle:60,1'])->group(function () {
 //     Route::get('/cart', [CartController::class, 'show']);
 //     Route::post('/cart/toggle', [CartController::class, 'toggleItem']);

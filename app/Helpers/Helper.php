@@ -20,7 +20,7 @@ class Helper
             // return $decrypted;
             // JSON ise decode et, array ise direkt al
             $decoded = is_array($decrypted) ? $decrypted : json_decode($decrypted, true);
-
+            //return $decoded;
             if (!is_array($decoded)) {
                 \Log::warning('Cart cookie format invalid after decode', ['decoded' => $decoded]);
                 return [];

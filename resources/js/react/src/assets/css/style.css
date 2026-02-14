@@ -8262,9 +8262,23 @@ div.color-wrap:has(button.Mui-selected) {
 }
 
 .table-content table td.product-subtotal {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 700;
 }
+
+.table-content table td.product-subtotal p {
+    margin-bottom: -9px;
+}
+
+.table-content table td.product-subtotal .old {
+    color: red;
+    font-weight: 300;
+    text-decoration: line-through;
+    font-size: 12px;
+    margin-bottom: 17px;
+}
+
+
 
 .table-content table td.quantity .cart-plus-minus {
     margin: 0 auto;
@@ -8397,6 +8411,12 @@ div.color-wrap:has(button.Mui-selected) {
     padding: 80px 0 75px;
 }
 
+.empty-card {
+    width: 200px;
+    margin-top: -10px;
+}
+
+
 .coupon-accordion h3 {
     background-color: #f4f4f4;
     border-top: 3px solid #cda557;
@@ -8424,6 +8444,7 @@ div.color-wrap:has(button.Mui-selected) {
 .coupon-accordion span {
     cursor: pointer;
     text-transform: none;
+    color: #595959;
 }
 
 .coupon-accordion span:hover {
@@ -8431,10 +8452,17 @@ div.color-wrap:has(button.Mui-selected) {
 }
 
 .coupon-accordion .coupon-content {
-    border: 1px solid #e5e5e5;
+    max-height: 0;
+    visibility: hidden;
+    overflow: hidden;
+    transition: all 1s ease-in-out;
+}
+
+.coupon-accordion .coupon-content.active {
+    max-height: 500px;
+    /* yeterli bir yükseklik */
+    visibility: inherit;
     margin-bottom: 20px;
-    display: none;
-    padding: 20px;
 }
 
 .coupon-accordion .coupon-content .coupon-info p {
@@ -8698,7 +8726,7 @@ div.color-wrap:has(button.Mui-selected) {
 }
 
 .your-order {
-    background: #f4f4f4;
+    background: #ffffff;
     padding: 30px 40px 30px;
 }
 
@@ -8707,6 +8735,7 @@ div.color-wrap:has(button.Mui-selected) {
     font-size: 25px;
     padding-bottom: 10px;
     width: 100%;
+    color: #cda557;
 }
 
 @media (max-width: 479px) {
@@ -8722,7 +8751,7 @@ div.color-wrap:has(button.Mui-selected) {
 }
 
 .your-order .your-order-table table thead {
-    background-color: #f4f4f4;
+    background-color: #ffffff;
 }
 
 .your-order .your-order-table table thead tr th {
@@ -8767,13 +8796,13 @@ div.color-wrap:has(button.Mui-selected) {
 .payment-method .payment-accordion .card {
     border: 0;
     border-radius: 0;
-    background: #f4f4f4;
+    background: #ffffff;
 }
 
 .payment-method .payment-accordion .card-header {
     padding: 0;
     margin-bottom: 0;
-    background-color: #f4f4f4;
+    background-color: #ffffff;
     border-bottom: 0;
 }
 

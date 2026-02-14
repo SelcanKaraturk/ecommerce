@@ -120,7 +120,7 @@ function CartButton({ product, variant, setError, slug, onColorErrorChange }) {
                         onClick={addCart}
                     >
                         {product &&
-                            cart.length > 0 &&
+                            cart?.length > 0 &&
                             cart.find(
                                 (i) =>
                                     i.product_slug ===

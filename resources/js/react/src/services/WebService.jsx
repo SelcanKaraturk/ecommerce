@@ -48,13 +48,22 @@ export const addCartToList = async (slug, variant, token) => {
 
 export const updateCartQuantityService = async (product, quantity, token) => {
     return await api.put(
-        "/api/cart",
+        "/api/me/cart",
         {
             product_slug: product.product_slug,
             product_stock_id: product.product_stock_number,
             quantity: quantity
         },
         getConfig(token)
+    );
+};
+export const updateCartCookieQuantityService = async (product, quantity) => {
+    return await api.put(
+        "/api/cart",
+        {
+            product: product,
+            quantity: quantity
+        }
     );
 };
 
@@ -71,8 +80,8 @@ export const getCartList = async () => {
 
 export const destroyCart = async (product, token) => {
     const data = {
-        product_id: product.product_number,
-        product_stock_id: product.product_stock_number,
+        product_slug: product.product_slug,
+        product_stock_number: product.product_stock_number,
     };
     if (token) {
         return await api.post(`/api/me/cart/delete`, data, getConfig(token));
