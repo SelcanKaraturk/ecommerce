@@ -13,12 +13,12 @@ return new class extends Migration {
     public function up()
     {
         Schema::create('carts', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
             $table->foreignId('user_id')->nullable()->constrained()->cascadeOnDelete();
             // $table->foreign('user_id')
             //     ->references('id')
             //     ->on('users')
-            //     ->cascadeOnDelete(); // veya ->cascadeOnDelete() ihtiyacına göre
+            //     ->cascadeOnDelete();
             $table->timestamps();
         });
     }

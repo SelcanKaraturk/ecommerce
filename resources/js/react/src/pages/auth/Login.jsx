@@ -50,6 +50,7 @@ function Login() {
         setlogging(true);
         try {
             const res = await login(loginFormData);
+            console.log(res);
             if (res?.data?.error) {
                 toast.error(res?.data?.error);
                 setlogging(false);

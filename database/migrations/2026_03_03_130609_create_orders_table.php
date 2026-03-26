@@ -13,18 +13,17 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('user_addresses', function (Blueprint $table) {
+        Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->string('title')->nullable(); // Ev, Ofis vb.
-            $table->string('name')->nullable(); // Alıcı adı
-            $table->string('lastname')->nullable(); // Alıcı soyadı
-            $table->string('phone', 20)->nullable();
-            $table->string('city');
-            $table->string('district');
-            $table->string('neighborhood')->nullable();
-            $table->text('address');
-            $table->boolean('is_selected')->default(false);
+            $table->decimal('total_price', 10, 2);
+            $table->integer('gold_rate_at_time_of_order');
+            $table->string('order_number')->unique();
+            $table->enum('status', ['pending', 'processing', 'completed', 'cancelled'])->default('pending');
+            $table->string('shipping_address');
+            $table->string('billing_address');
+            $table->string('payment_method');
+            $table->enum('payment_status', ['unpaid', 'paid', 'failed'])->default('unpaid');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
@@ -38,6 +37,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_addresses');
+        Schema::dropIfExists('orders');
     }
 };

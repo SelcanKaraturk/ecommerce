@@ -21,19 +21,22 @@ function CartButton({ product, variant, setError, slug, onColorErrorChange }) {
     const keepCarting = async () => {
         try {
             if (accessToken) {
+                console.log("Token var, sepete ekleniyor...", variant, slug);
                 const { data } = await addCartToList(
                     slug,
                     variant,
                     accessToken
                 );
+                console.log("Sepete ekleme yanıtı:", data);
                 if (data.status === "success") {
                     toast.success(data.message);
                     if (data.process === "delete") {
-                        setCart(data.data);
-                        if (data.data.length > 0) setMiniCart(true);
+                        setCart(prev => prev.filter(i => !(i.product_slug === slug && i.color === variant.color && i.size === variant.size)));
                     } else {
-                        setCart(data.data);
-                        if (data.data.length > 0) setMiniCart(true);
+                        setCart(prev => {
+                            return [...prev, data.item];
+                        });
+                        if (data.item.length > 0) setMiniCart(true);
                         console.log(data.data);
                     }
                 } else {

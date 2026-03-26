@@ -69,104 +69,135 @@ function WishList() {
     return accessToken && (
 
         <>
-            {/* <!--Begin Hiraola's Wishlist Area --> */}
-            <div className="hiraola-wishlist_area">
-                <div className="container">
-                    <div className="row">
-                        <div className="col-md-9">
-                            <form>
-                                <div className="table-content table-responsive">
-                                    <table
-                                        className="table"
-                                        style={{
-                                            border: "1px solid #e5e5e5",
-                                        }}
-                                    >
-                                        <tbody>
-                                            {wishList?.length > 0 &&
-                                                wishList.map(
-                                                    (e, index) => (
-                                                        <tr
-                                                            key={`${index}-${e.slug}`}
-                                                        >
-                                                            <td className="hiraola-product_remove border-0">
-                                                                <a onClick={(i) => deleteWish(e.slug)}>
-                                                                    <i
-                                                                        className="fa fa-trash"
-                                                                        title="Remove"
-                                                                    ></i>
-                                                                </a>
-                                                            </td>
-                                                            <td className="hiraola-product-thumbnail border-0">
-                                                                <Link
-                                                                    to={`/tr/${e.category.slug}/${e.slug}`}
-                                                                >
-                                                                    <img
-                                                                        src={
-                                                                            e
-                                                                                .images[0]
-                                                                        }
-                                                                        alt="Hiraola's Wishlist Thumbnail"
-                                                                    />
-                                                                </Link>
-                                                            </td>
-                                                            <td className="hiraola-product-name border-0">
-                                                                <Link
-                                                                    to={`/tr/${e.category.slug}/${e.slug}`}
-                                                                >
-                                                                    {
-                                                                        e.name
-                                                                    }
-                                                                </Link>
-                                                            </td>
-                                                            <td className="hiraola-product-price border-0">
-                                                                <span className="amount">
-                                                                    {`${e.price.toLocaleString(
-                                                                        "tr-TR",
+            {wishList?.length > 0 ? (
+                <div className="hiraola-wishlist_area">
+                    <div className="container">
+                        <div className="row">
+                            <div className="col-md-9">
+                                <form>
+                                    <div className="table-content table-responsive">
+                                        <table
+                                            className="table"
+                                            style={{
+                                                border: "1px solid #e5e5e5",
+                                            }}
+                                        >
+                                            <tbody>
+                                                {wishList?.length > 0 &&
+                                                    wishList.map(
+                                                        (e, index) => (
+                                                            <tr
+                                                                key={`${index}-${e.slug}`}
+                                                            >
+                                                                <td className="hiraola-product_remove border-0">
+                                                                    <a onClick={(i) => deleteWish(e.slug)}>
+                                                                        <i
+                                                                            className="fa fa-trash"
+                                                                            title="Remove"
+                                                                        ></i>
+                                                                    </a>
+                                                                </td>
+                                                                <td className="hiraola-product-thumbnail border-0">
+                                                                    <Link
+                                                                        to={`/tr/${e.category.slug}/${e.slug}`}
+                                                                    >
+                                                                        <img
+                                                                            src={
+                                                                                e
+                                                                                    .images[0]
+                                                                            }
+                                                                            alt="Hiraola's Wishlist Thumbnail"
+                                                                        />
+                                                                    </Link>
+                                                                </td>
+                                                                <td className="hiraola-product-name border-0">
+                                                                    <Link
+                                                                        to={`/tr/${e.category.slug}/${e.slug}`}
+                                                                    >
                                                                         {
-                                                                            minimumFractionDigits: 2,
+                                                                            e.name
                                                                         }
-                                                                    )} ₺`}
-                                                                </span>
-                                                            </td>
-                                                            <td className="hiraola-product-name border-0">
-                                                                <span className="amount">
-                                                                    {e.stock_color}
-                                                                </span>
-                                                            </td>
-                                                            <td className="hiraola-product-stock-status border-0">
-                                                                <span className="in-stock">
-                                                                    in
-                                                                    stock
-                                                                </span>
-                                                            </td>
-                                                            <td className="hiraola-cart_btn">
-                                                                {e.in_carts_exists ? (
-                                                                    <span className="inCart">Ürün Sepetinizde</span>
-                                                                ) : (
-                                                                    <CartButton
-                                                                        product={
-                                                                            e
-                                                                        }
-                                                                        handleCartClick={
-                                                                            addedCart
-                                                                        }
-                                                                    />
-                                                                )}
-                                                            </td>
-                                                        </tr>
-                                                    )
-                                                )}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </form>
+                                                                    </Link>
+                                                                </td>
+                                                                <td className="hiraola-product-price border-0">
+                                                                    <span className="amount">
+                                                                        {`${e.price.toLocaleString(
+                                                                            "tr-TR",
+                                                                            {
+                                                                                minimumFractionDigits: 2,
+                                                                            }
+                                                                        )} ₺`}
+                                                                    </span>
+                                                                </td>
+                                                                <td className="hiraola-product-name border-0">
+                                                                    <span className="amount">
+                                                                        {e.stock_color}
+                                                                    </span>
+                                                                </td>
+                                                                <td className="hiraola-product-stock-status border-0">
+                                                                    <span className="in-stock">
+                                                                        in
+                                                                        stock
+                                                                    </span>
+                                                                </td>
+                                                                <td className="hiraola-cart_btn">
+                                                                    {e.in_carts_exists ? (
+                                                                        <span className="inCart">Ürün Sepetinizde</span>
+                                                                    ) : (
+                                                                        <CartButton
+                                                                            product={
+                                                                                e
+                                                                            }
+                                                                            handleCartClick={
+                                                                                addedCart
+                                                                            }
+                                                                        />
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        )
+                                                    )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </form>
+                            </div>
+                            <div className="col-md-3"></div>
                         </div>
-                        <div className="col-md-3"></div>
                     </div>
                 </div>
-            </div>
-            {/* <!-- Hiraola's Wishlist Area End Here --> */}
+            ) : (
+                <div className="checkout-area">
+                    <div className="container">
+                        <div className="row">
+                            <div className="col-12">
+                                <div className="text-center">
+                                    <p className="fw-bold">Favori ürünlerinizi hemen ekleyin. <br /> Size özel fırsatları kaçırmayın.</p>
+
+                                    <button
+                                        style={{
+                                            background: '#595959',
+                                            color: '#fff',
+                                            border: 'none',
+                                            borderRadius: '6px',
+                                            padding: '8px 24px',
+                                            fontSize: '1rem',
+                                            cursor: 'pointer',
+                                            marginTop: '0',
+                                        }}
+                                        onClick={() => window.location.href = '/'}
+                                    >
+                                        Alışverişe Devam Et
+                                    </button> <br />
+                                    <img className="empty-card" src="/assets/images/wish-bag.png" alt="Empty Wish List" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+
         </>
 
     );

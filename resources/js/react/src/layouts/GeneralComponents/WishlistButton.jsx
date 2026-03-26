@@ -18,10 +18,11 @@ function WishlistButton({ productObj, changeWishStatue }) {
             const error = { response: {data:'',status:401} };
             errorShow(error);
         } else {
+            console.log(productObj);
             try {
                 const res = await addWishToList(productObj, accessToken);
                 const status = res.data.status;
-                //console.log(res.data);
+                console.log(res.data);
                 if (status === "added") {
                     setIsWish(true);
                     changeWishStatue(true);

@@ -14,6 +14,7 @@ use App\Http\Controllers\Auth\AuthController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Models\User;
 use PhpParser\Node\Expr\FuncCall;
+use App\Http\Controllers\Api\CheckoutController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -65,8 +66,8 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::prefix('/{lang}')->where(['lang' => 'tr|en|de'])->group(function () {
     Route::get('/', [ProductController::class, 'index']);
     // category opsiyonel
-    Route::get('/{slug}', [ProductController::class, 'show']);
-    Route::get('/{category}/{slug}', [ProductController::class, 'show']);
+    Route::middleware('auth:sanctum')->get('/{slug}', [ProductController::class, 'show']);
+    Route::middleware('auth:sanctum')->get('/{category}/{slug}', [ProductController::class, 'show']);
 });
 Route::prefix('/admin')->middleware(['auth:sanctum', 'role:admin'])->group(function (){
     Route::get('/',[AdminAuthController::class, 'show']);
@@ -89,13 +90,17 @@ Route::prefix('me')->middleware(['auth:sanctum', 'verified'])->group(function ()
     Route::post('/cart/toggle', [CartController::class, 'toggleItem']);
     Route::post('/cart/delete', [CartController::class, 'destroy']);
     Route::put('/cart', [CartController::class, 'update']);
-    
+    Route::get('/cart/products-info-match', [CartController::class, 'matchCartForUser']);
+
     // my account routes
     Route::post('/update-profile', [AuthController::class, 'updatePersonalInfo']);
     Route::post('/update-password', [AuthController::class, 'updatePassword']);
     Route::post('/create-address', [AuthController::class, 'createAddress']);
     Route::post('/update-address/{id}', [AuthController::class, 'updateAddress']);
     Route::delete('/delete-address/{id}', [AuthController::class, 'deleteAddress']);
+
+    // checkout ile ilgili
+    Route::post('/addresses/select', [CheckoutController::class, 'updateSelectedAddress']);
 });
 
 Route::get('/cart', [CartCookieController::class, 'show']);
@@ -103,7 +108,9 @@ Route::post('/cart/toggle', [CartCookieController::class, 'toggle']);
 Route::post('/cart/delete', [CartCookieController::class, 'destroy']);
 Route::post('/cart/products-info-match', [CartCookieController::class, 'matchProductsInfo']);
 Route::put('/cart', [CartCookieController::class, 'update']);
-
+Route::middleware('auth:sanctum')->post('/checkout/pay', [CheckoutController::class, 'pay']);
+//Route::middleware('auth:sanctum')->post('/checkout/callback', [CheckoutController::class, 'callback']);
+Route::post('/checkout/callback', [CheckoutController::class, 'callback']);
 // Route::middleware(['throttle:60,1'])->group(function () {
 //     Route::get('/cart', [CartController::class, 'show']);
 //     Route::post('/cart/toggle', [CartController::class, 'toggleItem']);

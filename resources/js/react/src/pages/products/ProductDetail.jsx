@@ -283,10 +283,8 @@ function ProductDetail() {
                                                         {product && (
                                                             <WishlistButton
                                                                 productObj={{
-                                                                    product_number: product?.product_number,
+                                                                    product_slug: product?.product_slug,
                                                                     price: product?.product_price,
-                                                                    // product_stock_id: selectedStock?.stock_number,
-                                                                    // myWish: selectedStock?.in_wishlist,
                                                                 }}
                                                                 changeWishStatue={changeWishStatue}
                                                             />

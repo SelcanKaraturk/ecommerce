@@ -74,42 +74,29 @@ class ProductController extends Controller
      */
     public function show($lang, $categoryOrSlug, $slug = null)
     {
+        //return response()->json('deneme');
         // category opsiyonel  if ($slug === null) {
         if ($slug === null) {
             $slug = $categoryOrSlug;
         }
         if (!auth()->check()) {
             $product = Product::where('slug', $slug)
-                ->with(['stock' => function ($query) {
-                    $query->withExists([
-                        'wishlistedBy' => function ($q) {
-                            $q->whereNull('user_id');
-                        }
-                    ]);
-                }, 'groupedStock'])
+                ->with(['stock', 'groupedStock'])
                 // ->addSelect(['in_carts_exists' => \DB::raw('false')])
                 ->firstOrFail();
+                $product['den'] = 'den';
         } else {
             $product = Product::where('slug', $slug)
                 ->with([
-                    'stock' => function ($query) {
-                        $query->withExists([
-                            'wishlistedBy' => function ($q) {
-                                $q->where('user_id', auth()->id());
-                            }
-                        ]);
-                        // $query->whereIn('size',[12]);
-                    },
+                    'stock',
                     'groupedStock',
+                    'wishlistedBy' => function ($q) {
+                        $q->where('user_id', auth()->id());
+                    },
                 ])
-                ->withExists([
-                    'inCarts' => function ($q) {
-                        $q->whereHas('cart', function ($cartQuery) {
-                            $cartQuery->where('user_id', auth()->id());
-                        });
-                    }
-                ])
+                
                 ->firstOrFail();
+                $product['deneme'] = 'deneme';
         }
         // dd($product);
 

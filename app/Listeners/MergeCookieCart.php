@@ -80,65 +80,66 @@ class MergeCookieCart
         $cart = Cart::firstOrCreate(['user_id' => $user->id]);
 
         // Tüm ID’leri toplu al
-        $productIds = array_column($cookieCart, 'product_id');
-        $stockIds = array_column($cookieCart, 'product_stock_id');
+        $productSlug = array_column($cookieCart, 'product_slug');
+        $stockIds = array_column($cookieCart, 'product_stock_number');
 
         // Ürünleri ve stokları tek seferde çek
-        $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
+        $products = Product::whereIn('slug', $productSlug)->get()->keyBy('slug');
         $stocks = ProductStock::whereIn('id', $stockIds)->get()->keyBy('id');
 
         // Kullanıcının mevcut cart item'larını topluca al
         $existingItems = $cart
             ->cartItems()
-            ->whereIn('product_id', $productIds)
+            ->whereIn('product_id', $products->pluck('id'))
             ->whereIn('product_stock_id', $stockIds)
             ->get()
             ->map(fn($item) => $item->product_id . '-' . $item->product_stock_id)
             ->toArray();
 
         // Yeni ürünleri ekle
-        foreach ($cookieCart as $item) {
-            $productId = $item['product_id'];
-            $stockId = $item['product_stock_id'];
+        foreach ($cookieCart as $key => $item) {
+            $product = $products[$item['product_slug']] ?? null;
+            $productId = $product?->id;
+            $stockId = $item['product_stock_id'] ?? $item['product_stock_number'] ?? null;
             $color = $item['color'] ?? null;
             $size = $item['size'] ?? null;
+            $quantity = $item['quantity'] ?? 1;
+            $allowAuthOfStock = $item['allow_out_of_stock_cart'] ?? false;
 
-            // nostock ürünler için
-            if (is_string($stockId) && strpos($stockId, 'nostock_') === 0) {
-                // Zaten varsa ekleme
-                if ($cart
-                        ->cartItems()
-                        ->where('product_id', $productId)
-                        ->where('product_stock_id', $stockId)
-                        ->where('color', $color)
-                        ->where('size', $size)
-                        ->exists()) {
-                    continue;
-                }
-                $cart->cartItems()->create([
-                    'product_id' => $productId,
-                    'quantity' => 1,
-                    'product_stock_id' => $stockId,
-                    'color' => $color,
-                    'size' => $size,
-                ]);
-                continue;
+            if (!$productId || !$stockId) {
+                continue;  // Ürün veya stok yoksa atla
             }
 
-            // Ürün veya stok yoksa atla
-            if (!isset($products[$productId]) || !isset($stocks[$stockId])) {
-                continue;
-            }
-
-            // Zaten varsa ekleme
+            // Zaten varsa ekleme, quantity güncelle
             if (in_array($productId . '-' . $stockId, $existingItems)) {
+                $cartItem = $cart
+                    ->cartItems()
+                    ->where('product_id', $productId)
+                    ->where('product_stock_id', $stockId)
+                    ->first();
+                if ($cartItem) {
+                    $cartItem->quantity = $quantity;
+                    $cartItem->color = $color;
+                    $cartItem->size = $size;
+                    $cartItem->save();
+                }
                 continue;
             }
+
+            // Stok kontrolü (nostock veya normal)
+            if (!isset($stocks[$stockId]) && !(strpos($stockId, 'nostock_') === 0 && $allowAuthOfStock === 1)) {
+                continue;
+            }
+            // if ($key === 2) {
+            //     return response()->json(['id' => $productId, 'stock' => $stockId, 'color' => $color, 'size' => $size, 'quantity' => $quantity, 'allowAuthOfStock' => $allowAuthOfStock]);
+            // }
 
             $cart->cartItems()->create([
                 'product_id' => $productId,
-                'quantity' => 1,
-                'product_stock_id' => $stockId
+                'quantity' => $quantity,
+                'product_stock_id' => $stockId,
+                'color' => $color,
+                'size' => $size,
             ]);
         }
     }

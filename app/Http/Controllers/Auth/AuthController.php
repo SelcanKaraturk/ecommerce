@@ -80,7 +80,7 @@ class AuthController extends Controller
                 'user' => $user,
                 'currentToken' => $user->createToken('new_user')->plainTextToken,
                 'message' => 'Giriş Başarılı'
-            ])->withCookie(cookie()->forget('cart_items'));
+            ])->withCookie(cookie('cart_items', null, -1, '/'));
 
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -105,7 +105,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'sorun var']);
+        return response()->json(['message' => 'Hesabınızdan çıkış yaptınız']);
     }
 
     // my account - personal info update
@@ -206,10 +206,10 @@ class AuthController extends Controller
         try {
             $user = $request->user();
             // İsim ve soyisim baş harfleri büyük olacak şekilde birleştiriliyor
-            $fullName = ucwords(strtolower(trim($validated['name']))) . ' ' . ucwords(strtolower(trim($validated['lastname'])));
+            //$fullName = ucwords(strtolower(trim($validated['name']))) . ' ' . ucwords(strtolower(trim($validated['lastname'])));
             $addressData = $validated;
-            $addressData['name'] = $fullName;
-            unset($addressData['lastname']);
+            // $addressData['name'] = $fullName;
+            //unset($addressData['lastname']);
             $newAddress = $user->addresses()->create($addressData);
             DB::commit();
         } catch (Exception $e) {
@@ -217,7 +217,7 @@ class AuthController extends Controller
             return response()->json(['status' => 'error','error' => 'Adresiniz eklenirken bir hata oluştu.'], 500);
         }
 
-        return response()->json(['message' => 'Adres başarıyla eklendi.', 'status' => 'success', 'data' =>  $newAddress ]);
+        return response()->json(['message' => 'Adresiniz başarıyla eklendi.', 'status' => 'success', 'data' =>  $newAddress ]);
     }
 
     // my account - update address
@@ -225,6 +225,7 @@ class AuthController extends Controller
         $validated = $request->validate([
             'id' => 'required|exists:user_addresses,id',
             'name' => 'required|min:2|max:50',
+            'lastname' => 'required|min:2|max:50',
             'title' => 'required|min:2|max:50',
             'phone' => ['required', 'regex:/^5[0-9]{9}$/'],
             'city' => 'required|string',
@@ -244,7 +245,7 @@ class AuthController extends Controller
             return response()->json(['status' => 'error','error' => 'Adresiniz güncellenirken beklenmeyen bir hata oluştu.'], 500);
         }
         
-        return response()->json(['message' => 'Adres başarıyla güncellendi.', 'status' => 'success', 'data' => $address ]);
+        return response()->json(['message' => 'Adresiniz başarıyla güncellendi.', 'status' => 'success', 'data' => $address ]);
     }
 
     // my account - delete address

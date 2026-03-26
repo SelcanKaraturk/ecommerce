@@ -14,19 +14,20 @@ class CartProductUserResources extends JsonResource
      */
     public function toArray($request)
     {
-         return [
-            'stock_number' => $this->product_stock_id,
-            'product_number' => $this->product_id,
-            'color'=>$this->productStock?->color,
-            'size'=>$this->productStock?->size,
-            'quantity' => $this->quantity,
-            'stock' => $this->productStock?->stock,
-            'product_name' => $this->product->name,
-            'product_slug' => $this->product->slug,
-            // 'product_content' => $this->product->content,
-            'product_price' => $this->product->price,
+        return [
+            'allow_out_of_stock_cart' => $this->product->allow_out_of_stock_cart,
+            'color' => $this->color,
+            'delivery_days' => $this->productStock?->stock > 0 ? null : 10,
+            'product_discount' => $this->product->discount,
             'product_images' => $this->product->images,
-            'category_slug' => $this->product->category?->slug
+            'product_name' => $this->product->name,
+            'product_price' => $this->product->price,
+            'product_slug' => $this->product->slug,
+            'product_stock_number' => $this->product_stock_id,
+            'quantity' => $this->quantity,
+            'size' => $this->size,
+            'stock' => $this->productStock?->stock ? $this->productStock->stock : 0,
+            'stock_status' => $this->productStock?->stock > 0 ? 'in_stock' : 'no_stock'
         ];
     }
 }

@@ -24,8 +24,9 @@ class ProductResources extends JsonResource
             'product_discount' => $this->discount,
             'categories' => $this->categories,
             'variants' => $this->variants(),
-            'total_stock'    => $this->stock_sum_stock ?? $this->stock->sum('stock') ?? 0,
+            'total_stock' => $this->stock_sum_stock ?? $this->stock->sum('stock') ?? 0,
             'allow_out_of_stock_cart' => $this->allow_out_of_stock_cart,
+            'in_wishlist' => auth()->check() ? $this->wishlistedBy()->where('user_id', auth()->id())->exists() : false,
             // 'product_stock' => $this->stock->map(function ($stock) {
             //     return [
             //         'stock_number' => $stock->id,
@@ -55,20 +56,21 @@ class ProductResources extends JsonResource
     //         })
     //         ->values();
     // }
-     protected function variants()
+    protected function variants()
     {
         if (!$this->relationLoaded('stock')) {
             return [];
         }
 
-        return $this->stock
+        return $this
+            ->stock
             ->map(function ($item) {
                 return [
                     // 'stock_number' => $item->id,
                     'color' => $item->color,
                     'size' => $item->size,
                     'quantity' => $item->stock,
-                    ];
+                ];
             })
             ->values();
     }

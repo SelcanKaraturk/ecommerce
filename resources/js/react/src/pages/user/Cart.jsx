@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { destroyCart, matchCart, updateCartQuantityService, updateCartCookieQuantityService } from "../../services/WebService";
+import { destroyCart, matchCart, updateCartQuantityService, updateCartCookieQuantityService, matchCartForUser } from "../../services/WebService";
 import { useAuth } from "../../services/AuthContex";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Loading from "../../layouts/GeneralComponents/Loading";
 import { CircularProgress } from "@mui/material";
 import ModalShow from "../../layouts/GeneralComponents/ModalShow";
-
+import useForm from "../../services/hooks/useForm";
 
 function Cart() {
     const { accessToken, setCart, cart, setMiniCart, setOpenModal } = useAuth();
+    const { totalCost, subTotal } = useForm();
     const [load, setLoad] = useState(true);
     const [deleteLoadId, setDeleteLoadId] = useState(null);
     const [cargo, setCargo] = useState(0);
@@ -21,8 +22,18 @@ function Cart() {
         if (!cartMatched && cart && cart.length > 0) {
             const matchCartData = async () => {
                 try {
-                    const { data } = await matchCart(cart, accessToken || undefined);
-                    // console.log("matchCart response:", data);
+                    let data;
+                    if (accessToken) {
+                        // Login olan kullanıcılar için yeni fonksiyon
+                        const response = await matchCartForUser(accessToken);
+                        console.log("matchCartForUser run:", response);
+                        data = response.data;
+                    } else {
+                        // Login olmayanlar için eski fonksiyon
+                        const response = await matchCart(cart);
+                        console.log("matchCart for guest run:");
+                        data = response.data;
+                    }
                     if (data && data.items) {
                         setCart(data.items);
                     }
@@ -31,7 +42,6 @@ function Cart() {
                 } finally {
                     setCartMatched(true);
                     setLoad(false);
-
                 }
             };
             matchCartData();
@@ -54,19 +64,13 @@ function Cart() {
         }
     }, [cartMatched]);
 
-
-    const totalCoast = (price, quantity, discount) => {
-        const priceAfterDiscount = discount ? price - (price * (discount / 100)) : price;
-        const coast = priceAfterDiscount * quantity;
-        return `${coast.toLocaleString("tr-TR", {
-            minimumFractionDigits: 2,
-        })} ₺`;
-    };
-
     const updateQuantity = (product, type, preQuantity) => {
         console.log(product);
         if (product.stock_status === "no_stock" && !product.allow_out_of_stock_cart) {
             setOpenModal(<>✨Seçtiğiniz ürün stoklarımızda bulunmamakta ve tekli alımlarda özel üretim yapılamamaktadır. Toptan siparişiniz için lütfen <b> WhatsApp </b> üzerinden bizimle iletişime geçiniz.</>);
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500); // 1.5 saniye sonra sayfa yenile
             return;
         }
 
@@ -92,16 +96,16 @@ function Cart() {
             updateCartQuantity(product, newQty);
         } else {
             updateCartCookieQuantity(product, newQty);
-            setCart((prevList) => {
-                const updatedCart = prevList.map((item) =>
-                    item.product_slug === product.product_slug &&
-                        item.product_stock_number === product.product_stock_number
-                        ? { ...item, quantity: newQty }
-                        : item
-                );
+            // setCart((prevList) => {
+            //     const updatedCart = prevList.map((item) =>
+            //         item.product_slug === product.product_slug &&
+            //             item.product_stock_number === product.product_stock_number
+            //             ? { ...item, quantity: newQty }
+            //             : item
+            //     );
                 
-                return updatedCart;
-            });
+            //     return updatedCart;
+            // });
         }
     };
 
@@ -123,7 +127,7 @@ function Cart() {
                             : item
                     )
                 );
-                toast.success(data.message);
+                // toast.success(data.message);
             }
         } catch (error) {
             console.log(error);
@@ -146,18 +150,13 @@ function Cart() {
                             : item
                     )
                 );
-                toast.success(data.message);
+                //toast.success(data.message);
             }
         } catch (error) {
             console.log(error);
         }
     }
-    const subTotal = (cart) => {
-        return cart.reduce((total, item) => {
-            const priceAfterDiscount = item.product_price - (item.product_price * (item.product_discount / 100));
-            return total + item.quantity * priceAfterDiscount;
-        }, 0);
-    };
+    
 
     const totalGain = (cart) => {
         return cart.reduce((total, item) => {
@@ -167,9 +166,6 @@ function Cart() {
         }, 0);
     };
 
-    const handleCheckout = () => {
-        navigate("/tr/odeme");
-    };
 
     const goBackDetail = (item) => {
         navigate(`/tr/${item.product_slug}`, {
@@ -195,7 +191,11 @@ function Cart() {
             }
 
             if (data.status === "success") {
-                setCart(data.newCart);
+                setCart((prevList) =>
+                    prevList.filter(
+                        (item) => !(item.product_slug === product.product_slug && item.product_stock_number === product.product_stock_number)
+                    )
+                );
                 toast.success(data.message);
             }
         } catch (error) {
@@ -349,7 +349,7 @@ function Cart() {
                                                                             </span>
                                                                         </p>
                                                                         <span className="amount">
-                                                                            {totalCoast(
+                                                                            {totalCost(
                                                                                 item.product_price,
                                                                                 item.quantity,
                                                                                 item.product_discount
@@ -419,7 +419,7 @@ function Cart() {
                                                         </dfn> Kargo Bedava
                                                     </span>
                                                 </li>
-                                                <li className="d-flex justify-content-between" style={{ padding: '5px 5px' }}>
+                                                <li className="d-flex justify-content-between" style={{ padding: '0' }}>
                                                     <div className="d-flex justify-content-between w-100" style={{ padding: '5px 25px', backgroundColor: '#f8fffa', border: '1px solid #b7f5c6' }}>
 
                                                         <span className="">
@@ -455,15 +455,11 @@ function Cart() {
                                                     </span>
                                                 </li>
                                             </ul>
-                                            <a
-                                                href="#"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    handleCheckout();
-                                                }}
+                                            <Link
+                                                to="/tr/odeme"
                                             >
                                                 Sepeti Onayla
-                                            </a>
+                                            </Link>
                                         </div>
                                     </div>
                                 )}

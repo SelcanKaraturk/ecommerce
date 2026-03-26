@@ -19,7 +19,7 @@ import Loading from '../../../../layouts/GeneralComponents/Loading';
 import ValidateError from '../../../auth/ValidateError';
 import { toast } from 'react-toastify';
 
-function AddAddress({ accessToken, onCreateAddress}) {
+function AddAddress({ accessToken, onCreateAddress, style, children  }) {
     const { form, setForm, handleChange, resetForm, open, setOpen, handleCancel } = useForm({
         name: '',
         lastname: '',
@@ -44,11 +44,11 @@ function AddAddress({ accessToken, onCreateAddress}) {
                 resetForm(); // Formu kapat
                 setErrors(null);
                 setOpen(false);
-            }else{
+            } else {
                 toast.warning("Beklenmeyen bir durum oluştu Lütfen daha sonra tekrar deneyiniz ya da destek ile iletişime geçiniz.");
             }
         } catch (error) {
-            if(error?.response?.data?.status === 'error'){
+            if (error?.response?.data?.status === 'error') {
                 toast.error(error.response.data.error || "Adres eklenirken beklenmeyen bir hata oluştu.");
             }
             if (error?.response?.status === 422) {
@@ -63,15 +63,18 @@ function AddAddress({ accessToken, onCreateAddress}) {
 
     return (
         <>
-            <button
-                className="order-btn order-btn-primary"
-                style={{ fontSize: 14, padding: '4px 16px', borderRadius: 6 }}
-                onClick={handleOpen}
-            >
-                + Yeni Adres Ekle
-            </button>
+            {children ? children : (
+
+                <button
+                    className="order-btn order-btn-primary"
+                    style={ style ?? style}
+                    onClick={handleOpen}
+                >
+                    + Yeni Adres Ekle
+                </button>
+            )}
             <Dialog open={open} onClose={handleCancel} maxWidth="sm" fullWidth className='account-address-form'>
-                <DialogTitle sx={{color:'#cda557', fontSize: 20}}>Adres Ekle</DialogTitle>
+                <DialogTitle sx={{ color: '#cda557', fontSize: 20 }}>Adres Ekle</DialogTitle>
                 <DialogContent>
                     <form>
                         <Box display="flex" gap={2} mb={1}>

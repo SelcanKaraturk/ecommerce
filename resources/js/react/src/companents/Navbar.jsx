@@ -13,14 +13,7 @@ function Navbar() {
             return total + item.quantity * (item.product_price - (item.product_price * (item.product_discount / 100)));
         }, 0);
     };
-    const handleCheckout = () => {
-        navigate("/tr/checkout", {
-            state: {
-                cartList: cart,
-                totalPrice: subTotal(cart),
-            },
-        });
-    };
+    
     const handleUserIconClick = (e) => {
         e.preventDefault();
         //console.log("User Icon Clicked", loading, accessToken);
@@ -481,12 +474,13 @@ function Navbar() {
                             </Link>
                         </div>
                         <div className="minicart-btn_area">
-                            <a
-                                onClick={handleCheckout}
+                            <Link
+                                to="/tr/odeme"
+                                
                                 className="hiraola-btn hiraola-btn_dark hiraola-btn_fullwidth"
                             >
                                 Siparişi Tamamla
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 </div>

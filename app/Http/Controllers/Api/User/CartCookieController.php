@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api\User;
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CartProductResources;
+use App\Models\Cart;
 use App\Models\Product;
 use App\Models\ProductStock;
+use App\Models\User;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -216,48 +218,6 @@ class CartCookieController extends Controller
         );
     }
 
-    // protected function buildCartItems(array $cart)
-    // {
-    //     $stockIds = array_unique(array_column($cart, 'product_stock_id'));
-
-    //     // Varyantları (product_stock) ilişkili ürünle beraber çek
-    //     $variants = ProductStock::whereIn('id', $stockIds)
-    //         ->with(['product' => function ($q) {
-    //             $q->select('id', 'name', 'slug', 'price', 'discount', 'images');  // content yok!
-    //         }, 'product.categories:id,slug'])
-    //         ->get();
-
-    //     // Stokta olmayanları bul
-    //     $foundStockIds = $variants->pluck('id')->map(fn($id) => (string) $id)->toArray();
-    //     $missingItems = array_filter($cart, function ($item) use ($foundStockIds) {
-    //         return !in_array((string) $item['product_stock_id'], $foundStockIds);
-    //     });
-
-    //     // Stokta olmayanlar için temel veri oluştur
-    //     $missingResources = array_map(function ($item) {
-    //         $product = Product::with(['categories:id,slug'])
-    //             ->find($item['product_id']);
-    //         return [
-    //             'delivery_days' => $item['delivery_days'] ?? 10,
-    //             'color' => $item['color'] ?? null,
-    //             'size' => $item['size'] ?? null,
-    //             'stock' => 0,
-    //             'stock_status' => 'not_found',
-    //             'quantity' => $item['quantity'] ?? 1,
-    //             'product_name' => $product?->name,
-    //             'product_slug' => $product?->slug,
-    //             'product_price' => $product?->price,
-    //             'product_discount' => $product?->discount,
-    //             'product_images' => $product?->images,
-    //         ];
-    //     }, $missingItems);
-
-    //     // Stokta olanlar + olmayanlar birleştir
-    //     $resources = CartProductResources::collection($variants)->toArray(request());
-    //     $all = array_merge($resources, $missingResources);
-    //     return $all;
-    // }
-
     public function destroy(Request $request)
     {
         $validated = $request->validate([
@@ -291,8 +251,7 @@ class CartCookieController extends Controller
         return $this->withCartCookie(
             response()->json([
                 'message' => 'Ürün sepetinizden kaldırıldı',
-                'status' => 'success',
-                'newCart' => $newCart
+                'status' => 'success'
             ]),
             $newCart
         );
@@ -311,7 +270,6 @@ class CartCookieController extends Controller
 
         $cart = $validated['cart'];
         $matchedCart = [];
-        $filteredCart = [];
         $deneme = [];
 
         foreach ($cart as $item) {
@@ -322,7 +280,11 @@ class CartCookieController extends Controller
             }
 
             $productStockId = $item['product_stock_number'];
+
             if (is_string($productStockId) && strpos($productStockId, 'nostock_') === 0) {
+                if (!$product->allow_out_of_stock_cart) {
+                    continue;  // Stokta olmayan ürün sepete eklenmesine izin verilmiyorsa, ürün bilgilerini güncellemeden devam et
+                }
                 // Stokta olmayan varyant
                 $deliveryDays = 10;
                 $stock_status = 'no_stock';
@@ -331,6 +293,9 @@ class CartCookieController extends Controller
                 $productStock = $product->stock()->where('id', $productStockId)->first();
                 if ($productStock) {
                     $stockQuantity = $productStock->stock;
+                    if ($stockQuantity <= 0 && !$product->allow_out_of_stock_cart) {
+                        continue;  // Stokta 0 veya daha az olan ürün sepete eklenmesine izin verilmiyorsa, ürün bilgilerini güncellemeden devam et
+                    }
                     $stock_status = $stockQuantity > 0 ? 'in_stock' : 'no_stock';
                     $deliveryDays = $stock_status === 'in_stock' ? null : 10;
                     $item['color'] = $productStock->color;
@@ -359,10 +324,9 @@ class CartCookieController extends Controller
                 'allow_out_of_stock_cart' => $product->allow_out_of_stock_cart,
             ];
             // Sadece bulunan ürünleri yeni cart'a ekle
-            $filteredCart[] = $item;
         }
-        ///return response()->json(['itemssss' => $matchedCart, 'deneme' => $deneme, 'filtered_cart' => $filteredCart, 'cart' => $cart]);
-        //Cart'ı da güncelleyerek cookie'ye yaz
+        // /return response()->json(['itemssss' => $matchedCart, 'deneme' => $deneme, 'cart' => $cart]);
+        // Cart'ı da güncelleyerek cookie'ye yaz
         return $this->withCartCookie(
             response()->json(['items' => $matchedCart]),
             $matchedCart

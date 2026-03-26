@@ -50,5 +50,20 @@ export default function useForm(initialState = {}) {
         callback(form);
     };
 
-    return { form, setForm, handleChange, handleFileChange, resetForm, preview, setPreview, handleImageDelete, handleCancel, open, setOpen, handleSubmit };
+    const totalCost = (price, quantity, discount) => {
+        const priceAfterDiscount = discount ? price - (price * (discount / 100)) : price;
+        const cost = priceAfterDiscount * quantity;
+        return `${cost.toLocaleString("tr-TR", {
+            minimumFractionDigits: 2,
+        })} ₺`;
+    };
+
+    const subTotal = (cart) => {
+        return cart.reduce((total, item) => {
+            const priceAfterDiscount = item.product_price - (item.product_price * (item.product_discount / 100));
+            return total + item.quantity * priceAfterDiscount;
+        }, 0);
+    };
+
+    return { form, setForm, handleChange, handleFileChange, resetForm, preview, setPreview, handleImageDelete, handleCancel, open, setOpen, handleSubmit, totalCost, subTotal };
 }

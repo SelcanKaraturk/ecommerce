@@ -196,6 +196,10 @@ button {
     min-height: 80vh;
 }
 
+.modalUpdateAddress button {
+    color: #cda557 ;
+}
+
 /* // Modal style objects */
 .modal-overlay {
     position: fixed;
@@ -737,6 +741,120 @@ button {
 
 .hiraola-paginatoin-area .product-select-box .product-short>span {
     padding-left: 15px;
+}
+
+.checkout-item .cart-item-box {
+  display: flex;
+  align-items: flex-start;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  background: #fff;
+  padding: 18px 24px;
+  margin: 16px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  gap: 12px;
+  position: relative;
+  /* min-width: 320px; */
+}
+
+.checkout-item .cart-item-img img {
+  width: 80px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background: #fafafa;
+}
+
+.checkout-item .cart-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.checkout-item .cart-item-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: #222;
+  margin-bottom: 2px;
+}
+
+.checkout-item .cart-item-seller span {
+  color: #222;
+  font-weight: 500;
+}
+
+.checkout-item .cart-item-details {
+  font-size: 13px;
+  color: #444;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.checkout-item .cart-item-details b {
+  font-weight: 600;
+}
+
+.checkout-item .cart-item-shipping {
+  margin-top: 4px;
+}
+
+.checkout-item .shipping-fast {
+  color: #67c36c;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.checkout-item .cart-item-discount {
+  margin-top: 6px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.checkout-item .discount-badge {
+  background: #ffe3b3;
+  color: #d17a00;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.checkout-item .discount-applied {
+  background: #f7f7f7;
+  color: #b97a1a;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.checkout-item .cart-item-price {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 120px;
+  margin-left: 16px;
+  margin-top: 8px;
+}
+
+.checkout-item .old-price {
+  color: #888;
+  font-size: 12px;
+  text-decoration: line-through;
+  margin-bottom: 2px;
+}
+
+.checkout-item .new-price {
+  color: #cda557;
+  font-size: 16px;
+  font-weight: 700;
 }
 
 /* ---Hiraola's Quantity--- */
@@ -8288,8 +8406,20 @@ div.color-wrap:has(button.Mui-selected) {
     border: none;
 }
 
-.table-content table tbody {
+/* .table-content table tbody {
     border: 1px solid #e5e5e5;
+} */
+
+.table-content table tbody tr {
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.table-content table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.table-content table td a {
+    color: #595959 !important;
 }
 
 .table-content table td,
@@ -8594,8 +8724,9 @@ div.color-wrap:has(button.Mui-selected) {
     border-bottom: 1px solid #e5e5e5;
     font-size: 25px;
     margin: 0 0 25px;
-    padding-bottom: 10px;
+    /* padding-bottom: 10px; */
     width: 100%;
+    color: #595959;
 }
 
 @media (max-width: 479px) {
@@ -8727,7 +8858,7 @@ div.color-wrap:has(button.Mui-selected) {
 
 .your-order {
     background: #ffffff;
-    padding: 30px 40px 30px;
+    padding: 0px 40px 30px;
 }
 
 .your-order h3 {
@@ -8780,13 +8911,9 @@ div.color-wrap:has(button.Mui-selected) {
     border-bottom: medium none;
 }
 
-.your-order .your-order-table table .order-total td span {
-    font-size: 20px;
-}
-
 .your-order .your-order-table table .order-total th {
     border-bottom: medium none;
-    font-size: 18px;
+    font-size: 16px;
 }
 
 .payment-method {

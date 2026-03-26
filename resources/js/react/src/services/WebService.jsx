@@ -18,9 +18,8 @@ export const addWishToList = async (productObj, token) => {
     return await api.post(
         "/api/me/wishlist",
         {
-            product_number: productObj.product_number,
+            product_slug: productObj.product_slug,
             price: productObj.price,
-            product_stock_id: productObj.product_stock_id
         },
         getConfig(token)
     );
@@ -99,3 +98,34 @@ export const matchCart = async (cart, token) => {
         getConfig(token)
     );
 };
+
+export const matchCartForUser = async (token) => {
+    return await api.get(
+        "/api/me/cart/products-info-match",
+        getConfig(token)
+    );
+
+}
+
+export const updateSelectedAddress = async (addressId, token) => {
+    return await api.post(
+        "/api/me/addresses/select",
+        {
+            address_id: addressId
+        },
+        getConfig(token)
+    );
+}
+
+export const pay = async (paymentData, token) => {
+    console.log(token);
+    return await api.post(
+        "/api/checkout/pay",
+        {
+            cart: paymentData.cart,
+            address: paymentData.address,
+            total_price: paymentData.total_price
+        },
+        getConfig(token)
+    );
+}

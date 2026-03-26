@@ -37,22 +37,23 @@ class WishlistController extends Controller
     {
         //return response()->json($request->all());
         if (auth()->check()) {
-            $productId = Product::find($request->product_number);
+            $productId = Product::where('slug', $request->product_slug)->first()->id;
+            
             if (!$productId) {
                 return response()->json([
                     'message' => 'Ürün Bulunamadı.',
                     'status' => 'error'
                 ], 404);
             }
-            //return response()->json($productId->id);
+
             $request->validate([
-                'product_number' => 'required|exists:products,id',
-                'product_stock_id' => [
-                    'required',
-                    Rule::exists('product_stocks', 'id')->where(function ($query) use ($productId) {
-                        $query->where('product_id', $productId->id);
-                    }),
-                ],
+                'product_slug' => 'required|exists:products,slug',
+                // 'product_stock_id' => [
+                //     'required',
+                //     Rule::exists('product_stocks', 'id')->where(function ($query) use ($productId) {
+                //         $query->where('product_id', $productId->id);
+                //     }),
+                // ],
                 'price' => 'required|numeric|min:0'
             ]);
             DB::beginTransaction();
@@ -60,16 +61,16 @@ class WishlistController extends Controller
                 $user = auth()->user();
                 //return response()->json($productId);
                 $exists = $user->wishlist()
-                    ->where('product_id', $productId->id)
-                    ->wherePivot('product_stock_id', $request->product_stock_id)
+                    ->where('product_id', $productId)
+                    // ->wherePivot('product_stock_id', $request->product_stock_id)
                     ->exists();
                 if ($exists) {
                     $user->wishlist()->newPivotStatement()
-                        ->where(['user_id' => $user->id, 'product_id' => $productId->id, 'product_stock_id' => $request->product_stock_id])->delete();
+                        ->where(['user_id' => $user->id, 'product_id' => $productId])->delete();
                         DB::commit();
                     return response()->json(['status' => 'removed']);
                 } else {
-                    $user->wishlist()->attach($productId, ['price' => $request->price, 'product_stock_id' => $request->product_stock_id]);
+                    $user->wishlist()->attach($productId, ['price' => $request->price]);
                     DB::commit();
                     return response()->json(['status' => 'added']);
                 }

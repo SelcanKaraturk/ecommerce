@@ -35,8 +35,8 @@ export const AuthProvider = ({ children }) => {
                     "api/me/cart",
                     getConfig(accessToken)
                 );
+                //console.log("Cart data fetched authcontex:", data);
                 setCart(data);
-                console.log(data);
             } catch (error) {
                 console.log("Auth fetch error:", error);
                 if (error.response?.status === 401) {

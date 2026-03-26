@@ -20,7 +20,7 @@ return new class extends Migration {
             $table->integer('stock')->default(0);
             $table->timestamps();
 
-             $table->unique(['product_id', 'color', 'size']);
+            $table->unique(['product_id', 'color', 'size']);
         });
     }
 
