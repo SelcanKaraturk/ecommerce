@@ -14,7 +14,7 @@ function Footer() {
 
                                 <div className="footer-widgets_logo">
                                     <a href="#">
-                                        <img src="/src/assets/images/valor.png" width={'142px'} alt="Valor Footer Logo"/>
+                                        <img src="/assets/images/valor.png" width={'142px'} alt="Valor Footer Logo"/>
                                     </a>
                                 </div>
 

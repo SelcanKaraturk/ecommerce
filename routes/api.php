@@ -15,6 +15,7 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Models\User;
 use PhpParser\Node\Expr\FuncCall;
 use App\Http\Controllers\Api\CheckoutController;
+use App\Http\Controllers\HomeController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -62,12 +63,13 @@ Route::post('/email/verification-notification', function (Request $request) {
 
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/register', [AuthController::class, 'register']);
+Route::get('/menu', [HomeController::class, 'menu']);
 
 Route::prefix('/{lang}')->where(['lang' => 'tr|en|de'])->group(function () {
     Route::get('/', [ProductController::class, 'index']);
     // category opsiyonel
-    Route::middleware('auth:sanctum')->get('/{slug}', [ProductController::class, 'show']);
-    Route::middleware('auth:sanctum')->get('/{category}/{slug}', [ProductController::class, 'show']);
+    Route::get('/{category}', [ProductController::class, 'show']);
+    Route::get('/{category}/{slug}', [ProductController::class, 'show']);
 });
 Route::prefix('/admin')->middleware(['auth:sanctum', 'role:admin'])->group(function (){
     Route::get('/',[AdminAuthController::class, 'show']);

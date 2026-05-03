@@ -1,19 +1,30 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import "./css/Navbar.css";
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../services/AuthContex";
 import { Badge } from "@mui/material";
-
+import { getMenu } from "../services/WebService";
 function Navbar() {
 
     const { accessToken, cart, miniCart, setMiniCart, loading } = useAuth();
     const navigate = useNavigate();
+    const [menu, setMenu] = useState([]);
+
+    useEffect(() => {
+        const fetchMenu = async () => {
+            const { data } = await getMenu();
+            setMenu(data);
+            // console.log("Fetched Menu:", data);
+        };
+        fetchMenu();
+    }, []);
+
     const subTotal = (cartList) => {
         return cartList.reduce((total, item) => {
             return total + item.quantity * (item.product_price - (item.product_price * (item.product_discount / 100)));
         }, 0);
     };
-    
+
     const handleUserIconClick = (e) => {
         e.preventDefault();
         //console.log("User Icon Clicked", loading, accessToken);
@@ -35,6 +46,7 @@ function Navbar() {
             navigate("/tr/favorilerim");
         }
     };
+    const [hoveredChildIndex, setHoveredChildIndex] = useState(0);
     return (
         <header className="header-main_area header-main_area-2">
             <div className="header-bottom_area header-bottom_area-2 header-sticky stick">
@@ -54,270 +66,76 @@ function Navbar() {
                             <div className="main-menu_area">
                                 <nav>
                                     <ul>
-                                        <li className="megamenu-holder">
-                                            <NavLink to="/tr/altin">
-                                                Altın
-                                            </NavLink>
-
-                                            <ul className="hm-megamenu">
-                                                <li>
-                                                    <span className="megamenu-title">
-                                                        Shop Page Layout
-                                                    </span>
-                                                    <ul>
-                                                        <li>
-                                                            <a href="shop-3-column.html">
-                                                                Grid Fullwidth
-                                                            </a>
+                                        {menu.map((item, index) => (
+                                            <li key={index} className="megamenu-holder">
+                                                <NavLink to={item.slug}>
+                                                    {item.name}
+                                                </NavLink>
+                                                {item.children && item.children.length > 0 && (
+                                                    <ul
+                                                        className="hm-megamenu"
+                                                        onMouseLeave={() => setHoveredChildIndex(0)}
+                                                    >
+                                                        <li className="mb-3">
+                                                            <ul className="d-flex justify-content-center">
+                                                                {item.children.map((child, childIndex) => (
+                                                                    <li
+                                                                        key={childIndex}
+                                                                        className={
+                                                                            (childIndex !== item.children.length ? "me-5 " : "") +
+                                                                            "underline-animate" +
+                                                                            (hoveredChildIndex === childIndex ? " active" : "")
+                                                                        }
+                                                                        onMouseEnter={() => setHoveredChildIndex(childIndex)}
+                                                                    // onMouseLeave={() => setHoveredChildIndex(null)}
+                                                                    >
+                                                                        <span className="megamenu-title">
+                                                                            <Link to={child.slug}>
+                                                                                {child.name}
+                                                                            </Link>
+                                                                        </span>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
                                                         </li>
-                                                        <li>
-                                                            <a href="shop-left-sidebar.html">
-                                                                Left Sidebar
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="shop-right-sidebar.html">
-                                                                Right Sidebar
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="shop-list-fullwidth.html">
-                                                                List Fullwidth
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="shop-list-left-sidebar.html">
-                                                                List Left
-                                                                Sidebar
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="shop-list-right-sidebar.html">
-                                                                List Right
-                                                                Sidebar
-                                                            </a>
-                                                        </li>
+                                                        {hoveredChildIndex !== null && item.children[hoveredChildIndex] && item.children[hoveredChildIndex].children && item.children[hoveredChildIndex].children.length > 0 && (
+                                                            <div
+                                                                className={"submenu-transition" + (hoveredChildIndex !== null && item.children[hoveredChildIndex] && item.children[hoveredChildIndex].children && item.children[hoveredChildIndex].children.length > 0 ? " submenu-open" : "")}
+                                                                style={{ width: "100%" }}
+                                                            >
+                                                                <div className="row w-100 justify-content-center">
+                                                                    {item.children[hoveredChildIndex].children.map((subChild, subChildIndex) => (
+                                                                        <div
+                                                                            className="col-3 text-center"
+                                                                            key={subChildIndex}
+                                                                        >
+                                                                            <img src="https://placehold.co/150" alt="" />
+                                                                            <p>
+                                                                                <Link to={`${subChild.slug}`}>
+                                                                                    {subChild.name}
+                                                                                </Link>
+                                                                            </p>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                        {/* <li className="menu-item_img"></li> */}
                                                     </ul>
-                                                </li>
-                                                <li>
-                                                    <span className="megamenu-title">
-                                                        Single Product Style
-                                                    </span>
-                                                    <ul>
-                                                        <li>
-                                                            <a href="single-product-gallery-left.html">
-                                                                Gallery Left
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="single-product-gallery-right.html">
-                                                                Gallery Right
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="single-product-tab-style-left.html">
-                                                                Tab Style Left
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="single-product-tab-style-right.html">
-                                                                Tab Style Right
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="single-product-sticky-left.html">
-                                                                Sticky Left
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="single-product-sticky-right.html">
-                                                                Sticky Right
-                                                            </a>
-                                                        </li>
-                                                    </ul>
-                                                </li>
-                                                <li>
-                                                    <span className="megamenu-title">
-                                                        Single Product Type
-                                                    </span>
-                                                    <ul>
-                                                        <li>
-                                                            <a href="single-product.html">
-                                                                Single Product
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="single-product-sale.html">
-                                                                Single Product
-                                                                Sale
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="single-product-group.html">
-                                                                Single Product
-                                                                Group
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="single-product-variable.html">
-                                                                Single Product
-                                                                Variable
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="single-product-affiliate.html">
-                                                                Single Product
-                                                                Affiliate
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="single-product-slider.html">
-                                                                Single Product
-                                                                Slider
-                                                            </a>
-                                                        </li>
-                                                    </ul>
-                                                </li>
-                                                <li className="menu-item_img"></li>
-                                            </ul>
-                                        </li>
-                                        <li className="megamenu-holder">
-                                            <NavLink to="/tr/pirlanta">
-                                                Pırlanta
-                                            </NavLink>
-
-                                            <ul className="hm-megamenu">
-                                                <li>
-                                                    <span className="megamenu-title">
-                                                        Shop Page Layout
-                                                    </span>
-                                                    <ul>
-                                                        <li>
-                                                            <a href="shop-3-column.html">
-                                                                Grid Fullwidth
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="shop-left-sidebar.html">
-                                                                Left Sidebar
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="shop-right-sidebar.html">
-                                                                Right Sidebar
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="shop-list-fullwidth.html">
-                                                                List Fullwidth
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="shop-list-left-sidebar.html">
-                                                                List Left
-                                                                Sidebar
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="shop-list-right-sidebar.html">
-                                                                List Right
-                                                                Sidebar
-                                                            </a>
-                                                        </li>
-                                                    </ul>
-                                                </li>
-                                                <li>
-                                                    <span className="megamenu-title">
-                                                        Single Product Style
-                                                    </span>
-                                                    <ul>
-                                                        <li>
-                                                            <a href="single-product-gallery-left.html">
-                                                                Gallery Left
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="single-product-gallery-right.html">
-                                                                Gallery Right
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="single-product-tab-style-left.html">
-                                                                Tab Style Left
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="single-product-tab-style-right.html">
-                                                                Tab Style Right
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="single-product-sticky-left.html">
-                                                                Sticky Left
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="single-product-sticky-right.html">
-                                                                Sticky Right
-                                                            </a>
-                                                        </li>
-                                                    </ul>
-                                                </li>
-                                                <li>
-                                                    <span className="megamenu-title">
-                                                        Single Product Type
-                                                    </span>
-                                                    <ul>
-                                                        <li>
-                                                            <a href="single-product.html">
-                                                                Single Product
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="single-product-sale.html">
-                                                                Single Product
-                                                                Sale
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="single-product-group.html">
-                                                                Single Product
-                                                                Group
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="single-product-variable.html">
-                                                                Single Product
-                                                                Variable
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="single-product-affiliate.html">
-                                                                Single Product
-                                                                Affiliate
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="single-product-slider.html">
-                                                                Single Product
-                                                                Slider
-                                                            </a>
-                                                        </li>
-                                                    </ul>
-                                                </li>
-                                                <li className="menu-item_img"></li>
-                                            </ul>
-                                        </li>
-                                        <li>
+                                                )}
+                                            </li>
+                                        ))}
+                                        <li className="">
                                             <NavLink to="/tr/hakkimizda">
                                                 Hakkımızda
                                             </NavLink>
                                         </li>
-                                        <li>
+                                        <li className="">
                                             <NavLink to="/tr/iletisim">
                                                 İLETİŞİM
                                             </NavLink>
                                         </li>
+
                                     </ul>
                                 </nav>
                             </div>
@@ -437,7 +255,7 @@ function Navbar() {
                                                 {item.product_name || "Ürün adı"}
                                             </a>
                                             <span className="product-item_quantity pt-0">
-                                                {`${item.quantity} x ${(item.product_price-(item.product_price * (item.product_discount/100))).toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺`}
+                                                {`${item.quantity} x ${(item.product_price - (item.product_price * (item.product_discount / 100))).toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺`}
                                             </span>
                                             <span className="cart_variant"><i>Renk:</i> {item.color} - <i>Size:</i> {item.size}</span>
                                         </div>
@@ -476,7 +294,7 @@ function Navbar() {
                         <div className="minicart-btn_area">
                             <Link
                                 to="/tr/odeme"
-                                
+
                                 className="hiraola-btn hiraola-btn_dark hiraola-btn_fullwidth"
                             >
                                 Siparişi Tamamla

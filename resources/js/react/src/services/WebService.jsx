@@ -4,12 +4,17 @@ export const homeData = async () => {
     return await api.get("/api/tr");
 };
 
+export const getMenu = async () => {
+    return await api.get("/api/menu");
+};
+
 export const getSingleProduct = async (category, slug, token) => {
     let url;
-    if (category) {
+   
+    if (slug) {
         url = `/api/tr/${category}/${slug}`;
     } else {
-        url = `/api/tr/${slug}`;
+        url = `/api/tr/${category}`;
     }
     return await api.get(url, getConfig(token));
 };

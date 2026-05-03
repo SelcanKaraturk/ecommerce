@@ -12,24 +12,31 @@ import ProductSliderWithTab from "../layouts/GeneralComponents/ProductSliderWith
 import DesignServicesIcon from "@mui/icons-material/DesignServices";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
-
+import { Link } from "react-router-dom";
 function Home() {
     const [productsDi, setProducts] = useState([]);
     const [productsGold, setProductsGold] = useState([]);
     const [categoryDi, setCategoryDi] = useState([]);
     const { currentUser, accessToken } = useAuth();
+    const [menu, setMenu] = useState([]);
 
     useEffect(() => {
         //Verileri Getir
         const fetchData = async () => {
             try {
                 const { data } = await homeData();
+                console.log(data);
                 setProducts(data.productsDi);
                 setProductsGold(data.productsGold);
                 setCategoryDi(data.categoryDi);
+                setMenu(data.menu);
             } catch (error) {
                 console.log(error);
                 setProducts([]);
+                setProductsGold([]);
+                setCategoryDi([]);
+                setMenu([]);
+
             }
         };
         fetchData();
@@ -52,9 +59,9 @@ function Home() {
         nextArrow: <TabNextArrow />,
         prevArrow: <TabPrevArrow />,
     };
-    useEffect(()=>{
+    useEffect(() => {
         console.log(productsDi)
-    },[productsDi])
+    }, [productsDi])
     //console.log(productsDi);
 
     return (
@@ -79,7 +86,7 @@ function Home() {
                                     </h5>
                                     <div className="hiraola-btn-ps_center slide-btn mt-4">
                                         <a
-                                            className="hiraola-btn"
+                                            className="hiraola-btn home-slider-btn"
                                             href="shop-left-sidebar.html"
                                         >
                                             Koleksiyonu Keşfet
@@ -119,7 +126,7 @@ function Home() {
                     <div className="row">
                         <div className="col-12 text-center">
                             <img
-                                src="/src/assets/images/valorHomePage.png"
+                                src="/assets/images/valorHomePage.png"
                                 height={"200px"}
                                 alt=""
                             />
@@ -148,79 +155,35 @@ function Home() {
             <div className="hiraola-banner_area-3 categories">
                 <div className="container-fluid">
                     <div className="row">
-                        <div className="col-md-4 position-relative">
-                            <div className="banner-item img-hover_effect">
-                                <a href="shop-left-sidebar.html">
-                                    <img
-                                        className="img-full"
-                                        src={
-                                            "/src/assets/images/categories/dimond.webp"
-                                        }
-                                        alt="Hiraola's Banner"
-                                    />
-                                </a>
+                        {menu.map((item, index) => (
+                            <div className="col-md-4 position-relative" key={index}>
+                                <div className="banner-item img-hover_effect">
+                                    <Link to={item.slug}>
+                                        <img
+                                            className="img-full"
+                                            src={
+                                                `storage/${item.images[0]}`
+                                            }
+                                            alt="Hiraola's Banner"
+                                        />
+                                    </Link>
+                                </div>
+                                <div className="text-wrap">
+                                   <p style={{textAlign: 'center'}}>{item.name.charAt(0).toUpperCase() + item.name.slice(1).toLowerCase()}</p>
+                                </div>
+                                <div className="hiraola-btn-ps_center slide-btn mt-4">
+                                    <Link
+                                        className="hiraola-btn bulur-btn"
+                                        to={item.slug}                                      
+                                    >
+                                        <span>
+                                            Hemen Keşfet
+                                        </span>
+                                    </Link>
+                                </div>
                             </div>
-                            <div className="text-wrap">
-                                <p>Pırlanta</p>
-                            </div>
-                            <div className="hiraola-btn-ps_center slide-btn mt-4">
-                                <a
-                                    className="hiraola-btn"
-                                    href="shop-left-sidebar.html"
-                                >
-                                    Hemen Keşfet
-                                </a>
-                            </div>
-                        </div>
-                        <div className="col-md-4 position-relative">
-                            <div className="banner-item img-hover_effect">
-                                <a href="shop-left-sidebar.html">
-                                    <img
-                                        className="img-full"
-                                        src={
-                                            "/src/assets/images/categories/gold.webp"
-                                        }
-                                        alt="Hiraola's Banner"
-                                    />
-                                </a>
-                            </div>
-                            <div className="text-wrap">
-                                <p>Altın</p>
-                            </div>
+                        ))}
 
-                            <div className="hiraola-btn-ps_center slide-btn mt-4">
-                                <a
-                                    className="hiraola-btn"
-                                    href="shop-left-sidebar.html"
-                                >
-                                    Hemen Keşfet
-                                </a>
-                            </div>
-                        </div>
-                        <div className="col-md-4 position-relative">
-                            <div className="banner-item img-hover_effect">
-                                <a href="shop-left-sidebar.html">
-                                    <img
-                                        className="img-full"
-                                        src={
-                                            "/src/assets/images/categories/bilezik.webp"
-                                        }
-                                        alt="Hiraola's Banner"
-                                    />
-                                </a>
-                            </div>
-                            <div className="text-wrap">
-                                <p>Bilezik</p>
-                            </div>
-                            <div className="hiraola-btn-ps_center slide-btn mt-4">
-                                <a
-                                    className="hiraola-btn"
-                                    href="shop-left-sidebar.html"
-                                >
-                                    Hemen Keşfet
-                                </a>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -236,7 +199,7 @@ function Home() {
                     <div className="row static-banner-image custimize justify-center">
                         <div className="col-md-5">
                             <h2>“Sadece Size Özel,</h2>
-                            <h3>Eşi Olmayan Tasarımlar”</h3>
+                            <h3 className="ms-3">Eşsiz Tasarımlar”</h3>
                             <p className="schedule">
                                 Valor’da her pırlanta, sizin hikâyenize göre
                                 şekillenir. <br /> El işçiliği, özel ölçüler ve
@@ -244,26 +207,28 @@ function Home() {
                                 hayallerinizdeki takı gerçeğe dönüşür.
                             </p>
                             <div className="hiraola-btn-ps_left">
-                                <a
-                                    href="shop-left-sidebar.html"
-                                    className="hiraola-btn"
+                                <Link
+                                    to="shop-left-sidebar.html"
+                                    className="hiraola-btn bulur-btn"
                                 >
-                                    Kendi Tasarımınızı Başlatın
-                                </a>
+                                    <span>
+                                        Kendi Tasarımınızı Başlatın
+                                    </span>
+                                </Link>
                             </div>
                         </div>
                         <div className="col-md-5">
 
-                                <p>
-                                    <DesignServicesIcon /> İhtiyacınıza Göre
-                                    Çizim ve Modelleme
-                                </p>
-                                <p>
-                                    <HandymanIcon /> En Kaliteli Taşlar ve Altının Birlikteliği
-                                </p>
-                                <p>
-                                    <WorkspacePremiumIcon /> Size Özel, Eşsiz Bir Parça
-                                </p>
+                            <p>
+                                <DesignServicesIcon /> İhtiyacınıza Göre
+                                Çizim ve Modelleme
+                            </p>
+                            <p>
+                                <HandymanIcon /> En Kaliteli Taşlar ve Altının Birlikteliği
+                            </p>
+                            <p>
+                                <WorkspacePremiumIcon /> Size Özel, Eşsiz Bir Parça
+                            </p>
 
                         </div>
                     </div>

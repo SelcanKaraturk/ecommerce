@@ -30,32 +30,25 @@ function ProductDetail() {
             try {
                 setLoading(true);
                 let res;
-                if (category) {
-                    res = await getSingleProduct(
-                        category,
-                        slug,
-                        accessToken
-                    );
-                } else {
-                    res = await getSingleProduct(
-                        null,
-                        slug,
-                        accessToken
-                    );
-                }
+
+                res = await getSingleProduct(
+                    category,
+                    slug,
+                    accessToken
+                );
 
                 const { data } = res.data;
-                console.log("Fetched product data:", data);
+                console.log("Fetched product data:", res);
                 setProduct({ ...data, category: category });
                 setLoading(false);
             } catch (error) {
                 setLoading(false);
                 console.log(error);
-                setProduct();
+                setProduct(null);
             }
         }
         fetchData();
-    }, []);
+    }, [slug, category, accessToken]);
 
     useEffect(() => {
         if (product) {
@@ -103,15 +96,9 @@ function ProductDetail() {
     };
 
     const changeWishStatue = (e) => {
-        console.log(e);
         setProduct((prev) => ({
             ...prev,
-            product_stock:
-                prev.product_stock?.map((i) =>
-                    i == selectedStock
-                        ? { ...i, in_wishlist: e }
-                        : i
-                ) || [],
+            in_wishlist: e
         }));
     };
 
@@ -285,6 +272,7 @@ function ProductDetail() {
                                                                 productObj={{
                                                                     product_slug: product?.product_slug,
                                                                     price: product?.product_price,
+                                                                    in_wishlist: product?.in_wishlist,
                                                                 }}
                                                                 changeWishStatue={changeWishStatue}
                                                             />

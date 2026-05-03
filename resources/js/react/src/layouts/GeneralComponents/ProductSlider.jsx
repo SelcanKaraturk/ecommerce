@@ -49,11 +49,7 @@ function ProductSlider({ mainName, products }) {
             },
         ],
     };
-    const category = slugify(mainName, {
-        lower: true,
-        locale: "tr",
-        remove: /[*+~.()'"!:@]/g, // özel karakterleri temizle
-    });
+
     const oneWeekAgo = dayjs().subtract(7, "day");
     return (
         <>
@@ -77,7 +73,7 @@ function ProductSlider({ mainName, products }) {
                                                 <div className="single_product">
                                                     <div className="product-img">
                                                         <Link
-                                                            to={`/tr/${category === 'sinirli-uretim' ? 'snr-uretim' : category}/${i.product_slug}`}
+                                                            to={`${i.category_slug[0]}/${i.product_slug}`}
                                                         >
                                                             <img
                                                                 className="primary-img"
@@ -120,11 +116,11 @@ function ProductSlider({ mainName, products }) {
                                                         ) : null}</div>
                                                     </div>
                                                     <div className="hiraola-product_content">
-                                                        <div className="product-desc_info">
+                                                        <div className="product-desc_info text-center">
                                                             <h6>
                                                                 <Link
                                                                     className="product-name"
-                                                                    to={`/tr/${category === 'sinirli-uretim' ? 'snr-uretim' : category}/${i.product_slug}`}
+                                                                    to={`${i.category_slug[0]}/${i.product_slug}`}
                                                                 >
                                                                     {
                                                                         i.product_name

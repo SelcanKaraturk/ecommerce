@@ -21,6 +21,7 @@ import AdminLogin from "../pages/admin/adminLogin";
 import AdminProducts from "../pages/admin/products/Products";
 import Dashboard from "../pages/admin/Dashboard";
 import AdminCategories from "../pages/admin/categories/Categories";
+import AdminMenus from "../pages/admin/menus/Menus";
 
 function AppRoutes() {
     return (
@@ -29,11 +30,11 @@ function AppRoutes() {
             <Route path="/:lang" element={<LangGuard />}>
                 <Route element={<MainLayout />}>
                     <Route index element={<Home />} />
-                    <Route path="altin" element={<Products />} />
-                    <Route path="pirlanta" element={<Products />} />
-                    <Route path="snr-uretim/:slug" element={<ProductDetail />} />
+                    {/* <Route path="altin" element={<Products />} />
+                    <Route path="pirlanta" element={<Products />} /> */}
+                    {/* <Route path="snr-uretim/:slug" element={<ProductDetail />} /> */}
                     <Route path=":category/:slug" element={<ProductDetail />} />
-                    <Route path=":slug" element={<ProductDetail />} />
+                    //<Route path=":category" element={<Products />} />
                     <Route path="hakkimizda" element={<AboutUs />} />
                     <Route path="iletisim" element={<Contact />} />
                     <Route path="odeme" element={<Checkout />} />
@@ -64,6 +65,7 @@ function AppRoutes() {
                 <Route path="" index element={<Dashboard />} />
                 <Route path="products" element={<AdminProducts />} />
                 <Route path="categories" element={<AdminCategories />} />
+                <Route path="menus" element={<AdminMenus />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" />} />

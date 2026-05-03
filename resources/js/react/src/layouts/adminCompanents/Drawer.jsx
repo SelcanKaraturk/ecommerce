@@ -244,6 +244,16 @@ function DrawerBar({ open ,setOpen }) {
                             </Link>
                         </ListItemButton>
                     </ListItem>
+                    <ListItem disablePadding>
+                        <ListItemButton>
+                            <ListItemIcon>
+                                <MenuIcon />
+                            </ListItemIcon>
+                            <Link to="/admin/menus">
+                                <ListItemText primary={"Menüler"} />
+                            </Link>
+                        </ListItemButton>
+                    </ListItem>
                 </List>
                 <Divider />
                 <List>

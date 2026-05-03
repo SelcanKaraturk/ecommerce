@@ -15,7 +15,7 @@ class HomeResources extends JsonResource
     public function toArray($request)
     {
         return [
-            'product_number' => $this->id,
+            'product_number' => (auth()->user() && auth()->user()->hasRole('admin')) ? $this->id : null,
             'product_name' => $this->name,
             'product_slug' => $this->slug,
            'product_images' => $this->images,

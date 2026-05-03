@@ -8,6 +8,7 @@ import './assets/css/animate.min.css';
 import './assets/css/jquery-ui.min.css';
 import './assets/css/timecircles.min.css';
 import './assets/css/style.css';
+// import 'jquery-nice-select/css/nice-select.css';
 //import './index.css'
 import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom'

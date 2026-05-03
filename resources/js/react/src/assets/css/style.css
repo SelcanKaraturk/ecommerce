@@ -197,7 +197,7 @@ button {
 }
 
 .modalUpdateAddress button {
-    color: #cda557 ;
+    color: #cda557;
 }
 
 /* // Modal style objects */
@@ -744,117 +744,117 @@ button {
 }
 
 .checkout-item .cart-item-box {
-  display: flex;
-  align-items: flex-start;
-  border: 1px solid #eee;
-  border-radius: 10px;
-  background: #fff;
-  padding: 18px 24px;
-  margin: 16px 0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-  gap: 12px;
-  position: relative;
-  /* min-width: 320px; */
+    display: flex;
+    align-items: flex-start;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    background: #fff;
+    padding: 18px 24px;
+    margin: 16px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    gap: 12px;
+    position: relative;
+    /* min-width: 320px; */
 }
 
 .checkout-item .cart-item-img img {
-  width: 80px;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  background: #fafafa;
+    width: 80px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    background: #fafafa;
 }
 
 .checkout-item .cart-item-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 14px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14px;
 }
 
 .checkout-item .cart-item-title {
-  font-size: 15px;
-  font-weight: 500;
-  color: #222;
-  margin-bottom: 2px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #222;
+    margin-bottom: 2px;
 }
 
 .checkout-item .cart-item-seller span {
-  color: #222;
-  font-weight: 500;
+    color: #222;
+    font-weight: 500;
 }
 
 .checkout-item .cart-item-details {
-  font-size: 13px;
-  color: #444;
-  display: flex;
-  gap: 8px;
-  align-items: center;
+    font-size: 13px;
+    color: #444;
+    display: flex;
+    gap: 8px;
+    align-items: center;
 }
 
 .checkout-item .cart-item-details b {
-  font-weight: 600;
+    font-weight: 600;
 }
 
 .checkout-item .cart-item-shipping {
-  margin-top: 4px;
+    margin-top: 4px;
 }
 
 .checkout-item .shipping-fast {
-  color: #67c36c;
-  font-size: 13px;
-  font-weight: 600;
+    color: #67c36c;
+    font-size: 13px;
+    font-weight: 600;
 }
 
 .checkout-item .cart-item-discount {
-  margin-top: 6px;
-  display: flex;
-  gap: 8px;
-  align-items: center;
+    margin-top: 6px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
 }
 
 .checkout-item .discount-badge {
-  background: #ffe3b3;
-  color: #d17a00;
-  font-size: 12px;
-  padding: 2px 8px;
-  border-radius: 8px;
-  font-weight: 600;
+    background: #ffe3b3;
+    color: #d17a00;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-weight: 600;
 }
 
 .checkout-item .discount-applied {
-  background: #f7f7f7;
-  color: #b97a1a;
-  font-size: 12px;
-  padding: 2px 8px;
-  border-radius: 8px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
+    background: #f7f7f7;
+    color: #b97a1a;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
 }
 
 .checkout-item .cart-item-price {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  min-width: 120px;
-  margin-left: 16px;
-  margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    min-width: 120px;
+    margin-left: 16px;
+    margin-top: 8px;
 }
 
 .checkout-item .old-price {
-  color: #888;
-  font-size: 12px;
-  text-decoration: line-through;
-  margin-bottom: 2px;
+    color: #888;
+    font-size: 12px;
+    text-decoration: line-through;
+    margin-bottom: 2px;
 }
 
 .checkout-item .new-price {
-  color: #cda557;
-  font-size: 16px;
-  font-weight: 700;
+    color: #cda557;
+    font-size: 16px;
+    font-weight: 700;
 }
 
 /* ---Hiraola's Quantity--- */
@@ -1005,6 +1005,15 @@ button.li-btn,
     -webkit-transition: all 0.3s ease-in;
     -o-transition: all 0.3s ease-in;
     transition: all 0.3s ease-in;
+}
+
+.hiraola-btn.home-slider-btn {
+    background-color: #595959;
+}
+
+.hiraola-btn.home-slider-btn:hover {
+    background-color: #cda557;
+    color: #fff !important;
 }
 
 /* ---Range Slider--- */
@@ -1902,7 +1911,23 @@ button.li-btn,
 .hiraola-banner_area-3 .text-wrap {
     position: absolute;
     top: 30px;
-    left: 40px;
+    left: 0px;
+    width: 100%;
+}
+
+.bulur-btn {
+    display: inline-block;
+    position: relative;
+    padding: 0;
+    overflow: hidden;
+}
+
+.bulur-btn span {
+    display: inline-block;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(3px);
+    padding: 0px 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .hiraola-banner_area-3 .text-wrap p {
@@ -3774,7 +3799,7 @@ h3 {
 }
 
 .static-banner_area .static-banner-image.custimize {
-    background-image: url("../images/bg/custimize-design.webp");
+    background-image: url("../images/bg/design-ring.png");
     background-size: cover;
     min-height: 345px;
     background-repeat: no-repeat;
@@ -5676,7 +5701,7 @@ h3 {
 
 /* ---Shop Toolbar--- */
 .shop-toolbar {
-    border: 1px solid #e5e5e5;
+    /* border: 1px solid #e5e5e5; */
     display: -webkit-box;
     display: -webkit-flex;
     display: -ms-flexbox;
@@ -9261,7 +9286,6 @@ div.color-wrap:has(button.Mui-selected) {
     line-height: 50px;
     width: 145px;
     text-align: center;
-    border-radius: 3px;
     -webkit-transition: all 0.3s ease-in-out;
     -o-transition: all 0.3s ease-in-out;
     transition: all 0.3s ease-in-out;

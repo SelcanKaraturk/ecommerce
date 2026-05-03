@@ -6,7 +6,7 @@ import { CircularProgress } from "@mui/material";
 
 function WishlistButton({ productObj, changeWishStatue }) {
     const navigate = useNavigate();
-    const [isWish, setIsWish] = useState(productObj.myWish);
+    const [isWish, setIsWish] = useState(productObj.in_wishlist);
     const { errorShow, accessToken } = useAuth();
     const [updating, setUpdating] = useState(false);
 
@@ -39,7 +39,7 @@ function WishlistButton({ productObj, changeWishStatue }) {
         }
     };
     useEffect(()=>{
-        setIsWish(productObj.myWish)
+        setIsWish(productObj.in_wishlist)
         //console.log(productObj);
     },[productObj])
     return (
