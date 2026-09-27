@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Http\Requests\Admin\StoreProductRequest;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 class ProductController extends Controller
 {
     /**
@@ -118,8 +119,20 @@ class ProductController extends Controller
             if ($request->hasFile('images')) {
                 foreach ((array) $request->file('images') as $img) {
                     if ($img->isValid()) {
-                        $path = $img->store('products', 'public');
-                        $allImages[] = $path;
+                        $fileName = $img->getClientOriginalName();
+                        $fileNameWithoutExt = pathinfo($fileName, PATHINFO_FILENAME);
+                        $extension = $img->getClientOriginalExtension();
+
+                        $baseFileName = $fileNameWithoutExt;
+                        $finalFileName = $fileName;
+                        $counter = 1;
+
+                        while (file_exists(storage_path('app/public/products/' . $finalFileName))) {
+                            $finalFileName = $baseFileName . '-' . $counter++ . '.' . $extension;
+                        }
+
+                        $path = $img->storeAs('products', $finalFileName, 'public');
+                        $allImages[] = 'products/' . basename($path);
                     }
                 }
             }
@@ -131,6 +144,15 @@ class ProductController extends Controller
                 'price' => $validated['price'],
                 'discount' => $validated['discount'] ?? null,
                 'images' => $allImages,
+                'allow_out_of_stock_cart' => $validated['allow_out_of_stock_production'] ?? false,
+            ]);
+
+            $newProduct->inventory()->create([
+                'serial_number' => $this->generateSerialNumber($request['selected_category']),
+                'carat' => $validated['carat'] ?? null,
+                'color_of_diamond' => $validated['color_of_diamond'] ?? null,
+                'clarity' => $validated['clarity'] ?? null,
+                'cut' => $validated['cut'] ?? null,
             ]);
 
             // kategorileri ilişkilendir
@@ -149,6 +171,7 @@ class ProductController extends Controller
                     $newProduct->stock()->create([
                         'color' => $variant['color'],
                         'size' => $variant['size'] ?? null,
+                        'weight' => $variant['weight'] ?? null,
                         'stock' => $variant['quantity'],
                         'sku' => $sku,
                     ]);
@@ -161,7 +184,7 @@ class ProductController extends Controller
                 'errors' => ['exception' => $e->getMessage()]
             ], 500);
         }
-        $newProduct->load(['categories:id,slug,name', 'stock:product_id,color'])->loadSum('stock', 'stock');
+        $newProduct->load(['categories:id,slug,name', 'stock:product_id,color', 'inventory'])->loadSum('stock', 'stock');
         return response()->json([
             'message' => 'Ürün başarıyla eklendi',
             'status' => 'success',
@@ -274,7 +297,19 @@ class ProductController extends Controller
                 if ($request->hasFile('images')) {
                     foreach ((array) $request->file('images') as $img) {
                         if ($img->isValid()) {
-                            $path = $img->store('products', 'public');
+                            $fileName = $img->getClientOriginalName();
+                            $fileNameWithoutExt = pathinfo($fileName, PATHINFO_FILENAME);
+                            $extension = $img->getClientOriginalExtension();
+
+                            $baseFileName = $fileNameWithoutExt;
+                            $finalFileName = $fileName;
+                            $counter = 1;
+
+                            while (file_exists(storage_path('app/public/products/' . $finalFileName))) {
+                                $finalFileName = $baseFileName . '-' . $counter++ . '.' . $extension;
+                            }
+
+                            $path = $img->storeAs('products', $finalFileName, 'public');
                             $allImages[] = $path;
                         }
                     }
@@ -287,15 +322,21 @@ class ProductController extends Controller
                     'price' => $validated['price'],
                     'discount' => $validated['discount'] ?? null,
                     'images' => $allImages,
+                    'allow_out_of_stock_cart' => $validated['allow_out_of_stock_production'] ?? false,
+                ]);
+
+                $product->inventory()->update([
+                    'carat' => $validated['carat'] ?? null,
+                    'color_of_diamond' => $validated['color_of_diamond'] ?? null,
+                    'clarity' => $validated['clarity'] ?? null,
+                    'cut' => $validated['cut'] ?? null,
                 ]);
 
                 // Kategorileri güncelle
                 if (!empty($parentSlugs)) {
                     $categoryIds = Category::whereIn('slug', $parentSlugs)->pluck('id')->toArray();
                     $product->categories()->sync($categoryIds);
-                }
-
-                // Varyantları/stokları güncelle: önce sil, sonra ekle (daha gelişmiş mantık eklenebilir)
+                }              
 
                 $data = collect($variants)->map(function ($variant) use ($request, $product) {
                     return [
@@ -303,6 +344,7 @@ class ProductController extends Controller
                         'color' => $variant['color'],
                         'size' => $variant['size'] ?? null,
                         'stock' => $variant['quantity'],
+                        'weight' => $variant['weight'] ?? null,
                         'sku' => $this->generateSku(
                             $product,
                             $request['selected_category'],
@@ -318,7 +360,7 @@ class ProductController extends Controller
                 $product->stock()->upsert(
                     $data,
                     ['product_id', 'color', 'size'], // UNIQUE alanlar
-                    ['stock', 'updated_at']   // güncellenecek kolonlar
+                    ['stock', 'updated_at', 'weight']   // güncellenecek kolonlar
                 );
                 // Güncel varyant anahtarlarını bul
                 //$variantKeys = collect($variants)->map(fn($v) => $v['color'].'|'.$v['size'])->toArray();
@@ -357,7 +399,56 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $product = Product::findOrFail($id);
+        $images = is_array($product->images) ? $product->images : [];
+
+        try {
+            DB::transaction(function () use ($product) {
+                // Pivot kayitlarini once sil
+                $product->categories()->detach();
+
+                // Sadece login olan kullanicilarin sepet ve favori kayitlarini temizle
+                $product->inCarts()
+                    ->whereHas('cart', function ($query) {
+                        $query->whereNotNull('user_id');
+                    })
+                    ->delete();
+
+                DB::table('wishlists')
+                    ->where('product_id', $product->id)
+                    ->whereNotNull('user_id')
+                    ->delete();
+
+                // Urune bagli alt kayitlari sil
+                $product->stock()->delete();
+                $product->inventory()->delete();
+
+                // Son olarak urunu sil
+                $product->delete();
+            });
+
+            // Urune ait gorselleri storage'dan sil
+            foreach ($images as $imagePath) {
+                $path = ltrim((string) $imagePath, '/');
+                if (str_starts_with($path, 'storage/')) {
+                    $path = substr($path, 8);
+                }
+
+                if ($path !== '') {
+                    Storage::disk('public')->delete($path);
+                }
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Ürün silinirken hata oluştu.',
+                'errors' => ['exception' => $e->getMessage()]
+            ], 500);
+        }
+
+        return response()->json([
+            'message' => 'Ürün başarıyla silindi',
+            'status' => 'success'
+        ]);
     }
 
     public function indexData($token)
@@ -397,5 +488,23 @@ class ProductController extends Controller
         $idPadded = str_pad($product->id, 6, '0', STR_PAD_LEFT);
 
         return $prefix . $idPadded . $colorCode . $sizeStr;
+    }
+
+    private function generateSerialNumber($categoryTitle = 'Hiçbiri')
+    {
+        $prefixes = [
+            'Yüzük' => 'YZK',
+            'Kolye' => 'KOL',
+            'Bileklik' => 'BLK',
+            'Bilezik' => 'BLZ',
+            'Kelepçe' => 'KLP',
+            'Küpe' => 'KPE',
+            'Hiçbiri' => 'HCB',
+        ];
+        $prefix = $prefixes[$categoryTitle] ?? $prefixes['Hiçbiri'];
+        date_default_timezone_set('Europe/Istanbul');
+        $date = date('ymd');
+        $time = date('H');
+        return "V" . $prefix . "R" . $date . $time . strtoupper(Str::random(8)); ;
     }
 }

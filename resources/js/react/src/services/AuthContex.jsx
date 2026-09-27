@@ -30,6 +30,7 @@ export const AuthProvider = ({ children }) => {
             try {
                 const res = await api.get("api/me", getConfig(accessToken));
                 setCurrentUser(res?.data?.user);
+                
 
                 const { data } = await api.get(
                     "api/me/cart",
@@ -53,8 +54,8 @@ export const AuthProvider = ({ children }) => {
     }, [accessToken]);
 
     useEffect(() => {
-        console.log(cart);
-    }, [cart]);
+        console.log(cart, currentUser);
+    }, [cart,currentUser]);
 
     useEffect(() => {
         const fetchCart = async () => {

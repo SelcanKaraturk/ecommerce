@@ -6,19 +6,44 @@ import Loading from "../layouts/GeneralComponents/Loading";
 import ChangeCircleOutlinedIcon from '@mui/icons-material/ChangeCircleOutlined';
 import useForm from "../services/hooks/useForm";
 import { Dialog, DialogTitle } from "@mui/material";
-import { DialogContent, DialogActions, Button, IconButton } from "@mui/material";
-import { Close } from "@mui/icons-material";
+import { DialogContent, DialogActions, Button, IconButton, Box, Stepper, Step, StepLabel } from "@mui/material";
+import { Check, Close } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import UpdateAddress from "./user/UserInfo/Address/UpdateAddress";
 import AddAddress from "./user/UserInfo/Address/AddAddress";
 import { updateSelectedAddress, matchCartForUser, matchCart, pay } from "../services/WebService";
 
+function CheckoutStepIcon({ active, completed, icon }) {
+    const highlighted = active || completed;
+    const color = highlighted ? '#b8924a' : '#a1a1a1';
+
+    return (
+        <Box
+            component="span"
+            sx={{
+                alignItems: 'center',
+                backgroundColor: highlighted ? color : 'transparent',
+                border: `1px solid ${color}`,
+                borderRadius: '50%',
+                color: highlighted ? '#fff' : color,
+                display: 'inline-flex',
+                fontSize: '14px',
+                height: '28px',
+                justifyContent: 'center',
+                lineHeight: 1,
+                width: '28px',
+            }}
+        >
+            {completed ? <Check sx={{ fontSize: '18px' }} /> : icon}
+        </Box>
+    );
+}
+
 function Checkout() {
     const { setMiniCart, cart, currentUser, accessToken, setCurrentUser, setCart } = useAuth();
     const { totalCost, subTotal } = useForm();
+    const steps = ["Sepet", "Teslimat Bilgileri", "Ödeme"];
     const location = useLocation();
-    const [showCoupon, setShowCoupon] = useState(false);
-    const [showLogin, setShowLogin] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
     const options = [{ value: "Türkiye", label: "Türkiye" }];
     const [cartMatched, setCartMatched] = useState(null);
@@ -26,7 +51,7 @@ function Checkout() {
     const [isDifferent, setIsDifferent] = useState(false);
     const [mode, setMode] = useState("bireysel"); // "bireysel" veya "kurumsal"
     const { open, setOpen, handleCancel } = useForm();
-    const [selectedAddressId, setSelectedAddressId] = useState(currentUser?.addresses?.find(addr => addr.is_selected === 1)?.id || null);
+    const [selectedAddressId, setSelectedAddressId] = useState(currentUser?.addresses?.find(addr => Boolean(addr.is_selected))?.id || null);
     const [cargo, setCargo] = useState(0);
     const [checkoutFormContent, setCheckoutFormContent] = useState("");
     const formRef = useRef();
@@ -85,7 +110,7 @@ function Checkout() {
 
     const handleChangeAddressSubmit = async () => {
 
-        if (currentUser?.addresses?.find(addr => addr.id === selectedAddressId)?.is_selected === 1) {
+        if (currentUser?.addresses?.find(addr => addr.id === selectedAddressId)?.is_selected) {
             setOpen(false);
             return;
         }
@@ -107,14 +132,14 @@ function Checkout() {
     }
 
     useEffect(() => {
-        setSelectedAddressId(currentUser?.addresses?.find(addr => addr.is_selected === 1)?.id || null);
+        setSelectedAddressId(currentUser?.addresses?.find(addr => Boolean(addr.is_selected))?.id || null);
     }, [currentUser]);
 
     const handleCheckout = async () => {
         console.log(accessToken);
         const { data } = await pay({
             cart,
-            address: currentUser?.addresses?.find(addr => addr.is_selected === 1) || null,
+            address: currentUser?.addresses?.find(addr => Boolean(addr.is_selected)) || null,
             total_price: subTotal(cart),
         }, accessToken);
         if (data.status === 'success') {
@@ -142,6 +167,7 @@ function Checkout() {
     console.log(currentUser);
     return (
         <>
+
             <div className="deneme123" ref={formRef} />
             {open && (<>
 
@@ -150,7 +176,7 @@ function Checkout() {
                         Adreslerim
                         <IconButton
                             aria-label="close"
-                            onClick={() => { handleCancel(); setSelectedAddressId(currentUser?.addresses?.find(addr => addr.is_selected === 1)?.id || null); }}
+                            onClick={() => { handleCancel(); setSelectedAddressId(currentUser?.addresses?.find(addr => Boolean(addr.is_selected))?.id || null); }}
                             sx={{
                                 position: "absolute",
                                 right: 8,
@@ -171,7 +197,7 @@ function Checkout() {
                         }}
                     >
                         {currentUser?.addresses?.length > 0 ? (
-                            currentUser.addresses.map((address) => (
+                            currentUser?.addresses.map((address) => (
                                 <div key={address.id} className={`border rounded p-2 mb-2 ${selectedAddressId === address.id ? 'border-warning' : ''}`}
                                     style={{ background: selectedAddressId === address.id ? '#fff8e1' : '#fff', cursor: 'pointer' }}
                                     onClick={() => setSelectedAddressId(address.id)}
@@ -189,13 +215,7 @@ function Checkout() {
                         ) : (
                             <div>Kayıtlı adresiniz yok.</div>
                         )}
-                        <AddAddress accessToken={accessToken} onCreateAddress={(newAddress) => {
-                            // Update the currentUser addresses state with the new address
-                            setCurrentUser(prevUser => ({
-                                ...prevUser,
-                                addresses: [...prevUser.addresses, newAddress]
-                            }));
-                        }} />
+                        <AddAddress accessToken={accessToken} />
                         {/* <button className="btn w-100 mt-2" style={{ border: '1px solid #cda557', color: '#cda557', background: '#fff' }} onClick={handleOpenAddressDialog}>
                             + Yeni Adres Ekle
                         </button> */}
@@ -218,95 +238,41 @@ function Checkout() {
                 cartMatched === true ? (
 
                     <div className="checkout-area">
+                        <div className="container">
+                            <Box sx={{ width: '100%', marginBottom: '50px', display: 'flex', justifyContent: 'center' }}>
+                                <Stepper
+                                    activeStep={1}
+                                    sx={{
+                                        '& .MuiStepLabel-label': { color: '#a1a1a1' },
+                                        '& .MuiStepLabel-label.Mui-active, & .MuiStepLabel-label.Mui-completed': { color: '#b8924a' },
+                                        '& .MuiStep-root': { px: '20px', position: 'relative', zIndex: 1 },
+                                        '& .MuiStepLabel-iconContainer': { backgroundColor: '#fff', position: 'relative', zIndex: 1 },
+                                        '& .MuiStepConnector-root': { flex: '0 0 130px', mx: 1, opacity: 1, position: 'relative', zIndex: 0 },
+                                        '& .MuiStepConnector-line': { borderTop: '1px solid #a88442 !important', opacity: 1 },
+                                        '@media (max-width: 600px)': {
+                                            '& .MuiStepConnector-root': { flexBasis: '48px', mx: 0.5 },
+                                        },
+                                    }}
+                                >
+                                    {steps.map((label) => (
+                                        <Step key={label}>
+                                            <StepLabel StepIconComponent={CheckoutStepIcon}>{label}</StepLabel>
+                                        </Step>
+                                    ))}
+                                </Stepper>
+                            </Box>
+                        </div>
                         <div className="container-fluid">
                             {!currentUser && (
                                 <div className="row">
                                     <div className="col-12">
                                         <div className="coupon-accordion">
                                             <h3>
-                                                <span id="showlogin" onClick={() => setShowLogin(!showLogin)}>
-                                                    Hesabınıza Giriş Yapmak İçin <em>Tıklayın</em>
+                                                <span>
+
+                                                    İşlemlerinizi daha hızlı yapmak ve siparişlerinizi kolayca yönetmek için hesabınıza giriş yapın. <Link to="/login"><em>Giriş Yap</em></Link>
                                                 </span>
                                             </h3>
-                                            <div
-                                                id="checkout-login"
-                                                className={`coupon-content ${showLogin ? "active" : ""}`}
-                                            // style={{ display: showLogin ? "block" : "none" }}
-                                            >
-                                                <div className="coupon-info">
-                                                    <p className="coupon-text">
-                                                        Quisque gravida turpis sit amet
-                                                        nulla posuere lacinia. Cras sed est
-                                                        sit amet ipsum luctus.
-                                                    </p>
-                                                    <form action="javascript:void(0)">
-                                                        <p className="form-row-first">
-                                                            <label>
-                                                                Username or email{" "}
-                                                                <span className="required">
-                                                                    *
-                                                                </span>
-                                                            </label>
-                                                            <input type="text" />
-                                                        </p>
-                                                        <p className="form-row-last">
-                                                            <label>
-                                                                Password{" "}
-                                                                <span className="required">
-                                                                    *
-                                                                </span>
-                                                            </label>
-                                                            <input type="text" />
-                                                        </p>
-                                                        <p className="form-row">
-                                                            <input
-                                                                value="Login"
-                                                                type="submit"
-                                                            />
-                                                            <label>
-                                                                <input type="checkbox" />
-                                                                Remember me
-                                                            </label>
-                                                        </p>
-                                                        <p className="lost-password">
-                                                            <a href="javascript:void(0)">
-                                                                Lost your password?
-                                                            </a>
-                                                        </p>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                            <h3>
-                                                <span
-                                                    id="showcoupon"
-                                                    onClick={() =>
-                                                        setShowCoupon(!showCoupon)
-                                                    }
-                                                >
-                                                    Kupon girmek için <em>tıklayın</em>
-                                                </span>
-                                            </h3>
-                                            <div
-                                                id="checkout_coupon"
-                                                className={`coupon-checkout-content ${showCoupon ? "active" : ""
-                                                    }`}
-                                            >
-                                                <div className="coupon-info">
-                                                    <form action="javascript:void(0)">
-                                                        <p className="checkout-coupon">
-                                                            <input
-                                                                placeholder="Coupon code"
-                                                                type="text"
-                                                            />
-                                                            <input
-                                                                className="coupon-inner_btn"
-                                                                value="Apply Coupon"
-                                                                type="submit"
-                                                            />
-                                                        </p>
-                                                    </form>
-                                                </div>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -356,19 +322,13 @@ function Checkout() {
                                             <div className="address-select-section">
                                                 <div className="checkbox-form">
                                                     <h3 className="d-flex justify-content-between">Teslimat Adresim
-                                                        <AddAddress accessToken={accessToken} style={{ color: '#cda557', background: 'none', border: 'none', fontSize: 16 }} onCreateAddress={(newAddress) => {
-                                                            // Update the currentUser addresses state with the new address
-                                                            setCurrentUser(prevUser => ({
-                                                                ...prevUser,
-                                                                addresses: [...prevUser.addresses, newAddress]
-                                                            }));
-                                                        }} />
+                                                        <AddAddress accessToken={accessToken} style={{ color: '#cda557', background: 'none', border: 'none', fontSize: 16 }} />
 
                                                     </h3>
 
                                                     <div className="row">
-                                                        {currentUser?.addresses?.filter(address => address.is_selected === 1)?.length > 0 ? (
-                                                            currentUser.addresses.filter(address => address.is_selected === 1).map((address) => (
+                                                        {currentUser?.addresses?.some(address => Boolean(address.is_selected)) ? (
+                                                            currentUser.addresses.filter(address => Boolean(address.is_selected)).map((address) => (
                                                                 <div className="col-12" key={address.id}>
                                                                     <div className="d-flex justify-content-between">
                                                                         <div><b>{address.title}</b> ({address.neighborhood} / {address.district} / {address.city})

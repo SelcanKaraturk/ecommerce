@@ -22,6 +22,8 @@ import AdminProducts from "../pages/admin/products/Products";
 import Dashboard from "../pages/admin/Dashboard";
 import AdminCategories from "../pages/admin/categories/Categories";
 import AdminMenus from "../pages/admin/menus/Menus";
+import Pages from "../pages/admin/pages/Pages";
+import NotFound from "../pages/NotFound";
 
 function AppRoutes() {
     return (
@@ -36,7 +38,7 @@ function AppRoutes() {
                     <Route path=":category/:slug" element={<ProductDetail />} />
                     //<Route path=":category" element={<Products />} />
                     <Route path="hakkimizda" element={<AboutUs />} />
-                    <Route path="iletisim" element={<Contact />} />
+                    {/* <Route path="iletisim" element={<Contact />} /> */}
                     <Route path="odeme" element={<Checkout />} />
                     <Route path="sepet" element={<Cart />} />
                     <Route element={<PrivateRoute />}>
@@ -66,9 +68,10 @@ function AppRoutes() {
                 <Route path="products" element={<AdminProducts />} />
                 <Route path="categories" element={<AdminCategories />} />
                 <Route path="menus" element={<AdminMenus />} />
+                <Route path="pages" element={<Pages />} />
             </Route>
 
-            <Route path="*" element={<Navigate to="/" />} />
+            <Route path="*" element={<NotFound />} />
         </Routes>
     );
 }

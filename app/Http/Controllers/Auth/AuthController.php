@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use Exception;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -77,7 +78,7 @@ class AuthController extends Controller
             //return response()->json(['guard'=>auth()->getDefaultDriver()]);
             DB::commit();
             return response()->json([
-                'user' => $user,
+                'user' => new UserResource($user->load('roles', 'addresses')),
                 'currentToken' => $user->createToken('new_user')->plainTextToken,
                 'message' => 'Giriş Başarılı'
             ])->withCookie(cookie('cart_items', null, -1, '/'));
@@ -98,7 +99,7 @@ class AuthController extends Controller
     public function show(Request $request)
     {
         return response()->json([
-            'user' => $request->user()->load('roles','addresses'),
+            'user' => new UserResource($request->user()->load('roles', 'addresses')),
             'currentToken' => $request->bearerToken()
         ]);
     }
@@ -146,11 +147,11 @@ class AuthController extends Controller
 
         // Diğer alanları güncelle
         $user->update($request->except('userNumber', 'email'));
-        $user->load('roles','addresses');
+        $user->load('roles', 'addresses');
 
         return response()->json([
             'message' => 'Bilgileriniz başarıyla güncellendi.',
-            'user'    => $user,
+            'user'    => new UserResource($user),
             'status'  => 'success'
         ]);
     }
@@ -208,6 +209,7 @@ class AuthController extends Controller
             // İsim ve soyisim baş harfleri büyük olacak şekilde birleştiriliyor
             //$fullName = ucwords(strtolower(trim($validated['name']))) . ' ' . ucwords(strtolower(trim($validated['lastname'])));
             $addressData = $validated;
+            $addressData['is_selected'] = !$user->addresses()->exists();
             // $addressData['name'] = $fullName;
             //unset($addressData['lastname']);
             $newAddress = $user->addresses()->create($addressData);
@@ -223,7 +225,7 @@ class AuthController extends Controller
     // my account - update address
     public function updateAddress(Request $request) {
         $validated = $request->validate([
-            'id' => 'required|exists:user_addresses,id',
+            'email' => 'required|exists:users,email',
             'name' => 'required|min:2|max:50',
             'lastname' => 'required|min:2|max:50',
             'title' => 'required|min:2|max:50',
@@ -235,8 +237,8 @@ class AuthController extends Controller
         ]);
 
         $user = $request->user();
-        $address = $user->addresses()->where('id', $validated['id'])->firstOrFail();
-        Db::beginTransaction();
+        $address = $user->addresses()->where('email', $validated['email'])->firstOrFail();
+        DB::beginTransaction();
         try {
             $address->update($validated);
             DB::commit();

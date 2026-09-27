@@ -19,7 +19,7 @@ function UpdateAddress({ initialValues }) {
     }, [initialValues]);
 
     const handleSubmit = async () => {
-        // Form gönderim işlemleri
+        setProcessing(true);
         try {
             const { data } = await updateAddressService(form, accessToken);
             if (data.status === 'success') {
@@ -27,7 +27,7 @@ function UpdateAddress({ initialValues }) {
                 // Update the currentUser addresses state with the updated address
                 setCurrentUser(prev => ({
                     ...prev,
-                    addresses: prev.addresses.map(addr => addr.id === data.data.id ? data.data : addr)
+                    addresses: (prev?.addresses ?? []).map(addr => addr.id === data.data.id ? data.data : addr)
                 }));
                 setOpen(false);
                 setErrors(null);

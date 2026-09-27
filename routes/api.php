@@ -4,9 +4,11 @@ use App\Http\Controllers\Api\Admin\CmsController;
 use App\Http\Controllers\Api\Admin\AdminAuthController;
 use App\Http\Controllers\Api\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Api\Admin\GoldSettingController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\GoldRateController;
 use App\Http\Controllers\Api\User\WishlistController;
 use App\Http\Controllers\Api\User\CartCookieController;
 use App\Http\Controllers\Api\User\CartController;
@@ -16,6 +18,7 @@ use App\Models\User;
 use PhpParser\Node\Expr\FuncCall;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Api\Admin\AdminPageController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -71,12 +74,19 @@ Route::prefix('/{lang}')->where(['lang' => 'tr|en|de'])->group(function () {
     Route::get('/{category}', [ProductController::class, 'show']);
     Route::get('/{category}/{slug}', [ProductController::class, 'show']);
 });
+
+Route::get('/gold-rate', [GoldRateController::class, 'index']);
+
 Route::prefix('/admin')->middleware(['auth:sanctum', 'role:admin'])->group(function (){
     Route::get('/',[AdminAuthController::class, 'show']);
     Route::post('/logout',[AdminAuthController::class, 'logout']);
     Route::get('/dashboard',[CmsController::class, 'index']);
     Route::apiResource('products', AdminProductController::class);
     Route::apiResource('categories', AdminCategoryController::class);
+    Route::apiResource('pages', AdminPageController::class);
+    Route::get('gold-settings', [GoldSettingController::class, 'index']);
+    Route::post('gold-settings', [GoldSettingController::class, 'sync']);
+    Route::post('pages/{id}/update-parent', [AdminPageController::class, 'updateParent']);
 });
 Route::post('/admin/login',[AdminAuthController::class, 'login']);
 

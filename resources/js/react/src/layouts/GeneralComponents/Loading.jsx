@@ -1,9 +1,9 @@
 import React from "react";
 
-function Loading({style}) {
+function Loading({style, inline_style}) {
     return (
         <>
-            <div className={`loading-spinner ${style}`} >
+            <div className={`loading-spinner ${style}`} style={inline_style} >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="50"

@@ -22,6 +22,7 @@ function AddProduct({ categories, onCreated }) {
         toast.error("Beklenmeyen Bir Hata Oluştu.");
       }
     } catch (error) {
+      console.log(error);
       if (error?.response?.status === 422) setErrors(error.response.data.errors);
     }
     setLoading(false);

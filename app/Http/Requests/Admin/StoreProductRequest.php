@@ -35,7 +35,11 @@ class StoreProductRequest extends FormRequest
             'images.*' => ['sometimes', 'image', 'mimes:jpeg,jpg,png,gif,webp'],
             'existing_images' => ['nullable', 'array'],
             'existing_images.*' => ['string'],
-            
+            'allow_out_of_stock_production' => 'sometimes|boolean',
+            'carat' => 'required|string|max:50',
+            'color_of_diamond' => 'sometimes|string|max:50',
+            'clarity' => 'sometimes|string|max:50',
+            'cut' => 'sometimes|string|max:50',
         ];
     }
 
@@ -61,6 +65,11 @@ class StoreProductRequest extends FormRequest
             'variants.json' => 'Varyantlar geçerli JSON formatında olmalıdır.',
             'images.*.image' => 'Yüklenen dosyalar resim olmalıdır.',
             'images.*.mimes' => 'Resimler jpeg, jpg, png, gif veya webp formatında olmalıdır.',
+            'carat.required' => 'Karat/Ayar bilgisi gereklidir.',
+            'carat.string' => 'Karat metin olmalıdır.',
+            'color_of_diamond.string' => 'Elmas rengi metin olmalıdır.',
+            'clarity.string' => 'Berraklık metin olmalıdır.',
+            'cut.string' => 'Kesim metin olmalıdır.',
         ];
     }
 
@@ -94,6 +103,14 @@ class StoreProductRequest extends FormRequest
                             );
                         }
                         $seen[$key] = true;
+
+                        $weight = $variant['weight'] ?? null;
+                        if ($weight === null || $weight === '' || !is_numeric($weight) || $weight <= 0) {
+                            $validator->errors()->add(
+                                "variants.$index",
+                                "Varyant #{$index}: Gram bilgisi geçerli bir sayı olmalıdır (0 dan büyük)."
+                            );
+                        }
 
                         // // Sadece update/güncelleme için veritabanı kontrolü
                         // if (($this->isMethod('put') || $this->isMethod('patch')) && $this->route('product')) {

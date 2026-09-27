@@ -91,7 +91,6 @@ class MergeCookieCart
         $existingItems = $cart
             ->cartItems()
             ->whereIn('product_id', $products->pluck('id'))
-            ->whereIn('product_stock_id', $stockIds)
             ->get()
             ->map(fn($item) => $item->product_id . '-' . $item->product_stock_id)
             ->toArray();
@@ -137,7 +136,6 @@ class MergeCookieCart
             $cart->cartItems()->create([
                 'product_id' => $productId,
                 'quantity' => $quantity,
-                'product_stock_id' => $stockId,
                 'color' => $color,
                 'size' => $size,
             ]);

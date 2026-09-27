@@ -35,6 +35,7 @@ function Register() {
         SetLoading(true);
         try {
             const res = await registerForm(registerFormData);
+            console.log(res);
             SetLoading(false);
             if (res.data.error) {
                 toast.error(res?.data?.message);
@@ -50,6 +51,7 @@ function Register() {
             }
 
         } catch (error) {
+            console.log(error.response);
             console.log(error.response.data.errors);
             if (error.response.status !== 422) {
                 errorShow(error);

@@ -17,14 +17,13 @@ return new class extends Migration {
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->string('color')->nullable();
             $table->string('size')->nullable();
+            $table->decimal('weight', 8, 2);
             $table->integer('stock')->default(0);
             $table->timestamps();
 
             $table->unique(['product_id', 'color', 'size']);
         });
     }
-
-
 
     /**
      * Reverse the migrations.

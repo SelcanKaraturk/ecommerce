@@ -2,16 +2,18 @@ import React, { useState, useEffect } from "react";
 import CartButton from "../../layouts/GeneralComponents/CartButton";
 import { getWishList, destroyWish } from "../../services/WebService";
 import { useAuth } from "../../services/AuthContex";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import Loading from "../../layouts/GeneralComponents/Loading";
-
+import { CloseRounded, LanguageSharp, ShoppingBag, ShoppingBagOutlined } from "@mui/icons-material";
 
 function WishList() {
     const { accessToken } = useAuth();
     const [wishList, setWishList] = useState([]);
     const [load, setLoad] = useState(false);
     const navigate = useNavigate();
+    const lang = useParams().lang || 'tr';
+    const [hoveredProductSlug, setHoveredProductSlug] = useState(null);
     useEffect(() => {
         const FetchWishList = async (token) => {
             setLoad(true);
@@ -73,7 +75,62 @@ function WishList() {
                 <div className="hiraola-wishlist_area">
                     <div className="container">
                         <div className="row">
-                            <div className="col-md-9">
+                            <div className="col">
+                                <div className="shop-product-wrap row justify-content-center">
+
+                                    {wishList?.length > 0 &&
+                                        wishList.map((e, index) => (
+                                            <div className="col-md-3 col-sm-4">
+                                                <div className="slide-item account-wishlist-item" style={{ position: 'relative' }}>
+                                                    {/* Close Button */}
+                                                    <CloseRounded className="account-wishlist-close"
+                                                        fontSize="small" onClick={(i) => deleteWish(e.slug)}
+                                                    />
+                                                    <div className="single_product">
+                                                        <div className="product-img">
+                                                            <a href="single-product.html">
+                                                                <img className="primary-img" src={`/storage/${e.images?.[0] ?? "https://placehold.co/160x160"}`} alt={e.name} />
+                                                                <img className="secondary-img" src={`/storage/${e.images?.[1] ?? "https://placehold.co/160x160"}`} alt={e.name} />
+                                                            </a>
+                                                        </div>
+                                                        <div className="hiraola-product_content px-3">
+                                                            <div className="product-desc_info">
+                                                                <h6>
+                                                                    <a className="product-name" href={`/${lang}/${e.category.slug}/${e.slug}`}>
+                                                                        {e.name}
+                                                                    </a>
+                                                                </h6>
+                                                                <div className="price-box">
+                                                                    <span className="old-price ms-0">{e.price} ₺</span>
+                                                                    <span className="new-price">{e.discounted_price} ₺</span>
+                                                                </div>
+                                                                <div className="additional-add_action">
+                                                                    <ul>
+                                                                        <li>
+                                                                            <span
+                                                                                className="product-cart-corner"
+                                                                                aria-label="Sepete ekle"
+                                                                                onMouseEnter={() => setHoveredProductSlug(e.product_slug)}
+                                                                                onMouseLeave={() => setHoveredProductSlug(null)}
+                                                                                onClick={() => setSelectedShoppingProduct(e)}
+                                                                            >
+                                                                                {hoveredProductSlug === e.product_slug ?
+                                                                                    (<ShoppingBag data-bs-toggle="modal" data-bs-target="#exampleModalCenter" style={{ fontSize: '22px' }} />)
+                                                                                    :
+                                                                                    (<ShoppingBagOutlined data-bs-toggle="modal" data-bs-target="#exampleModalCenter" style={{ fontSize: '22px' }} />)}
+                                                                            </span>
+
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+
+                                </div>
                                 <form>
                                     <div className="table-content table-responsive">
                                         <table
@@ -162,7 +219,7 @@ function WishList() {
                                     </div>
                                 </form>
                             </div>
-                            <div className="col-md-3"></div>
+
                         </div>
                     </div>
                 </div>

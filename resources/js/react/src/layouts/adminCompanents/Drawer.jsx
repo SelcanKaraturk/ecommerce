@@ -16,20 +16,17 @@ import {
     Badge,
     Menu,
     MenuItem,
+    Collapse,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronLeft";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
 import MenuIcon from "@mui/icons-material/Menu";
-import NotificationsIcon from "@mui/icons-material/Notifications";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
+import {Layers, Notifications, Home, Mail, SettingsAccessibility, NearMe, Inbox, ChevronLeft, ChevronRight, Dashboard, Category} from '@mui/icons-material';
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../services/AuthContex";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import CategoryIcon from "@mui/icons-material/Category";
 
 function DrawerBar({ open ,setOpen }) {
     const theme = useTheme();
@@ -37,6 +34,7 @@ function DrawerBar({ open ,setOpen }) {
     const { apiAdminLogout, setAccessToken, setCurrentUser } = useAuth();
     const drawerWidth = 240;
     const [account, setAccount] = useState(false);
+    const [pagesOpen, setPagesOpen] = useState(false);
 
     const toggleMenu = () => setAccount(prev => !prev);
     const closeMenu = () => setAccount(false);
@@ -146,7 +144,7 @@ function DrawerBar({ open ,setOpen }) {
                                     color="inherit"
                                 >
                                     <Badge badgeContent={4} color="error">
-                                        <MailIcon />
+                                        <Mail />
                                     </Badge>
                                 </IconButton>
                                 <IconButton
@@ -155,7 +153,7 @@ function DrawerBar({ open ,setOpen }) {
                                     color="inherit"
                                 >
                                     <Badge badgeContent={17} color="error">
-                                        <NotificationsIcon />
+                                        <Notifications />
                                     </Badge>
                                 </IconButton>
 
@@ -216,9 +214,9 @@ function DrawerBar({ open ,setOpen }) {
                 <DrawerHeader>
                     <IconButton onClick={handleDrawerClose}>
                         {theme.direction === "ltr" ? (
-                            <ChevronLeftIcon />
+                            <ChevronLeft />
                         ) : (
-                            <ChevronRightIcon />
+                            <ChevronRight />
                         )}
                     </IconButton>
                 </DrawerHeader>
@@ -227,7 +225,7 @@ function DrawerBar({ open ,setOpen }) {
                     <ListItem disablePadding>
                         <ListItemButton>
                             <ListItemIcon>
-                                <DashboardIcon />
+                                <Dashboard />
                             </ListItemIcon>
                             <Link to={"/admin/products"}>
                                 <ListItemText primary={"Ürünler"} />
@@ -237,7 +235,7 @@ function DrawerBar({ open ,setOpen }) {
                     <ListItem disablePadding>
                         <ListItemButton>
                             <ListItemIcon>
-                                <CategoryIcon />
+                                <Category />
                             </ListItemIcon>
                             <Link to="/admin/categories">
                                 <ListItemText primary={"Kategoriler"} />
@@ -254,6 +252,43 @@ function DrawerBar({ open ,setOpen }) {
                             </Link>
                         </ListItemButton>
                     </ListItem>
+                    <ListItem disablePadding>
+                        <ListItemButton onClick={() => setPagesOpen((prev) => !prev)}>
+                            <ListItemIcon>
+                                <Layers />
+                            </ListItemIcon>
+                            <ListItemText primary={"Sayfalar"} />
+                            {pagesOpen ? <ExpandLess /> : <ExpandMore />}
+                        </ListItemButton>
+                    </ListItem>
+                    <Collapse in={pagesOpen} timeout="auto" unmountOnExit>
+                        <List component="div" disablePadding>
+                            <ListItem disablePadding>
+                                <ListItemButton sx={{ pl: 4 }} component={Link} to="/admin/pages?page=home">
+                                 <ListItemIcon>
+                                <Home />
+                            </ListItemIcon>
+                                    <ListItemText primary={"Anasayfa"} />
+                                </ListItemButton>
+                            </ListItem>
+                            <ListItem disablePadding>
+                                <ListItemButton sx={{ pl: 4 }} component={Link} to="/admin/pages?page=about">
+                                    <ListItemIcon>
+                                        <SettingsAccessibility />
+                                    </ListItemIcon>
+                                    <ListItemText primary={"Hakkımızda"} />
+                                </ListItemButton>
+                            </ListItem>
+                            <ListItem disablePadding>
+                                <ListItemButton sx={{ pl: 4 }} component={Link} to="/admin/pages?page=contact">
+                                    <ListItemIcon>
+                                        <NearMe />
+                                    </ListItemIcon>
+                                    <ListItemText primary={"İletişim"} />
+                                </ListItemButton>
+                            </ListItem>
+                        </List>
+                    </Collapse>
                 </List>
                 <Divider />
                 <List>
@@ -262,9 +297,9 @@ function DrawerBar({ open ,setOpen }) {
                             <ListItemButton>
                                 <ListItemIcon>
                                     {index % 2 === 0 ? (
-                                        <InboxIcon />
+                                        <Inbox />
                                     ) : (
-                                        <MailIcon />
+                                        <Mail />
                                     )}
                                 </ListItemIcon>
                                 <ListItemText primary={text} />

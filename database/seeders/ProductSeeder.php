@@ -26,14 +26,16 @@ class ProductSeeder extends Seeder
     //         Temporibus natus harum sint enim deserunt adipisci labore nam.'
     //     ]
     //     ]);
-      // Eğer admin rolü yoksa oluştur
-        Role::firstOrCreate(['name' => 'admin']);
+            // Eğer roller yoksa oluştur
+                Role::firstOrCreate(['name' => 'admin']);
+                Role::firstOrCreate(['name' => 'user']);
 
         // Admin kullanıcıyı oluştur
         $admin = User::firstOrCreate(
             ['email' => 'adminyilmaz@gmail.com'], // email varsa tekrar oluşturmasın
             [
-                'name' => 'Selcan Yılmaz',
+                'name' => 'Selcan',
+                'lastname' => 'Yılmaz',
                 'email_verified_at' => now(),
                 'password' => Hash::make('admin123'),
             ]

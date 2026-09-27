@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('wishlists', function (Blueprint $table) {
-            $table->unique(['user_id', 'product_id', 'product_stock_id']); // Aynı ürün iki kez eklenmesin
+            $table->unique(['user_id', 'product_id']); // Aynı ürün iki kez eklenmesin
         });
     }
 
@@ -26,7 +26,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('wishlists', function (Blueprint $table) {
-            //
+            $table->dropUnique('wishlists_user_id_product_id_unique');
         });
     }
 };

@@ -14,7 +14,7 @@ return [
     */
 
     'defaults' => [
-        'guard' => 'web',
+        'guard' => 'sanctum',
         'passwords' => 'users',
     ],
 
@@ -111,5 +111,20 @@ return [
     */
 
     'password_timeout' => 10800,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Email Verification
+    |--------------------------------------------------------------------------
+    |
+    | These values control how long signed email verification links remain
+    | valid and how frequently they can be requested.
+    |
+    */
+
+    'verification' => [
+        'expire' => 60,
+        'throttle' => 6,
+    ],
 
 ];

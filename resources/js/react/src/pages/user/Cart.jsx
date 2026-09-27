@@ -7,6 +7,30 @@ import Loading from "../../layouts/GeneralComponents/Loading";
 import { CircularProgress } from "@mui/material";
 import ModalShow from "../../layouts/GeneralComponents/ModalShow";
 import useForm from "../../services/hooks/useForm";
+import { KeyboardBackspace, KeyboardArrowRightRounded, WhatsApp } from "@mui/icons-material";
+
+const StockAlert = ({ item }) => {
+    let icon, text;
+    if (item.stock_status === "in_stock") {
+        icon = "fa-check-circle";
+        text = "Bu ürün stokta! Hızlı teslimat ile kapınızda.";
+    } else if (item.stock === 0 && item.allow_out_of_stock_cart) {
+        icon = "fa-gem";
+        text = <>Bu ürün stoklarımızda tükenmiştir ancak siparişiniz üzerine <strong>size özel üretilecektir</strong>. Tahmini teslimat süresi: <strong>{item.delivery_days || 10} gün</strong>.</>;
+    } else if (item.allow_out_of_stock_cart) {
+        icon = "fa-exclamation-circle";
+        text = <>Bu ürünün stok dışı üretimi mevcuttur. Sipariş oluşturarak size özel üretim talebinde bulunabilirsiniz. Tahmini teslimat süresi: <strong>{item.delivery_days || 10} gün</strong>.</>;
+    } else {
+        icon = "fa-exclamation-triangle";
+        text = "Ürün Tükenmiştir. Toptan alımlar için WhatsApp üzerinden bizimle iletişime geçebilirsiniz.";
+    }
+    return (
+        <div className="alert d-flex align-items-center mb-0" role="alert" style={{ fontSize: '13px', padding: '8px 12px' }}>
+            <i className={`fa ${icon} me-2`}></i>
+            <span>{text}</span>
+        </div>
+    );
+};
 
 function Cart() {
     const { accessToken, setCart, cart, setMiniCart, setOpenModal } = useAuth();
@@ -33,8 +57,10 @@ function Cart() {
                         const response = await matchCart(cart);
                         console.log("matchCart for guest run:");
                         data = response.data;
+                        console.log("Matched cart for guest:", data);
                     }
                     if (data && data.items) {
+                        console.log("Matched cart data:", data);
                         setCart(data.items);
                     }
                 } catch (error) {
@@ -70,7 +96,7 @@ function Cart() {
             setOpenModal(<>✨Seçtiğiniz ürün stoklarımızda bulunmamakta ve tekli alımlarda özel üretim yapılamamaktadır. Toptan siparişiniz için lütfen <b> WhatsApp </b> üzerinden bizimle iletişime geçiniz.</>);
             setTimeout(() => {
                 window.location.reload();
-            }, 1500); // 1.5 saniye sonra sayfa yenile
+            }, 2000); // 1.5 saniye sonra sayfa yenile
             return;
         }
 
@@ -80,32 +106,26 @@ function Cart() {
                 : preQuantity > 1
                     ? preQuantity - 1
                     : 1;
+        console.log("New quantity:", newQty, "Previous quantity:", preQuantity, accessToken);
+        if (newQty === preQuantity) {
+            return;
+        }
         if (product.stock && product.stock < newQty && !product.allow_out_of_stock_cart) {
             setOpenModal(<>Seçtiğiniz ürün için mevcut stok adedinden daha fazla sipariş verilememektedir. Toptan alımlarınız için lütfen <b> WhatsApp </b> üzerinden bizimle iletişime geçiniz.</>);
             return;
         }
         if (product.stock_status === "no_stock" && product.allow_out_of_stock_cart && newQty > 5) {
-            setOpenModal(<>✨Seçtiğiniz üründen 5 adetten fazla sipariş verilememektedir. Toptan siparişiniz için lütfen <b> WhatsApp </b> üzerinden bizimle iletişime geçiniz.</>);
+            setOpenModal(<>✨Seçtiğiniz üründen 5 adetten fazla sipariş verilememektedir. Toptan siparişiniz ve avantajlı fiyatlardan yararlanmak için lütfen <b> WhatsApp </b> üzerinden bizimle iletişime geçiniz.</>);
             return;
         }
         if (product.stock_status === "in_stock" && product.allow_out_of_stock_cart && (newQty - product.stock) > 5) {
-            setOpenModal(<>✨Seçtiğiniz üründen {(product.stock)} adet vardır. Stok dışı üretebileceğiniz adet en fazla 5 tir. Toptan siparişiniz için lütfen <b> WhatsApp </b> üzerinden bizimle iletişime geçiniz.</>);
+            setOpenModal(<>✨Seçtiğiniz üründen {(product.stock)} adet vardır. Stok dışı üretebileceğiniz adet en fazla 5 tir. Toptan siparişiniz ve avantajlı fiyatlardan yararlanmak için lütfen <b> WhatsApp </b> üzerinden bizimle iletişime geçiniz.</>);
             return;
         }
         if (accessToken) {
             updateCartQuantity(product, newQty);
         } else {
             updateCartCookieQuantity(product, newQty);
-            // setCart((prevList) => {
-            //     const updatedCart = prevList.map((item) =>
-            //         item.product_slug === product.product_slug &&
-            //             item.product_stock_number === product.product_stock_number
-            //             ? { ...item, quantity: newQty }
-            //             : item
-            //     );
-                
-            //     return updatedCart;
-            // });
         }
     };
 
@@ -121,8 +141,9 @@ function Cart() {
             } else if (data.status === 'success') {
                 setCart((prevList) =>
                     prevList.map((item) =>
-                        item.product_slug === product.product_slug &&
-                            item.product_stock_number === product.product_stock_number
+                            item.product_slug === product.product_slug &&
+                            item.color === product.color &&
+                            item.size === product.size
                             ? { ...item, quantity: quantity }
                             : item
                     )
@@ -145,7 +166,8 @@ function Cart() {
                 setCart((prevList) =>
                     prevList.map((item) =>
                         item.product_slug === data.cartItem.product_slug &&
-                            item.product_stock_number === data.cartItem.product_stock_number
+                            item.color === data.cartItem.color &&
+                            item.size === data.cartItem.size
                             ? { ...item, quantity: data.cartItem.quantity }
                             : item
                     )
@@ -156,14 +178,14 @@ function Cart() {
             console.log(error);
         }
     }
-    
+
 
     const totalGain = (cart) => {
-        return cart.reduce((total, item) => {
-            const priceAfterDiscount = item.product_price - (item.product_price * (item.product_discount / 100));
-            // Toplam indirim: (indirim öncesi fiyat - indirimli fiyat) * adet
-            return total + ((item.product_price - priceAfterDiscount) * item.quantity);
-        }, 0);
+        return cart
+            .filter((item) => !((item.stock === 0 || item.stock === null) && !item.allow_out_of_stock_cart))
+            .reduce((total, item) => {
+                return item.calculated_price_without_discount ? total + ((item.calculated_price_without_discount - item.calculated_price) * item.quantity) : total;
+            }, 0);
     };
 
 
@@ -177,7 +199,7 @@ function Cart() {
     };
 
     const deleteCart = async (product) => {
-        setDeleteLoadId(`${product.product_slug}-${product.product_stock_number}`);
+        setDeleteLoadId(`${product.product_slug}-${product.color}-${product.size}`);
 
         try {
             const { data } = await destroyCart(
@@ -193,7 +215,7 @@ function Cart() {
             if (data.status === "success") {
                 setCart((prevList) =>
                     prevList.filter(
-                        (item) => !(item.product_slug === product.product_slug && item.product_stock_number === product.product_stock_number)
+                        (item) => !(item.product_slug === product.product_slug && item.color === product.color && item.size === product.size)
                     )
                 );
                 toast.success(data.message);
@@ -213,8 +235,26 @@ function Cart() {
                 cartMatched === true ? (<>
                     <div className="hiraola-cart-area">
                         <div className="container-fluid">
+                            <div className="row mb-3">
+                                <div className="col-6">
+                                    <h1 className="cart-page-title">SEPETİM</h1>
+                                    <div className="section-divider">
+                                        <span></span>
+                                    </div>
+                                </div>
+                                <div className="col-6">
+                                    <div className="text-end" style={{ marginTop: '8px' }}>
+                                        <Link to="/" className="continue-shopping" style={{
+                                            fontSize: '16px',
+                                            textDecoration: 'none'
+                                        }}>
+                                            <KeyboardBackspace sx={{ color: '#b8924a' }} /> Alışverişe Devam Et
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
                             <div className="row">
-                                <div className="col-md-8">
+                                <div className="col-lg-8">
                                     <form action="javascript:void(0)">
                                         <div className="table-content">
                                             <div className="total-count">
@@ -222,145 +262,164 @@ function Cart() {
                                                     && `Sepetinizde (${cart.length}) ürün var`
                                                 }
                                             </div>
-                                            <table className="table">
-                                                <thead></thead>
-                                                <tbody>
-                                                    {cart?.length > 0 &&
-                                                        cart.map(
-                                                            (item, index) => (
-                                                                <tr
-                                                                    key={`${index}-${item.product_stock_number}`}
-                                                                >
-                                                                    <td style={{ width: '15px' }} className="hiraola-product-remove">
-                                                                        {deleteLoadId ===
-                                                                            `${item.product_slug}-${item.product_stock_number}` ? (
-                                                                            <CircularProgress size="sm" />
-                                                                        ) : (
-                                                                            <a
-                                                                                onClick={() =>
-                                                                                    deleteCart(
-                                                                                        item
-                                                                                    )
-                                                                                }
-                                                                            >
-                                                                                <i
-                                                                                    className="fa fa-trash"
-                                                                                    title="Remove"
-                                                                                ></i>
-                                                                            </a>
-                                                                        )}
-                                                                    </td>
-                                                                    <td className="hiraola-product-thumbnail">
-                                                                        <a
-                                                                            className="click"
-                                                                            onClick={() =>
-                                                                                goBackDetail(
-                                                                                    item
-                                                                                )
-                                                                            }
+                                            <div className="table-responsive">
+                                                <table className="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th style={{ width: '40px' }}></th>
+                                                            <th style={{ width: '120px' }}>ÜRÜN</th>
+                                                            <th>ÜRÜN ADI</th>
+                                                            <th style={{ width: '100px' }}>RENK</th>
+                                                            <th style={{ width: '100px' }}>BEDEN</th>
+                                                            <th style={{ width: '130px' }}>MİKTAR</th>
+                                                            <th style={{ width: '120px' }}>FİYAT</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {cart?.length > 0 &&
+                                                            cart.map(
+                                                                (item, index) => (
+                                                                    <React.Fragment key={`${item.product_slug}-${item.color}-${item.size || index}`}>
+                                                                        <tr
                                                                         >
-                                                                            {Array.isArray(item?.product_images) && item.product_images[0] ? (
-                                                                                <img
-                                                                                    src={`/storage/${item.product_images[0]}`}
-                                                                                    alt={item.product_name}
-                                                                                />
-                                                                            ) : ''}
-                                                                        </a>
-                                                                    </td>
-                                                                    <td className="hiraola-product-name">
-                                                                        <a
-                                                                            className="click"
-                                                                            onClick={() =>
-                                                                                backDetail(
-                                                                                    item
-                                                                                )
-                                                                            }
-                                                                        >
-                                                                            {
-                                                                                item.product_name
-                                                                            }
-                                                                        </a>
-                                                                    </td>
-
-                                                                    <td className="hiraola-product-name">
-                                                                        <span>
-                                                                            {
-                                                                                item.color
-                                                                            }
-                                                                        </span>
-                                                                    </td>
-
-                                                                    <td className="hiraola-product-name">
-                                                                        <span>
-                                                                            {
-                                                                                item.size
-                                                                            }
-                                                                        </span>
-                                                                    </td>
-
-                                                                    <td className="quantity">
-                                                                        <label>
-                                                                            Miktar
-                                                                        </label>
-                                                                        <div className="cart-plus-minus">
-                                                                            <input
-                                                                                className="cart-plus-minus-box"
-                                                                                type="text"
-                                                                                value={
-                                                                                    item.quantity
-                                                                                }
-                                                                                readOnly
-                                                                            />
-                                                                            <div
-                                                                                className="dec qtybutton"
-                                                                                onClick={() =>
-                                                                                    updateQuantity(
-                                                                                        item,
-                                                                                        "dec",
-                                                                                        item.quantity
-                                                                                    )
-                                                                                }
-                                                                            >
-                                                                                <i className="ion-minus-round"></i>
-                                                                            </div>
-                                                                            <div
-                                                                                className="inc qtybutton"
-                                                                                onClick={() =>
-                                                                                    updateQuantity(
-                                                                                        item,
-                                                                                        "inc",
-                                                                                        item.quantity
-                                                                                    )
-                                                                                }
-                                                                            >
-                                                                                <i className="ion-plus-round"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td className="product-subtotal">
-                                                                        <p>
-                                                                            <span className="amount old">
-                                                                                {(item.product_price * item.quantity).toLocaleString(
-                                                                                    "tr-TR",
-                                                                                    {
-                                                                                        minimumFractionDigits: 2,
+                                                                            <td className="hiraola-product-remove">
+                                                                                {deleteLoadId ===
+                                                                                    `${item.product_slug}-${item.color}-${item.size}` ? (
+                                                                                    <CircularProgress size={20} />
+                                                                                ) : (
+                                                                                    <a
+                                                                                        onClick={() =>
+                                                                                            deleteCart(
+                                                                                                item
+                                                                                            )
+                                                                                        }
+                                                                                        alt="Sil"
+                                                                                    >
+                                                                                        <i
+                                                                                            className="fa fa-trash"
+                                                                                            title="Remove"
+                                                                                        ></i>
+                                                                                    </a>
+                                                                                )}
+                                                                            </td>
+                                                                            <td className="hiraola-product-thumbnail">
+                                                                                <a
+                                                                                    className="click"
+                                                                                    onClick={() =>
+                                                                                        goBackDetail(
+                                                                                            item
+                                                                                        )
                                                                                     }
-                                                                                )} ₺
-                                                                            </span>
-                                                                        </p>
-                                                                        <span className="amount">
-                                                                            {totalCost(
-                                                                                item.product_price,
-                                                                                item.quantity,
-                                                                                item.product_discount
-                                                                            )}
-                                                                        </span>
-                                                                    </td>
-                                                                </tr>
-                                                            )
-                                                        )}
-                                                </tbody>
-                                            </table>
+                                                                                >
+                                                                                    {Array.isArray(item?.product_images) && item.product_images[0] ? (
+                                                                                        <img
+                                                                                            src={`/storage/${item.product_images[0]}`}
+                                                                                            alt={item.product_name}
+                                                                                        />
+                                                                                    ) : ''}
+                                                                                </a>
+                                                                            </td>
+                                                                            <td className="hiraola-product-name">
+                                                                                <a
+                                                                                    className="click"
+                                                                                    onClick={() =>
+                                                                                        goBackDetail(
+                                                                                            item
+                                                                                        )
+                                                                                    }
+                                                                                >
+                                                                                    {item.product_name}
+                                                                                </a>
+                                                                            </td>
+
+                                                                            <td className="product-color">
+                                                                                <span>
+                                                                                    {
+                                                                                        item.color
+                                                                                    }
+                                                                                </span>
+                                                                            </td>
+
+                                                                            <td className="product-size">
+                                                                                <span>
+                                                                                    {
+                                                                                        item.size
+                                                                                    }
+                                                                                </span>
+                                                                            </td>
+
+                                                                            <td className="quantity">
+                                                                                <div className="cart-plus-minus">
+                                                                                    <input
+                                                                                        className="cart-plus-minus-box"
+                                                                                        type="text"
+                                                                                        value={
+                                                                                            item.quantity
+                                                                                        }
+                                                                                        readOnly
+                                                                                    />
+                                                                                    <div
+                                                                                        className="dec qtybutton"
+                                                                                        onClick={() =>
+                                                                                            updateQuantity(
+                                                                                                item,
+                                                                                                "dec",
+                                                                                                item.quantity
+                                                                                            )
+                                                                                        }
+                                                                                    >
+                                                                                        <i className="ion-minus-round"></i>
+                                                                                    </div>
+                                                                                    <div
+                                                                                        className="inc qtybutton"
+                                                                                        onClick={() =>
+                                                                                            updateQuantity(
+                                                                                                item,
+                                                                                                "inc",
+                                                                                                item.quantity
+                                                                                            )
+                                                                                        }
+                                                                                    >
+                                                                                        <i className="ion-plus-round"></i>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                            </td>
+                                                                            <td className="product-subtotal">
+                                                                                {!((item.stock === 0 || item.stock === null) && !item.allow_out_of_stock_cart) && (<>
+                                                                                    <p>
+                                                                                        {item.calculated_price_without_discount && (
+                                                                                            <span className="amount old">
+                                                                                                {(item.calculated_price_without_discount * item.quantity).toLocaleString(
+                                                                                                    "tr-TR",
+                                                                                                    {
+                                                                                                        minimumFractionDigits: 2,
+                                                                                                    }
+                                                                                                )} ₺
+                                                                                            </span>
+                                                                                        )}
+                                                                                    </p>
+                                                                                    <span className="amount">
+                                                                                        {(item.calculated_price * item.quantity).toLocaleString(
+                                                                                            "tr-TR",
+                                                                                            {
+                                                                                                minimumFractionDigits: 2,
+                                                                                            }
+                                                                                        )} ₺
+                                                                                    </span>
+                                                                                </>)}
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr className="stock-status-row">
+                                                                            <td colSpan="7" style={{ borderBottom: '1px solid #e8e1d9', paddingTop: '10px', paddingBottom: '10px' }}>
+                                                                                <StockAlert item={item} />
+                                                                            </td>
+                                                                        </tr>
+                                                                    </React.Fragment>)
+                                                            )}
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
                                         {cart?.length > 0 && (
                                             <div className="row">
@@ -378,7 +437,7 @@ function Cart() {
                                                                 className="button"
                                                                 name="apply_coupon"
                                                                 type="submit"
-                                                                value="Uygula"
+                                                                value="UYGULA"
                                                             />
                                                         </div>
                                                     </div>
@@ -388,9 +447,9 @@ function Cart() {
                                     </form>
                                 </div>
                                 {cart?.length > 0 && (
-                                    <div className="col-md-3">
+                                    <div className="col-lg-4">
                                         <div className="cart-page-total">
-                                            <h2>Sepet Toplamı</h2>
+                                            <h2>SEPET ÖZETİ</h2>
                                             <ul>
                                                 <li>
                                                     Ara Toplam{" "}
@@ -406,43 +465,37 @@ function Cart() {
                                                     </span>
                                                 </li>
                                                 <li>
-
                                                     Kargo
-
-                                                    <span
-                                                        style={{
-                                                            color: "#67c36c",
-                                                        }}
-                                                    >
-                                                        <dfn style={{ color: '#666666', textDecoration: 'line-through', fontSize: '12px' }}>
-                                                            59,99₺
-                                                        </dfn> Kargo Bedava
+                                                    <span>
+                                                        <span style={{
+                                                            color: '#999',
+                                                            textDecoration: 'line-through',
+                                                            fontSize: '13px',
+                                                            marginRight: '8px'
+                                                        }}>
+                                                            59,90 ₺
+                                                        </span>
+                                                        <span style={{ color: '#67c36c', fontWeight: '600' }}>
+                                                            Ücretsiz
+                                                        </span>
                                                     </span>
                                                 </li>
-                                                <li className="d-flex justify-content-between" style={{ padding: '0' }}>
-                                                    <div className="d-flex justify-content-between w-100" style={{ padding: '5px 25px', backgroundColor: '#f8fffa', border: '1px solid #b7f5c6' }}>
-
-                                                        <span className="">
-                                                            Toplam Kazancınız
-                                                        </span>
-                                                        <span className="">
-                                                            {(
-                                                                totalGain(cart)
-                                                            ).toLocaleString(
-                                                                "tr-TR",
-                                                                {
-                                                                    minimumFractionDigits: 2,
-                                                                }
-                                                            )} ₺
-                                                        </span>
-
-                                                    </div>
-                                                </li>
-                                                <li className="d-flex justify-content-between">
-                                                    <span className="fw-bolder">
-                                                        Toplam
+                                                <li className="total-gain">
+                                                    <span>Toplam Kazancınız</span>
+                                                    <span>
+                                                        {(
+                                                            totalGain(cart)
+                                                        ).toLocaleString(
+                                                            "tr-TR",
+                                                            {
+                                                                minimumFractionDigits: 2,
+                                                            }
+                                                        )} ₺
                                                     </span>
-                                                    <span className="fw-bolder">
+                                                </li>
+                                                <li className="final-total">
+                                                    <span>Toplam</span>
+                                                    <span>
                                                         {(
                                                             subTotal(cart) +
                                                             cargo
@@ -455,15 +508,66 @@ function Cart() {
                                                     </span>
                                                 </li>
                                             </ul>
-                                            <Link
-                                                to="/tr/odeme"
+                                            {cart[0].product_price > 0 ? (
+                                                <Link
+                                                    to="/tr/odeme"
+                                                    className="checkout-btn"
+                                                >
+                                                    SEPETİ ONAYLA <KeyboardArrowRightRounded />
+                                                </Link>
+                                            ) : (<a
+                                                role="button"
+                                                className="qty-cart_btn"
+                                                href="https://wa.me/1234567890"
+                                                target="_blank"
+
                                             >
-                                                Sepeti Onayla
-                                            </Link>
+                                                <i className="ion-bag d-inline" />
+                                                <span style={{ marginLeft: 8 }}>WhatsApp </span>
+                                            </a>)}
+
                                         </div>
                                     </div>
                                 )}
                             </div>
+
+                            {/* Features Section */}
+                            {cart?.length > 0 && (
+                                <div className="row mt-5">
+                                    <div className="col-12">
+                                        <div className="features-section">
+                                            <div className="feature-item">
+                                                <div className="feature-icon">
+                                                    <i className="fa fa-gem"></i>
+                                                </div>
+                                                <h4>ÖZEL ÜRETİM</h4>
+                                                <p>Size özel tasarım<br />ve üretim</p>
+                                            </div>
+                                            <div className="feature-item">
+                                                <div className="feature-icon">
+                                                    <i className="fa fa-undo"></i>
+                                                </div>
+                                                <h4>KOLAY İADE</h4>
+                                                <p>14 gün içinde<br />koşulsuz iade</p>
+                                            </div>
+                                            <div className="feature-item">
+                                                <div className="feature-icon">
+                                                    <i className="fa fa-shield-alt"></i>
+                                                </div>
+                                                <h4>GÜVENLİ ALIŞVERİŞ</h4>
+                                                <p>256 bit SSL sertifikası ile<br />güvenli alışveriş</p>
+                                            </div>
+                                            <div className="feature-item">
+                                                <div className="feature-icon">
+                                                    <WhatsApp sx={{ width: 32, height: 33 }} />
+                                                </div>
+                                                <h4>WHATSAPP HATTI</h4>
+                                                <p><a href="https://wa.me/yourwhatsapplink" target="_blank" rel="noopener noreferrer">WhatsApp üzerinden bize ulaşın</a></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -474,18 +578,21 @@ function Cart() {
                             <div className="row">
                                 <div className="col-12">
                                     <div className="text-center">
-                                        <p className="fw-bold">Sepetiniz boş, ama fırsatlar dolu! <br /> Özel fırsatları kaçırmamak için alışverişe devam edin.</p>
+                                        <p className="fw-bold" style={{ fontSize: '18px', marginBottom: '20px' }}>
+                                            Sepetiniz boş, ama fırsatlar dolu! <br /> Özel fırsatları kaçırmamak için alışverişe devam edin.
+                                        </p>
 
                                         <button
                                             style={{
-                                                background: '#595959',
+                                                background: '#b8924a',
                                                 color: '#fff',
                                                 border: 'none',
                                                 borderRadius: '6px',
-                                                padding: '8px 24px',
-                                                fontSize: '1rem',
+                                                padding: '12px 32px',
+                                                fontSize: '16px',
                                                 cursor: 'pointer',
                                                 marginTop: '0',
+                                                fontWeight: '600'
                                             }}
                                             onClick={() => window.location.href = '/'}
                                         >

@@ -129,7 +129,7 @@ function ProductSlider({ mainName, products }) {
                                                             </h6>
                                                             <div className="price-box">
                                                                 <span className="new-price">
-                                                                    {`${i.product_price.toLocaleString(
+                                                                    {`${(i.calculated_price ?? i.product_price ?? 0).toLocaleString(
                                                                         "tr-TR",
                                                                         {
                                                                             minimumFractionDigits: 2,

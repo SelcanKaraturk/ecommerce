@@ -37,3 +37,37 @@ export const updateProduct = async (productId, data, token) => {
     return await api.post(`/api/admin/products/${productId}`, data, getConfig(token, "multipart/form-data"));
 };
 
+export const getPages = async (token, page) => {
+    const params = page ? { page } : undefined;
+    console.log(params);
+    return await api.get("/api/admin/pages", {
+        ...getConfig(token, "application/json"),
+        params,
+    });
+};
+
+export const updatePage = async (id, data, token) => {
+    if (data instanceof FormData) {
+        data.append('_method', 'PUT');
+    }
+    return await api.post(`/api/admin/pages/${id}`, data, getConfig(token, "multipart/form-data"));
+};
+
+export const createPage = async (data, token, parentId, pageId) => {
+    if (parentId !== undefined && parentId !== null) {
+        data.append('parent_id', String(parentId));
+    }
+    if (pageId !== undefined && pageId !== null) {
+        data.append('page_id', String(pageId));
+    }
+    return await api.post(`/api/admin/pages`, data, getConfig(token, "multipart/form-data"));
+};
+
+export const deletePage = async (id, token) => {
+    return await api.delete(`/api/admin/pages/${id}`, getConfig(token));
+};
+
+export const updatePageParent = async (id, data, token) => {
+    return await api.post(`/api/admin/pages/${id}/update-parent`, data, getConfig(token));
+};
+

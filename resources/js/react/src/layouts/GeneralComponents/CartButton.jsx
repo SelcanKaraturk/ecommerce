@@ -70,6 +70,8 @@ function CartButton({ product, variant, setError, slug, onColorErrorChange }) {
     const addCart = async (e) => {
         e.preventDefault();
         setLoading(true);
+
+        console.log("Stock variant:", product, "Selected variant:", variant);
         const stockVariant = product.variants.find(v => v.color === variant.color && v.size == variant.size);
 
         if (!variant || variant.color == "" || variant.size == "") {
@@ -132,7 +134,12 @@ function CartButton({ product, variant, setError, slug, onColorErrorChange }) {
                                     i.size === variant?.size
                             )
                             ? "Sepetten Çıkar"
-                            : "Sepete Ekle"}
+                            : (
+                                <>
+                                    <i className="ion-bag d-inline" />
+                                    <span style={{ marginLeft: 8 }}>Sepete Ekle</span>
+                                </>
+                            )}
                     </a>
                 )
             )}

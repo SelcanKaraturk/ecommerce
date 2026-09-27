@@ -13,15 +13,19 @@ return new class extends Migration
      */
    public function up()
 {
-    Schema::table('users', function (Blueprint $table) {
-        $table->date('birthdate')->nullable()->after('email_verified_at');
-    });
+    if (!Schema::hasColumn('users', 'birthdate')) {
+        Schema::table('users', function (Blueprint $table) {
+            $table->date('birthdate')->nullable()->after('email_verified_at');
+        });
+    }
 }
 
 public function down()
 {
-    Schema::table('users', function (Blueprint $table) {
-        $table->dropColumn('birthdate');
-    });
+    if (Schema::hasColumn('users', 'birthdate')) {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('birthdate');
+        });
+    }
 }
 };

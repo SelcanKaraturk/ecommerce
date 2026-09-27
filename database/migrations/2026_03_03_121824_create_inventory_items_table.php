@@ -17,8 +17,10 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('product_id');
             $table->string('serial_number')->unique();
-            $table->decimal('weight', 8, 2);
-            $table->smallInteger('carat');
+            $table->string('carat');
+            $table->string('clarity')->nullable();
+            $table->string('color_of_diamond')->nullable();
+            $table->string('cut')->nullable();
             $table->enum('status', ['available', 'reserved', 'sold', 'returned'])->default('available');
             $table->timestamps();
 

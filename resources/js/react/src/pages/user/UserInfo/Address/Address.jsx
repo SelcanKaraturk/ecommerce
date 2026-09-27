@@ -30,15 +30,15 @@ function Address() {
             </svg>
         </div>
     );
-    const handleDeleteAddress = async (id) => {
+    const handleDeleteAddress = async (email) => {
         try {
-            const { data } = await deleteAddress(id, accessToken);
+            const { data } = await deleteAddress(email, accessToken);
             if (data.status === 'success') {
                 toast.success("Adresiniz başarıyla kaldırıldı.");
                 // Update the currentUser addresses state by removing the deleted address
                 setCurrentUser(prev => ({
                     ...prev,
-                    addresses: prev.addresses.filter(addr => addr.id !== id)
+                    addresses: prev.addresses.filter(addr => addr.email !== email)
                 }));
             }
         } catch (error) {
@@ -54,13 +54,7 @@ function Address() {
         <div className="myaccount-address">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 50 }}>
                 <h5 className="small-title" style={{ margin: 0 }}>Adreslerim</h5>
-                <AddAddress accessToken={accessToken} onCreateAddress={(newAddress) => {
-                    // Update the currentUser addresses state with the new address
-                    setCurrentUser(prevUser => ({
-                        ...prevUser,
-                        addresses: [...prevUser.addresses, newAddress]
-                    }));
-                }} />
+                <AddAddress accessToken={accessToken} />
             </div>
 
             <div className="row g-3">
@@ -70,7 +64,7 @@ function Address() {
                             <div className="address-icon position-relative mt-3"><AddressIcon /></div>
                             <h6 className="address-title text-center mb-3 mt-4">{addr.title}</h6>
                             <div className="address-body">
-                                <p>{addr.name}</p>
+                                <p>{addr.name} {addr.lastname}</p>
                                 <p>{addr.neighborhood}</p>
                                 <p className="address-text">{addr.address}</p>
                                 <p>{addr.district} / {addr.city}</p>
@@ -78,7 +72,7 @@ function Address() {
                             </div>
 
                             <div className="address-actions">
-                                <button style={{ width: '45px' }} onClick={() => handleDeleteAddress(addr.id)} className="btn btn-outline-secondary btn-sm hiraola-btn hiraola-btn_sm">Sil</button>
+                                <button style={{ width: '45px' }} onClick={() => handleDeleteAddress(addr.email)} className="btn btn-outline-secondary btn-sm hiraola-btn hiraola-btn_sm">Sil</button>
                                 <UpdateAddress initialValues={addr} />
                             </div>
                         </div>

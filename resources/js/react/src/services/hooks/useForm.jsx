@@ -2,12 +2,13 @@ import { useState } from "react";
 
 export default function useForm(initialState = {}) {
     const [form, setForm] = useState(initialState);
-    const [preview, setPreview] = useState(initialState.images || []);
+    const [preview, setPreview] = useState(initialState.images || initialState.image_path || []);
     const [open, setOpen] = useState(false);
 
     // Input değişikliklerini yakalar
     const handleChange = (e) => {
         const { name, value, type, checked, files } = e.target;
+
         if (type === "checkbox") {
             setForm((prev) => ({ ...prev, [name]: checked }));
         } else if (type === "file") {
@@ -59,10 +60,11 @@ export default function useForm(initialState = {}) {
     };
 
     const subTotal = (cart) => {
-        return cart.reduce((total, item) => {
-            const priceAfterDiscount = item.product_price - (item.product_price * (item.product_discount / 100));
-            return total + item.quantity * priceAfterDiscount;
-        }, 0);
+        return cart
+            .filter((item) => !( (item.stock === 0 || item.stock === null) && !item.allow_out_of_stock_cart))
+            .reduce((total, item) => {             
+                return total + item.quantity * item.calculated_price;
+            }, 0);
     };
 
     return { form, setForm, handleChange, handleFileChange, resetForm, preview, setPreview, handleImageDelete, handleCancel, open, setOpen, handleSubmit, totalCost, subTotal };

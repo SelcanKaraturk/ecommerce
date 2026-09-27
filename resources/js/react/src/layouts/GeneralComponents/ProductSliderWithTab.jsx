@@ -139,7 +139,7 @@ function ProductSliderWithTab({ mainName, categoryProducts }) {
                                                                             <div className="price-box">
                                                                                 <span className="new-price">
                                                                                     {
-                                                                                        `${e.price.toLocaleString('tr-TR', {minimumFractionDigits: 2,})} ₺`
+                                                                                        `${(e.price ?? 0).toLocaleString('tr-TR', {minimumFractionDigits: 2,})} ₺`
                                                                                     }
                                                                                 </span>
                                                                             </div>

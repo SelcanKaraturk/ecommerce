@@ -2,18 +2,24 @@
 function mapProductResourceToForm(product) {
   if (!product) return {};
   return {
-    name: product.product_name || product.name || "",
-    content: product.product_content || product.content || "",
-    price: product.product_price || product.price || "",
-    discount: product.product_discount || product.discount || "",
+    name: product.product_name ?? product.name ?? "",
+    content: product.product_content ?? product.content ?? "",
+    price: product.product_price ?? product.price ?? "",
+    discount: product.product_discount ?? product.discount ?? "",
     parent_slug: product.categories ? product.categories.map(c => c.slug) : [],
-    images: product.product_images || product.images || [],
-    variants: product.variants || [],
-    selected_category: product.selected_category || product.category || "",
-
+    images: product.product_images ?? product.images ?? [],
+    variants: product.variants ?? [],
+    selected_category: product.selected_category ?? product.category ?? "",
+    allow_out_of_stock_production: product.allow_out_of_stock_production ?? product.allow_out_of_stock_cart ?? false,
+    carat: product.inventory_carat ?? "",
+    clarity: product.inventory_clarity ?? "",
+    color_of_diamond: product.inventory_color_of_diamond ?? "",
+    cut: product.inventory_cut ?? "",
   };
 }
 import { Add, Remove, Delete, Close, WorkspacesOutlined } from "@mui/icons-material";
+import { Stack, Typography, FormGroup } from "@mui/material";
+import Switch from '@mui/material/Switch';
 import { NumericFormat } from "react-number-format";
 import {
   Box, Button, Card, CardContent, DialogContent, DialogTitle, FormControl, Grid,
@@ -23,7 +29,9 @@ import React, { useEffect, useState, useRef, useCallback, use } from "react";
 import ValidateError from "../../auth/ValidateError";
 import Loading from "../../../layouts/GeneralComponents/Loading";
 import { getImagePath } from "../../../services/hooks/utils/image";
-
+import useForm from "../../../services/hooks/useForm";
+import { mainCategories, diamondProperties } from "../../../services/Helper";
+import { Form } from "react-router-dom";
 const VariantRow = React.memo(function VariantRow({
   uid, row, hasSizes, sizes = [], onVariantChange, addVariantRow, removeVariantRow
 }) {
@@ -38,7 +46,7 @@ const VariantRow = React.memo(function VariantRow({
           <IconButton size="small" onClick={() => removeVariantRow(uid)}><Remove /></IconButton>
         )}
       </Grid>
-      <Grid size={4}>
+      <Grid size={3}>
         <FormControl fullWidth>
           <InputLabel id={`color-label-${uid}`}>Renk</InputLabel>
           <Select
@@ -56,7 +64,7 @@ const VariantRow = React.memo(function VariantRow({
         </FormControl>
       </Grid>
       {hasSizes && (
-        <Grid size={4}>
+        <Grid size={3}>
           <FormControl fullWidth>
             <InputLabel id={`size-label-${uid}`}>Ölçü</InputLabel>
             <Select
@@ -75,6 +83,22 @@ const VariantRow = React.memo(function VariantRow({
         </Grid>
       )}
       <Grid size={3}>
+        <NumericFormat
+          value={r.weight ?? ""}
+          name={`weight_${uid}`}
+          onChange={e => onVariantChange(uid, "weight", e.target.value)}
+          id={`weight_${uid}`}
+          fullWidth
+          customInput={TextField}
+          thousandSeparator
+          valueIsNumericString
+          allowNegative={false}
+          decimalScale={2}
+          label="Ağırlık"
+          isAllowed={vals => vals.floatValue !== undefined || vals.value === ""}
+        />
+      </Grid>
+      <Grid size={2}>
         <TextField
           label="Adet"
           name={`quantity_${uid}`}
@@ -93,16 +117,22 @@ const VariantRow = React.memo(function VariantRow({
 
 function ProductForm({
   open, onClose, onSubmit, categories, initialValues = {}, isEdit = false, loading = false }) {
-  const [form, setForm] = useState({
+  const { form, setForm, handleChange, handleFileChange, preview, setPreview, handleImageDelete } = useForm({
     name: "",
     content: "",
     parent_slug: [],
     price: "",
     discount: "",
     images: [],
+    allow_out_of_stock_production: false,
+    weight: "",
+    carat: "",
+    clarity: "",
+    color_of_diamond: "",
+    cut: "",
     ...initialValues,
   });
-  const [preview, setPreview] = useState([]);
+
   const [errors, setErrors] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState({});
   const [step, setStep] = useState(isEdit ? 2 : 1);
@@ -116,21 +146,12 @@ function ProductForm({
 
   const [extraVariants, setExtraVariants] = useState(
     initialValues.variants?.map((v, i) => ({ uid: i, ...v })) ||
-    [{ uid: 0, color: "", quantity: "", ...(initialValues.sizes ? { size: "" } : {}) }]
+    [{ uid: 0, color: "", quantity: "", weight: "", ...(initialValues.sizes ? { size: "" } : {}) }]
   );
 
   const textareaRef = useRef(null);
   const editorRef = useRef(null);
-
-  const mainCategories = [
-    { title: "Yüzük", icon: <img src="/assets/images/categoryIcons/Ring.png" width={"45px"} />, sizes: ["9", "10", "11", "12", "13", "14", "15", "16", "17", "other"] },
-    { title: "Kolye", icon: <img src="/assets/images/categoryIcons/necklace.png" width={"45px"} /> },
-    { title: "Bileklik", icon: <img src="/assets/images/categoryIcons/Bracelet.png" width={"45px"} /> },
-    { title: "Bilezik", icon: <img src="/assets/images/categoryIcons/bılezık.png" width={"45px"} />, sizes: ["5.8", "6.0", "6.2", "6.4", "6.6", "other"] },
-    { title: "Kelepçe", icon: <img src="/assets/images/categoryIcons/kelepce.png" width={"45px"} />, sizes: ["5.8", "6.0", "6.2", "6.4", "6.6", "other"] },
-    { title: "Küpe", icon: <img src="/assets/images/categoryIcons/earrings.png" width={"45px"} /> },
-    { title: "Hiçbiri", icon: <WorkspacesOutlined className="ms-2" /> },
-  ];
+  const contentRef = useRef(form.content);
 
   useEffect(() => {
     if (isEdit && initialValues) {
@@ -138,36 +159,21 @@ function ProductForm({
       setForm(mapped);
       setExtraVariants(
         mapped.variants?.map((v, i) => ({ uid: i, ...v })) ||
-        [{ uid: 0, color: "", quantity: "", ...(mapped.sizes ? { size: "" } : {}) }]
+        [{ uid: 0, color: "", quantity: "", weight: "", ...(mapped.sizes ? { size: "" } : {}) }]
       );
       setSelectedCategory(mainCategories.find(c => c.title === mapped.selected_category) || {});
       setPreview(mapped.images?.map(img => img) || []);
     }
+
+    console.log("Initial:", initialValues);
   }, [initialValues, isEdit]);
 
-  const handleChange = e => {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleFileChange = e => {
-    const files = Array.from(e.target.files);
-
-    if (files.length > 0) {
-      setForm(prev => ({ ...prev, images: [...(prev.images || []), ...files] }));
-      const newPreviews = files.map(file => URL.createObjectURL(file));
-      setPreview(prev => [...(prev || []), ...newPreviews]);
+  useEffect(() => {
+    if (selectedCategory && selectedCategory.title) {
+      setForm(prev => ({ ...prev, selected_category: selectedCategory.title }));
     }
-  };
-
-  const handleImageDelete = index => {
-    const newPreview = [...preview];
-    newPreview.splice(index, 1);
-    setPreview(newPreview);
-    const newImages = [...form.images];
-    newImages.splice(index, 1);
-    setForm({ ...form, images: newImages });
-  };
+    console.log("Selected category changed:", selectedCategory);
+  }, [selectedCategory]);
 
   const cleanNumber = value => {
     if (value === null || value === undefined) return null;
@@ -177,12 +183,36 @@ function ProductForm({
   };
 
   const hasSizes = !!selectedCategory?.sizes?.length || (isEdit && extraVariants.some(v => v.size !== undefined && v.size !== null));
+  const showDiamondFields = (form.parent_slug || []).some(slug => {
+    const category = categories.find(c => c.slug === slug);
+    return category?.slug === 'pirlanta';
+  });
+
+  const previousDiamondState = useRef(showDiamondFields);
+
+  useEffect(() => {
+    if (previousDiamondState.current !== showDiamondFields) {
+      setForm(prev => ({
+        ...prev,
+        carat: "",
+        clarity: "",
+        color_of_diamond: "",
+        cut: "",
+      }));
+    }
+
+    previousDiamondState.current = showDiamondFields;
+  }, [showDiamondFields, setForm]);
+
+  useEffect(() => {
+    console.log(form);
+  }, [form]);
 
   const addVariantRow = useCallback(() => {
     let uid = Date.now();
     setExtraVariants(prev => {
       while (prev.some(r => r.uid === uid)) uid += 1;
-      const newRow = { uid, color: "", quantity: "" };
+      const newRow = { uid, color: "", quantity: "", weight: "" };
       return [...prev, { ...newRow, ...(hasSizes ? { size: "" } : {}) }];
     });
   }, [hasSizes]);
@@ -196,7 +226,7 @@ function ProductForm({
     setExtraVariants(prev => {
       const idx = prev.findIndex(r => r.uid === uid);
       if (idx === -1) {
-        const newRow = { uid, color: "", quantity: "", ...(hasSizes ? { size: "" } : {}), [field]: value };
+        const newRow = { uid, color: "", quantity: "", weight: "", ...(hasSizes ? { size: "" } : {}), [field]: value };
         return [...prev, newRow];
       }
       const current = prev[idx];
@@ -208,43 +238,34 @@ function ProductForm({
   }, [hasSizes]);
 
   useEffect(() => {
-    if (!open || step !== 2) return;
-    if (!textareaRef.current) return;
-    const initEditor = () => {
-      if (!window?.CKEDITOR) return;
-      if (editorRef.current) return;
-      try {
-        const inst = window.CKEDITOR.replace('product_description', {});
-        editorRef.current = inst;
-        inst.setData(form.content || "");
-        inst.on("change", () => {
-          const data = inst.getData();
+    if (window.CKEDITOR && textareaRef.current) {
+      // Zaten başlatılmışsa tekrar başlatma
+      if (!window.CKEDITOR.instances.product_description) {
+        const editor = window.CKEDITOR.replace('product_description', {
+          height: 250,
+          filebrowserBrowseUrl: '/assets/js/ckeditor/ckfinder/ckfinder.html',
+          filebrowserUploadUrl: '/assets/js/ckeditor/ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Files'
+        });
+        editor.on('instanceReady', function () {
+          if (contentRef.current) editor.setData(contentRef.current);
+          editorRef.current = editor;
+        });
+        editor.on('change', function () {
+          const data = editor.getData();
           setForm(prev => ({ ...prev, content: data }));
         });
-      } catch (err) { }
-    };
-    if (window?.CKEDITOR) {
-      initEditor();
-    } else {
-      const onLoaded = () => initEditor();
-      document.addEventListener("ckeditor-loaded", onLoaded);
-      return () => {
-        document.removeEventListener("ckeditor-loaded", onLoaded);
-        if (editorRef.current) {
-          try { editorRef.current.destroy(true); } catch (e) { }
-          editorRef.current = null;
-        }
-      };
+      }
     }
+    // Temizlik: editör destroy
     return () => {
-      if (editorRef.current) {
-        try { editorRef.current.destroy(true); } catch (e) { }
-        editorRef.current = null;
+      if (window.CKEDITOR && window.CKEDITOR.instances.product_description) {
+        window.CKEDITOR.instances.product_description.destroy(true);
       }
     };
   }, [open, step]);
 
   useEffect(() => {
+    contentRef.current = form.content;
     if (editorRef.current) {
       const inst = editorRef.current;
       const current = inst.getData();
@@ -270,7 +291,7 @@ function ProductForm({
   };
 
   const handleFormSubmit = async () => {
-    //console.log("Submitting form", form, extraVariants, selectedCategory);
+    console.log("Submitting form", form);
     try {
       const formData = new FormData();
       formData.append("name", form.name ?? "");
@@ -280,6 +301,12 @@ function ProductForm({
       formData.append("selected_category", form.selected_category ?? "");
       const discountValue = cleanNumber(form.discount ?? "");
       if (discountValue !== null) formData.append("discount", discountValue);
+      const weightValue = cleanNumber(form.weight ?? "");
+      if (weightValue !== null) formData.append("weight", weightValue);
+      if (form.carat) formData.append("carat", form.carat);
+      if (form.clarity) formData.append("clarity", form.clarity);
+      if (form.color_of_diamond) formData.append("color_of_diamond", form.color_of_diamond);
+      if (form.cut) formData.append("cut", form.cut);
       const cleanedVariants = extraVariants
         .map(({ uid, ...rest }) => rest)
         .filter(v => {
@@ -306,7 +333,7 @@ function ProductForm({
       await onSubmit(formData, setErrors);
 
       if (editorRef.current) { try { editorRef.current.destroy(true); } catch (e) { } editorRef.current = null; }
-    } catch (error) { console.error(error); }
+    } catch (error) { console.log(error); }
   };
 
   return (
@@ -323,7 +350,7 @@ function ProductForm({
                       setStep(2);
                       setSelectedCategory(cat);
                       setExtraVariants([
-                        { uid: 0, color: "", quantity: "", ...(cat.sizes ? { size: "" } : {}) },
+                        { uid: 0, color: "", quantity: "", weight: "", ...(cat.sizes ? { size: "" } : {}) },
                       ]);
                     }}
                     sx={{
@@ -406,31 +433,118 @@ function ProductForm({
                 {ValidateError(errors, "discount")}
               </Grid>
             </Grid>
-            <FormControl fullWidth>
-              <InputLabel id="demo-multiple-chip-label">Kategori</InputLabel>
-              <Select
-                name="parent_slug"
-                labelId="demo-multiple-chip-label"
-                id="demo-multiple-chip"
-                multiple
-                value={form.parent_slug}
-                onChange={handleChange}
-                input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
-                renderValue={selected => (
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                    {selected.map(slug => {
-                      const category = categories.find(c => c.slug === slug);
-                      return <Chip key={slug} label={category?.name || slug} />;
-                    })}
-                  </Box>
-                )}
-              >
-                {categories.map(c => (
-                  <MenuItem key={c.slug} value={c.slug}>{c.name}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Grid container spacing={2}>
+              <Grid size={9}>
+                <FormControl fullWidth>
+                  <InputLabel id="demo-multiple-chip-label">Kategori</InputLabel>
+                  <Select
+                    name="parent_slug"
+                    labelId="demo-multiple-chip-label"
+                    id="demo-multiple-chip"
+                    multiple
+                    value={form.parent_slug}
+                    onChange={handleChange}
+                    input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
+                    renderValue={selected => (
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                        {selected.map(slug => {
+                          const category = categories.find(c => c.slug === slug);
+                          return <Chip key={slug} label={category?.name || slug} />;
+                        })}
+                      </Box>
+                    )}
+                  >
+                    {categories.map(c => (
+                      <MenuItem key={c.slug} value={c.slug}>{c.name}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid size={3}>
+                <FormControl fullWidth>
+                  <InputLabel id="carat-label">{showDiamondFields ? "Karat" : "Ayar"}</InputLabel>
+                  <Select
+                    name="carat"
+                    labelId={`carat-label`}
+                    id={`carat-select`}
+                    value={String(form.carat ?? "")}
+                    onChange={handleChange}
+                    input={<OutlinedInput />}
+                  >
+                    {showDiamondFields
+                      ? diamondProperties[0].carat.map(carat => (
+                        <MenuItem key={carat} value={String(carat)}>{carat}</MenuItem>
+                      ))
+                      : [
+                        <MenuItem key="14" value="14">14</MenuItem>,
+                        <MenuItem key="18" value="18">18</MenuItem>,
+                        <MenuItem key="22" value="22">22</MenuItem>
+                      ]}
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
             {ValidateError(errors, "parent_slug", "-15px")}
+            {ValidateError(errors, "carat")}
+            {showDiamondFields && (
+              <Grid container spacing={2}>
+
+                <Grid size={4}>
+                  <FormControl fullWidth>
+                    <InputLabel id="clarity-label">Saflık</InputLabel>
+                    <Select
+                      name="clarity"
+                      labelId={`clarity-label`}
+                      id={`clarity-select`}
+                      value={form.clarity || ""}
+                      onChange={handleChange}
+                      input={<OutlinedInput />}
+                    >
+                      {diamondProperties[0].clarity.map(clarity => (
+                        <MenuItem key={clarity} value={clarity}>{clarity}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid size={4}>
+                  <FormControl fullWidth>
+                    <InputLabel id="color_of_diamond-label">Pırlanta Rengi</InputLabel>
+                    <Select
+                      name="color_of_diamond"
+                      labelId={`color_of_diamond-label`}
+                      id={`color_of_diamond-select`}
+                      value={form.color_of_diamond || ""}
+                      onChange={handleChange}
+                      input={<OutlinedInput />}
+                    >
+                      {diamondProperties[0].color_of_diamond.map(color => (
+                        <MenuItem key={color} value={color}>{color}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid size={4}>
+                  <FormControl fullWidth>
+                    <InputLabel id="cut-label">Kesim</InputLabel>
+                    <Select
+                      name="cut"
+                      labelId={`cut-label`}
+                      id={`cut-select`}
+                      value={form.cut || ""}
+                      onChange={handleChange}
+                      input={<OutlinedInput />}
+                    >
+                      {diamondProperties[0].cut.map(cut => (
+                        <MenuItem key={cut} value={cut}>{cut}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+              </Grid>
+            )}
+            {ValidateError(errors, "color_of_diamond")}
+            {ValidateError(errors, "clarity")}
+            {ValidateError(errors, "cut")}
             {extraVariants.map(r => (
               <VariantRow
                 key={r.uid}
@@ -459,6 +573,24 @@ function ProductForm({
                   )
               )
             }
+            {/* Stok dışı üretime izin ver radio group */}
+            <FormGroup component="fieldset" sx={{ mt: 2 }}>
+              Stok dışı üretime izin verilsin mi?
+              <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+
+                <Typography style={{ color: 'black' }}>Hayır</Typography>
+                <Switch
+                  checked={form.allow_out_of_stock_production || false}
+                  onChange={handleChange}
+                  name="allow_out_of_stock_production"
+                  inputProps={{ 'aria-label': 'Stok dışı üretime izin ver' }}
+                />
+                <Typography style={{ color: 'black' }}>Evet</Typography>
+              </Stack>
+            </FormGroup>
+
+
+
             <Button variant="outlined" component="label">
               Resim Yükle
               <input type="file" hidden accept="image/*" onChange={handleFileChange} multiple />

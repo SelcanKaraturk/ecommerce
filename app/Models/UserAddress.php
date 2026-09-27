@@ -20,6 +20,7 @@ class UserAddress extends Model
         'district',
         'neighborhood',
         'address',
+        'is_selected',
     ];
 
     public function user()

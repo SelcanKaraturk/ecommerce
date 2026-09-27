@@ -18,8 +18,9 @@ import { addAddress } from '../../../../services/AuthService';
 import Loading from '../../../../layouts/GeneralComponents/Loading';
 import ValidateError from '../../../auth/ValidateError';
 import { toast } from 'react-toastify';
+import { useAuth } from '../../../../services/AuthContex';
 
-function AddAddress({ accessToken, onCreateAddress, style, children  }) {
+function AddAddress({ accessToken, style, children }) {
     const { form, setForm, handleChange, resetForm, open, setOpen, handleCancel } = useForm({
         name: '',
         lastname: '',
@@ -32,6 +33,7 @@ function AddAddress({ accessToken, onCreateAddress, style, children  }) {
     });
     const [processing, setProcessing] = useState(false);
     const [errors, setErrors] = useState(null);
+    const { setCurrentUser } = useAuth();
 
     const handleSubmit = async (e) => {
         setProcessing(true);
@@ -40,7 +42,10 @@ function AddAddress({ accessToken, onCreateAddress, style, children  }) {
             const { data } = await addAddress(form, accessToken);
             if (data.status === 'success') {
                 toast.success(data.message || "Adres başarıyla eklendi.");
-                onCreateAddress(data?.data); // Adres eklendiğinde yapılacak işlemler
+                setCurrentUser((previousUser) => ({
+                    ...previousUser,
+                    addresses: [...(previousUser?.addresses ?? []), data.data],
+                }));
                 resetForm(); // Formu kapat
                 setErrors(null);
                 setOpen(false);

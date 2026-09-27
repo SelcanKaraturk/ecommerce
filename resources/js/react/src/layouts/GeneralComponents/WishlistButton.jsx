@@ -4,18 +4,19 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../services/AuthContex";
 import { CircularProgress } from "@mui/material";
 
-function WishlistButton({ productObj, changeWishStatue }) {
+function WishlistButton({ productObj, changeWishStatue, btnText }) {
     const navigate = useNavigate();
     const [isWish, setIsWish] = useState(productObj.in_wishlist);
     const { errorShow, accessToken } = useAuth();
     const [updating, setUpdating] = useState(false);
+    const [hovered, setHovered] = useState(false);
 
     const WishClick = async (e) => {
         e.preventDefault();
         setUpdating(true);
         if (!accessToken) {
             navigate("/login#signIn");
-            const error = { response: {data:'',status:401} };
+            const error = { response: { data: '', status: 401 } };
             errorShow(error);
         } else {
             console.log(productObj);
@@ -38,28 +39,34 @@ function WishlistButton({ productObj, changeWishStatue }) {
             }
         }
     };
-    useEffect(()=>{
+    useEffect(() => {
         setIsWish(productObj.in_wishlist)
         //console.log(productObj);
-    },[productObj])
+    }, [productObj])
     return (
         <>
             <a
-
                 className="qty-wishlist_btn"
                 data-bs-toggle="tooltip"
-                title={isWish ? "Favoriden Çıkar":"Favoriye Ekle"}
+                title={isWish ? "Favoriden Çıkar" : "Favoriye Ekle"}
+                onMouseEnter={() => setHovered(true)}
+                onMouseLeave={() => setHovered(false)}
             >
-                {updating? (<CircularProgress size="sm" sx={{width:'13px'}} />) : (
-                    isWish ? (
-                    <i
-                        onClick={WishClick}
-                        className="ion-android-favorite"
-                        style={{ color: "#cda557" }}
-                    ></i>
-                ) : (
-                    <i onClick={WishClick} className="ion-android-favorite-outline"></i>
-                )
+                {updating ? (<CircularProgress size="sm" sx={{ width: '13px' }} />) : (
+                    (isWish || hovered) ? (<>
+                        <i
+                            onClick={WishClick}
+                            className="ion-android-favorite"
+                            style={{ color: "#cda557", fontSize: "20px" }}
+                        ></i>
+                        {btnText}
+                    </>
+                    ) : (<>
+                        <i onClick={WishClick} className="ion-android-favorite-outline" style={{ fontSize: "20px" }}></i>
+                        {btnText}
+                    </>
+                    )
+
                 )}
 
             </a>

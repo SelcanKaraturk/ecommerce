@@ -35,28 +35,6 @@ function Products() {
         console.log("Products değişti:", products);
     }, [products]);
 
-    // const [products, setProducts] = useState([
-    //     {
-    //         product_number: 1,
-    //         product_name: "Altın Bilezik",
-    //         product_slug: "altin-bilezik",
-    //         product_price: 5000,
-    //         category_slug: "bilezik",
-    //         product_stock: [{ stock: 10 }],
-    //         grouped_stock_by_color: [{ color: "Altın" }],
-    //         product_images: ["https://via.placeholder.com/40"],
-    //     },
-    //     {
-    //         product_number: 2,
-    //         product_name: "Pırlanta Yüzük",
-    //         product_slug: "pirlanta-yuzuk",
-    //         product_price: 12000,
-    //         category_slug: "yuzuk",
-    //         product_stock: [{ stock: 5 }],
-    //         grouped_stock_by_color: [{ color: "Beyaz" }],
-    //         product_images: ["https://via.placeholder.com/40"],
-    //     },
-    // ]);
     const handleUpdated = (data) => {
         setProducts((pre) => {
             return pre.map((prod) =>
@@ -81,7 +59,7 @@ function Products() {
                             alt="Ürün"
                             width={40}
                             height={40}
-                            style={{ borderRadius: 4 }}
+                            style={{ borderRadius: 4, marginTop: 5 }}
                         />
                     ))}
                 </Stack>
@@ -127,7 +105,7 @@ function Products() {
             sortable: false,
             filterable: false,
             renderCell: (params) => (
-                <Stack direction="row" spacing={1}>
+                <Stack direction="row" spacing={1} style={{ marginTop: 5 }}>
                     <EditProduct categories = {categories} product={params.row} onUpdated={handleUpdated} />
                     <IconButton
                         size="small"

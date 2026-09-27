@@ -23,8 +23,10 @@ function ProductDetailImages({ images }) {
         initialSlide: 0,
         arrows: true,
         centerPadding: "60px",
+        vertical: true,
+        verticalSwiping: true,
+        prevArrow: null,
         nextArrow: <TabNextArrow />,
-        prevArrow: <TabPrevArrow/>,
         responsive: [
             {
                 breakpoint: 768,
@@ -46,6 +48,39 @@ function ProductDetailImages({ images }) {
     //console.log(activeImage);
     return (
         <>
+            <style>{`
+                .sp-img_area {
+                    display: flex;
+                    gap: 20px;
+                    flex-direction: row;
+                }
+                .sp-img_slider {
+                    flex: 0 0 120px;
+                    order: -1;
+                    position: relative;
+                }
+                .sp-img_slider .slick-prev {
+                    display: none !important;
+                }
+                .sp-img_slider .slick-next {
+                    bottom: -50px !important;
+                    left: 13px !important;
+                    top: auto !important;
+                    background-color: none !important;
+                    opacity: 1 !important;
+                    visibility: visible !important;
+                }
+                .zoompro-border {
+                    flex: 1;
+                }
+                .sp-img_slider img {
+                    border: 1px solid transparent;
+                    transition: border-color 0.2s ease;
+                }
+                .sp-img_slider img.active-thumb {
+                    border-color: #D4B06A;
+                }
+            `}</style>
             <div className="sp-img_area product-detail">
                 <div className="zoompro-border">
                     <InnerImageZoom
@@ -63,6 +98,7 @@ function ProductDetailImages({ images }) {
                         images.map((i, idx) => (
                                 <img
                                 key={idx}
+                            className={activeImage === i ? "active-thumb" : ""}
                                 src={i && i.startsWith('blob:') ? i : `/storage/${i}`}
                                 onClick={() => setActiveImage(i)}
                                 alt="Alt görsel"

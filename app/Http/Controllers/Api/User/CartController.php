@@ -12,8 +12,8 @@ use App\Models\User;
 use App\Services\CartService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use PhpParser\Node\Stmt\TryCatch;
 use Illuminate\Support\Str;
+use PhpParser\Node\Stmt\TryCatch;
 
 class CartController extends Controller
 {
@@ -37,7 +37,7 @@ class CartController extends Controller
         ]);
 
         $user = $request->user();
-        $product = Product::where('slug', $validated['product_slug'])->first();
+        $product = Product::where('slug', $validated['product_slug'])->firstOrFail();
 
         $productId = $product->id;
         $productStock = $product->stock()->where('color', $validated['color'])->where('size', $validated['size'])->first();
@@ -50,13 +50,13 @@ class CartController extends Controller
         } else {
             $productStockId = $productStock->id;
         }
-        
+
         if ($user) {
             // login olmuşsa user cart üzerinden toggle
             DB::beginTransaction();
             try {
                 $cart = Cart::firstOrCreate(['user_id' => $user->id]);
-                $item = $cart->cartItems()->where('product_id', $productId)->where('product_stock_id', $productStockId)->first();
+                $item = $cart->cartItems()->where(['product_id' => $productId, 'color' => $validated['color'], 'size' => $validated['size']])->first();
                 if ($item) {
                     $item->delete();
                     DB::commit();
@@ -68,7 +68,6 @@ class CartController extends Controller
                 } else {
                     $createdItem = $cart->cartItems()->create([
                         'product_id' => $productId,
-                        'product_stock_id' => $productStockId,
                         'color' => $validated['color'],
                         'size' => $validated['size'],
                         'quantity' => 1
@@ -78,11 +77,12 @@ class CartController extends Controller
                 }
                 DB::commit();
                 return response()->json([
-                    'message' => 'Harika bir seçim yaptınız! Ürün sepetinize eklendi, keyifli alışverişler dileriz 🎁',
+                    'message' => "✨ Harika seçim! {$product->name} sepetinize eklendi.",
                     'status' => 'success',
                     'item' => $createdItemResource,
                     'process' => 'create',
-                    'cartItem' => $cartItem
+                    'cartItem' => $cartItem,
+                    'product' => $product,
                 ]);
             } catch (\Throwable $th) {
                 DB::rollBack();
@@ -104,14 +104,18 @@ class CartController extends Controller
     {
         $validated = $request->validate([
             'product_slug' => 'required|exists:products,slug',
-            'product_stock_id' => 'required',
-            'quantity' => 'required|integer|min:1',
+            'color' => 'required|string',
+            'size' => 'required',
+            'quantity' => 'required|integer|min:1|max:10',
         ]);
 
         $user = $request->user();
         $product = Product::where('slug', $validated['product_slug'])->first();
 
-        $productStock = $product->stock()->where('id', $validated['product_stock_id'])->first();
+        $productStock = $product->stock()
+            ->where('color', $validated['color'])
+            ->where('size', $validated['size'])
+            ->first();
         if (($productStock && $productStock->stock <= 0 && !$product->allow_out_of_stock_cart) || (!$productStock && !$product->allow_out_of_stock_cart)) {
             return response()->json(['message' => 'Üzgünüm, bu üründe stok bulunamadı.', 'status' => 'error']);
         }
@@ -121,7 +125,8 @@ class CartController extends Controller
 
         $exist = CartItem::where('cart_id', $user->cart->id)
             ->where('product_id', $product->id)
-            ->where('product_stock_id', $validated['product_stock_id'])
+            ->where('color', $validated['color'])
+            ->where('size', $validated['size'])
             ->first();
 
         DB::beginTransaction();
@@ -130,12 +135,12 @@ class CartController extends Controller
                 $exist->update(['quantity' => $validated['quantity']]);
                 DB::commit();
                 return response()->json([
-                    'message' => 'Ürün güncellendi',
+                    'message' => 'Sepet miktarı güncellendi',
                     'status' => 'success'
                 ]);
             } else {
                 return response()->json([
-                    'message' => 'Ürün sepetinizde bulunamadı',
+                    'message' => 'Sepetinizde bu ürün bulunamadı',
                     'status' => 'error'
                 ], 404);
             }
@@ -152,7 +157,7 @@ class CartController extends Controller
     {
         if (auth()->check()) {
             $user = auth()->user();
-            $cart = $user->cart->load(['cartItems.product', 'cartItems.productStock']);
+            $cart = $user->cart->load(['cartItems.product']);
             return $cart;
         } else {
             return [];
@@ -163,7 +168,8 @@ class CartController extends Controller
     {
         $validated = $request->validate([
             'product_slug' => 'required|exists:products,slug',
-            'product_stock_number' => 'required'
+            'color' => 'required|string',
+            'size' => 'required'
         ]);
         $user = $request->user();
         $product_id = Product::where('slug', $validated['product_slug'])->value('id');
@@ -172,7 +178,8 @@ class CartController extends Controller
         }
         $exist = CartItem::where('cart_id', $user->cart->id)
             ->where('product_id', $product_id)
-            ->where('product_stock_id', $validated['product_stock_number'])
+            ->where('color', $validated['color'])
+            ->where('size', $validated['size'])
             ->first();
 
         DB::beginTransaction();
@@ -207,29 +214,26 @@ class CartController extends Controller
 
         foreach ($cart->cartItems as $item) {
             $product = $item->product;
-            $productStock = $item->productStock;
 
-            if (!$product) {  // Ürün bulunamazsa sepetten kaldır
+            if (!$product) {
                 $removeIds[] = $item->id;
                 continue;
             }
 
-            if (!$productStock && is_string($item->product_stock_id) && strpos($item->product_stock_id, 'nostock_') === 0 && $product->allow_out_of_stock_cart) {  // no stock ise ekle
-                $matchedCart[] = new CartProductUserResources($item);
-                continue;
-            }
+            $productStock = $product
+                ->stock()
+                ->where('color', $item->color)
+                ->where('size', $item->size)
+                ->first();
 
-            if (!$productStock) {  // Stok bilgisi yoksa ve nostock da değilse sepetten kaldır
-                $removeIds[] = $item->id;
-                continue;
-            }
+            $isAvailable = $product->allow_out_of_stock_cart ||
+                ($productStock && $productStock->stock >= $item->quantity);
 
-            $stockQuantity = $productStock->stock;
-            if ($stockQuantity <= 0 && !$product->allow_out_of_stock_cart) {
-                $removeIds[] = $item->id;
-                continue;
-            }
-            $matchedCart[] = new CartProductUserResources($item);
+            $matchedCart[] = [
+                'item' => new CartProductUserResources($item),
+                'is_available' => $isAvailable,
+                'stock_status' => $isAvailable ? 'in_stock' : 'no_stock',
+            ];
         }
 
         // Sepetten stokta olmayanları sil
@@ -237,7 +241,7 @@ class CartController extends Controller
             CartItem::whereIn('id', $removeIds)->delete();
         }
 
-        return response()->json(['items' => $matchedCart]);
+        return response()->json([$matchedCart]);
         // return response()->json(['a' => $matchedCart]);
     }
 }

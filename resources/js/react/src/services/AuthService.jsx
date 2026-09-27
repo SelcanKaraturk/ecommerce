@@ -70,9 +70,9 @@ export const addAddress = async (data, token) => {
 };
 
 export const updateAddressService = async (data, token) => {
-    return api.post(`/api/me/update-address/${data.id}`, data, getConfig(token) );
+    return api.post(`/api/me/update-address/${data.email}`, data, getConfig(token) );
 };
 
-export const deleteAddress = async (id, token) => {
-    return api.delete(`/api/me/delete-address/${id}`, getConfig(token) );
+export const deleteAddress = async (email, token) => {
+    return api.delete(`/api/me/delete-address/${email}`, getConfig(token) );
 };

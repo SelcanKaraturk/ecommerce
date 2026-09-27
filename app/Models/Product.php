@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\InventoryItem;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -28,6 +29,11 @@ class Product extends Model
         return $this->belongsToMany(Category::class, 'category_product')
                     ->withTimestamps();
                     //->withPivot('position'); // pivot alanları varsa ekle
+    }
+
+    public function inventory()
+    {
+        return $this->hasOne(InventoryItem::class, 'product_id');
     }
 
     public function wishlistedBy()

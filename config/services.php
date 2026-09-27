@@ -37,4 +37,10 @@ return [
     // 'developer_token' => env('GOOGLE_DEVELOPER_TOKEN'),
 ],
 
+    'gold_rate' => [
+        'url' => env('GOLD_RATE_API_URL'),
+        'host' => env('GOLD_RATE_API_HOST'),
+        'key' => env('GOLD_RATE_API_KEY'),
+    ],
+
 ];

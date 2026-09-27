@@ -78,8 +78,20 @@ class CategoryController extends Controller
             // Yeni yüklenen dosyaları işle
             if ($request->hasFile('images')) {
                 foreach ((array) $request->file('images') as $img) {
-                    if ($img instanceof \Illuminate\Http\UploadedFile) {
-                        $path = $img->store('categories', 'public');
+                    if ($img instanceof \Illuminate\Http\UploadedFile && $img->isValid()) {
+                        $fileName = $img->getClientOriginalName();
+                        $fileNameWithoutExt = pathinfo($fileName, PATHINFO_FILENAME);
+                        $extension = $img->getClientOriginalExtension();
+
+                        $baseFileName = $fileNameWithoutExt;
+                        $finalFileName = $fileName;
+                        $counter = 1;
+
+                        while (file_exists(storage_path('app/public/categories/' . $finalFileName))) {
+                            $finalFileName = $baseFileName . '-' . $counter++ . '.' . $extension;
+                        }
+
+                        $path = $img->storeAs('categories', $finalFileName, 'public');
                         $allImages[] = 'categories/' . basename($path);
                     }
                 }
@@ -165,7 +177,19 @@ class CategoryController extends Controller
                 if ($request->hasFile('images')) {
                     foreach ((array) $request->file('images') as $img) {
                         if ($img->isValid()) {
-                            $path = $img->store('categories', 'public');
+                            $fileName = $img->getClientOriginalName();
+                            $fileNameWithoutExt = pathinfo($fileName, PATHINFO_FILENAME);
+                            $extension = $img->getClientOriginalExtension();
+
+                            $baseFileName = $fileNameWithoutExt;
+                            $finalFileName = $fileName;
+                            $counter = 1;
+
+                            while (file_exists(storage_path('app/public/categories/' . $finalFileName))) {
+                                $finalFileName = $baseFileName . '-' . $counter++ . '.' . $extension;
+                            }
+
+                            $path = $img->storeAs('categories', $finalFileName, 'public');
                             $allImages[] = $path;
                         }
                     }

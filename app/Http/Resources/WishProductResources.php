@@ -14,16 +14,29 @@ class WishProductResources extends JsonResource
      */
        public function toArray($request)
     {
+        $firstCategory = $this->categories?->first();
+
         return [
-            'product_number' => $this->id,
-            'product_name' => $this->name,
-            'product_images'=>$this->images,
-            'category_slug' => $this->category?->slug,
-            'product_price' => $this->price,
-            'product_pre_price' => $this->pivot?->price,
-            'stock_number' => $this->pivot?->product_stock_id,
-            'color' => $this->pivot?->productStock?->color,
-            'in_cart' => isset($this->in_carts_exists) ? (bool)$this->in_carts_exists : false,
+            
+            'slug' => $this->slug,
+            'name' => $this->name,
+            'images' => $this->images,
+            'category' => $firstCategory ? [
+                'slug' => $firstCategory->slug,
+                'name' => $firstCategory->name,
+            ] : null,
+            'price' => $this->price,
+            'discount' => $this->discount,
+            'discounted_price' => $this->discounted_price(),
+            'pre_price' => $this->pivot?->price,
+            'stock_color' => $this->stock?->first()?->color,
+            'in_carts_exists' => isset($this->in_carts_exists) ? (bool) $this->in_carts_exists : false,
         ];
+    }
+
+    public function discounted_price()
+    {
+        return $this->discount ? $this->price - ($this->price * $this->discount / 100) : $this->price;
+    
     }
 }

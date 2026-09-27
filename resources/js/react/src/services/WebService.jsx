@@ -8,15 +8,40 @@ export const getMenu = async () => {
     return await api.get("/api/menu");
 };
 
-export const getSingleProduct = async (category, slug, token) => {
+export const getSingleProduct = async (category, slug, token, price_min = undefined, price_max = undefined, sort = undefined, size = undefined, materials = undefined) => {
     let url;
-   
+   console.log(price_min, price_max);
     if (slug) {
         url = `/api/tr/${category}/${slug}`;
     } else {
         url = `/api/tr/${category}`;
     }
-    return await api.get(url, getConfig(token));
+
+    const config = getConfig(token);
+    const params = {};
+
+    // Sadece price_min ve price_max varsa params ekle
+    if (price_min !== undefined && price_max !== undefined) {
+        params.price_min = price_min;
+        params.price_max = price_max;
+    }
+    if (sort !== undefined) {
+        params.sort = sort;
+    }
+    if (size !== undefined && size !== "") {
+        params.size = size;
+    }
+    if (Array.isArray(materials) && materials.length > 0) {
+        params.materials = materials;
+    }
+    if (Object.keys(params).length > 0) {
+        config.params = params;
+    }
+    return await api.get(url, config);
+};
+
+export const getGoldRate = async () => {
+    return await api.get('/api/gold-rate');
 };
 
 export const addWishToList = async (productObj, token) => {
@@ -27,7 +52,7 @@ export const addWishToList = async (productObj, token) => {
             price: productObj.price,
         },
         getConfig(token)
-    );
+    ); 
 };
 
 export const addCartToList = async (slug, variant, token) => {
@@ -55,7 +80,8 @@ export const updateCartQuantityService = async (product, quantity, token) => {
         "/api/me/cart",
         {
             product_slug: product.product_slug,
-            product_stock_id: product.product_stock_number,
+            color: product.color,
+            size: product.size,
             quantity: quantity
         },
         getConfig(token)
@@ -85,7 +111,8 @@ export const getCartList = async () => {
 export const destroyCart = async (product, token) => {
     const data = {
         product_slug: product.product_slug,
-        product_stock_number: product.product_stock_number,
+        color: product.color,
+        size: product.size,
     };
     if (token) {
         return await api.post(`/api/me/cart/delete`, data, getConfig(token));

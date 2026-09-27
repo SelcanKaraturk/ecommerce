@@ -5,30 +5,23 @@ namespace App\Http\Controllers\Api\User;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use App\Http\Resources\WishProductResources;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
-use PhpParser\Node\Stmt\TryCatch;
 use Illuminate\Support\Facades\DB;
 class WishlistController extends Controller
 {
     public function index(Request $request)
     {
-        $products = auth()->user()->wishlist()->withExists(
-            [
+        $products = auth()->user()->wishlist()
+            ->withExists([
                 'inCarts' => function ($q) {
                     $q->whereHas('cart', function ($cartQuery) {
                         $cartQuery->where('user_id', auth()->user()->id);
                     });
                 }
-            ]
-        )
-            ->with(['category:id,slug'])->withPivot('price')->get();
-
-        // Pivot'ları al, Eloquent Collection'a çevir ve productStock ilişkisini eager load et
-        $pivots = $products->pluck('pivot')->filter(); // base Collection
-        $eloquentPivots = EloquentCollection::make($pivots->all()); // şimdi Eloquent Collection
-        $eloquentPivots->load('productStock');
+            ])
+            ->with(['categories:id,slug,name', 'stock:id,product_id,color'])
+            ->withPivot('price')
+            ->get();
 
         return response()->json(WishProductResources::collection($products));
     }
@@ -48,12 +41,6 @@ class WishlistController extends Controller
 
             $request->validate([
                 'product_slug' => 'required|exists:products,slug',
-                // 'product_stock_id' => [
-                //     'required',
-                //     Rule::exists('product_stocks', 'id')->where(function ($query) use ($productId) {
-                //         $query->where('product_id', $productId->id);
-                //     }),
-                // ],
                 'price' => 'required|numeric|min:0'
             ]);
             DB::beginTransaction();
@@ -62,7 +49,6 @@ class WishlistController extends Controller
                 //return response()->json($productId);
                 $exists = $user->wishlist()
                     ->where('product_id', $productId)
-                    // ->wherePivot('product_stock_id', $request->product_stock_id)
                     ->exists();
                 if ($exists) {
                     $user->wishlist()->newPivotStatement()

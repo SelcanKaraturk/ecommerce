@@ -4,15 +4,10 @@ namespace App\Http\Controllers\Api\User;
 
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\CartProductResources;
-use App\Models\Cart;
+use App\Http\Resources\CartProductUserResources;
+use App\Models\CartItem;
 use App\Models\Product;
-use App\Models\ProductStock;
-use App\Models\User;
-use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Str;
 
 class CartCookieController extends Controller
 {
@@ -23,7 +18,12 @@ class CartCookieController extends Controller
     public function show(Request $request)
     {
         $cart = Helper::getCartFromCookie($request) ?? [];
-        return response()->json($cart);
+        $matchedCart = $this->syncCartItems($cart);
+
+        return $this->withCartCookie(
+            response()->json($matchedCart),
+            $matchedCart
+        );
     }
 
     public function toggle(Request $request)
@@ -39,23 +39,15 @@ class CartCookieController extends Controller
             return response()->json(['message' => 'Üzgünüm Ürünü bulamadım. Kontrol ederek işleminizi yeniden gepçekleştiriniz.', 'status' => 'error']);
         }
         $productSlug = $product->slug;
-        $productStock = $product->stock()->where('color', $validated['color'])->where('size', $validated['size'])->first();
-        if (!$productStock) {
-            $productStockId = 'nostock_' . $product->id . '_' . Str::slug($validated['color']) . '_' . $validated['size'];
-            $deliveryDays = 10;
-            $stock_status = 'no_stock';
-        } else {
-            $productStockId = $productStock->id;
-            $deliveryDays = null;
-        }
 
         $cart = Helper::getCartFromCookie($request) ?? [];
 
         // Mevcut ürünün index'ini bul
-        $existingIndex = array_search(true, array_map(function ($item) use ($productSlug, $productStockId) {
-            return isset($item['product_slug'], $item['product_stock_number']) &&
+        $existingIndex = array_search(true, array_map(function ($item) use ($productSlug, $validated) {
+            return isset($item['product_slug'], $item['color'], $item['size']) &&
                 $item['product_slug'] === $productSlug &&
-                $item['product_stock_number'] === $productStockId;
+                $item['color'] === $validated['color'] &&
+                $item['size'] === $validated['size'];
         }, $cart), true);
 
         if ($existingIndex !== false) {
@@ -75,24 +67,11 @@ class CartCookieController extends Controller
 
             // Ekle
             $cartItem = [
-                // 'product_id' => $productId,
-                'product_stock_number' => $productStockId,
-                'product_name' => $product->name,
                 'product_slug' => $product->slug,
-                'product_images' => $product->images,
-                'product_price' => $product->price,
-                'product_discount' => $product->discount,
                 'color' => $validated['color'],
                 'size' => $validated['size'],
                 'quantity' => 1,
-                'stock' => $productStock ? $productStock->stock : 0,
-                'stock_status' => $productStock && $productStock->stock > 0 ? 'in_stock' : ($stock_status ?? 'no_stock'),
-                'allow_out_of_stock_cart' => $product->allow_out_of_stock_cart,
             ];
-            if ($deliveryDays) {
-                $cartItem['delivery_days'] = $deliveryDays;
-            }
-            $cart = Helper::getCartFromCookie($request) ?? [];
             $cart[] = $cartItem;
             $message = 'Harika bir seçim yaptınız! Ürün sepetinize eklendi, keyifli alışverişler dileriz 🎁';
         }
@@ -103,65 +82,33 @@ class CartCookieController extends Controller
         return $this->withCartCookie(
             response()->json([
                 'message' => $message,
-                'data' => $cart,
-                'delivery_days' => $deliveryDays ?? null,
+                'data' => $this->syncCartItems($cart),
             ]),
-            $cart
+            $this->syncCartItems($cart)
         );
     }
 
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'product' => 'required',
-            'quantity' => 'required|integer|min:1',
+            'product.product_slug' => 'required|exists:products,slug',
+            'product.color' => 'required|string',
+            'product.size' => 'required',
+            'quantity' => 'required|integer|min:1|max:10',
         ]);
 
-        // product_id ve product_stock_id artık slug ve stock_number ile geliyor, bunları id'ye çevir
         $product = Product::where('slug', $validated['product']['product_slug'])->first();
-        // $productStock = $product ? $product->stock()->find($validated['product_stock_id']) : null;
 
         if (!$product) {
             return response()->json([
-                'message' => 'Ürün stoktan kaldırıldı veya bulunamadı.',
+                'message' => 'Üzgünüm, ürün bulunamadı lütfen tekrar deneyiniz.',
                 'status' => 'error'
             ], 404);
         }
         $cart = Helper::getCartFromCookie($request) ?? [];
 
-        $productStock = $product ? $product->stock()->where('color', $validated['product']['color'])->where('size', $validated['product']['size'])->first() : null;
-        $isNoStock = strpos($validated['product']['product_stock_number'], 'nostock_');
-
-        if (!$productStock && $isNoStock === 0 && $validated['product']['allow_out_of_stock_cart'] === 1) {  // stokta olmayan ve sepete eklenmesine izin verilen ürün
-            $nostockKey = null;
-            foreach ($cart as $key => $item) {
-                if (
-                    isset($item['product_stock_number']) &&
-                    $item['product_stock_number'] === $validated['product']['product_stock_number'] &&
-                    $item['product_slug'] === $validated['product']['product_slug']
-                ) {
-                    $nostockKey = $key;
-                    break;
-                }
-            }
-            if ($nostockKey === null) {
-                return response()->json([
-                    'message' => 'Özel üretim ürün sepetinizde bulunamadı.',
-                    'status' => 'error'
-                ], 404);
-            }
-
-            // Quantity güncelle
-            $cart[$nostockKey]['quantity'] = $validated['quantity'];
-            return $this->withCartCookie(
-                response()->json([
-                    'message' => 'Ürün adedi güncellendi.',
-                    'cartItem' => $cart[$nostockKey],
-                    'status' => 'success'
-                ]),
-                $cart
-            );
-        } else if (!$productStock) {
+        $productStock = $product->stock()->where('color', $validated['product']['color'])->where('size', $validated['product']['size'])->first();
+        if (!$productStock && !$product->allow_out_of_stock_cart) {
             return response()->json([
                 'message' => 'Ürün stoktan kaldırıldı veya bulunamadı.',
                 'status' => 'error'
@@ -171,9 +118,10 @@ class CartCookieController extends Controller
         $stockKey = null;
         foreach ($cart as $key => $item) {
             if (
-                isset($item['product_stock_number']) &&
-                $item['product_stock_number'] === $validated['product']['product_stock_number'] &&
-                $item['product_slug'] === $validated['product']['product_slug']
+                isset($item['product_slug'], $item['color'], $item['size']) &&
+                $item['product_slug'] === $validated['product']['product_slug'] &&
+                $item['color'] === $validated['product']['color'] &&
+                $item['size'] === $validated['product']['size']
             ) {
                 $stockKey = $key;
                 break;
@@ -189,7 +137,7 @@ class CartCookieController extends Controller
         return $this->withCartCookie(
             response()->json([
                 'message' => 'Ürün adedi güncellendi.',
-                'cartItem' => $cart[$stockKey],
+                'cartItem' => $this->cartItemPayload($product, $cart[$stockKey]),
                 'status' => 'success'
             ]),
             $cart
@@ -222,20 +170,23 @@ class CartCookieController extends Controller
     {
         $validated = $request->validate([
             'product_slug' => 'required|exists:products,slug',
-            'product_stock_number' => 'required'
+            'color' => 'required|string',
+            'size' => 'required'
         ]);
 
         $productSlug = $validated['product_slug'];
-        $productStockNumber = $validated['product_stock_number'];
+        $color = $validated['color'];
+        $size = $validated['size'];
 
         $cart = Helper::getCartFromCookie($request) ?? [];
 
         // Filtrele: Sadece eşleşmeyen ürünleri tut
-        $newCart = array_values(array_filter($cart, function ($item) use ($productSlug, $productStockNumber) {
+        $newCart = array_values(array_filter($cart, function ($item) use ($productSlug, $color, $size) {
             return !(
-                isset($item['product_slug'], $item['product_stock_number']) &&
+                isset($item['product_slug'], $item['color'], $item['size']) &&
                 $item['product_slug'] === $productSlug &&
-                $item['product_stock_number'] === $productStockNumber
+                $item['color'] === $color &&
+                $item['size'] === $size
             );
         }));
 
@@ -262,74 +213,46 @@ class CartCookieController extends Controller
         $validated = $request->validate([
             'cart' => 'required|array',
             'cart.*.product_slug' => 'required|string',
-            'cart.*.product_stock_number' => 'required',
-            'cart.*.color' => 'sometimes|string',
-            'cart.*.size' => 'sometimes|string',
+            'cart.*.color' => 'required|string',
+            'cart.*.size' => 'required',
             'cart.*.quantity' => 'sometimes|integer|min:1',
         ]);
 
-        $cart = $validated['cart'];
-        $matchedCart = [];
-        $deneme = [];
+        $matchedCart = $this->syncCartItems($validated['cart']);
 
-        foreach ($cart as $item) {
-            $product = Product::where('slug', $item['product_slug'])->first();
-            if (!$product) {
-                // Ürün veritabanında yoksa cart'tan da çıkar (ekleme)
-                continue;
-            }
-
-            $productStockId = $item['product_stock_number'];
-
-            if (is_string($productStockId) && strpos($productStockId, 'nostock_') === 0) {
-                if (!$product->allow_out_of_stock_cart) {
-                    continue;  // Stokta olmayan ürün sepete eklenmesine izin verilmiyorsa, ürün bilgilerini güncellemeden devam et
-                }
-                // Stokta olmayan varyant
-                $deliveryDays = 10;
-                $stock_status = 'no_stock';
-                $stockQuantity = 0;
-            } else {
-                $productStock = $product->stock()->where('id', $productStockId)->first();
-                if ($productStock) {
-                    $stockQuantity = $productStock->stock;
-                    if ($stockQuantity <= 0 && !$product->allow_out_of_stock_cart) {
-                        continue;  // Stokta 0 veya daha az olan ürün sepete eklenmesine izin verilmiyorsa, ürün bilgilerini güncellemeden devam et
-                    }
-                    $stock_status = $stockQuantity > 0 ? 'in_stock' : 'no_stock';
-                    $deliveryDays = $stock_status === 'in_stock' ? null : 10;
-                    $item['color'] = $productStock->color;
-                    $item['size'] = $productStock->size;
-                } else {
-                    // Varyant bulunamadı
-                    $deliveryDays = null;
-                    $stock_status = 'not_found';
-                    $stockQuantity = 0;
-                }
-            }
-
-            $matchedCart[] = [
-                'product_stock_number' => $item['product_stock_number'],
-                'delivery_days' => $deliveryDays,
-                'color' => $item['color'] ?? null,
-                'size' => $item['size'] ?? null,
-                'quantity' => $item['quantity'] ?? 1,
-                'product_name' => $product->name,
-                'product_slug' => $product->slug,
-                'product_images' => $product->images,
-                'product_price' => $product->price,
-                'product_discount' => $product->discount,
-                'stock' => $stockQuantity,
-                'stock_status' => $stock_status,
-                'allow_out_of_stock_cart' => $product->allow_out_of_stock_cart,
-            ];
-            // Sadece bulunan ürünleri yeni cart'a ekle
-        }
         // /return response()->json(['itemssss' => $matchedCart, 'deneme' => $deneme, 'cart' => $cart]);
         // Cart'ı da güncelleyerek cookie'ye yaz
         return $this->withCartCookie(
             response()->json(['items' => $matchedCart]),
             $matchedCart
         );
+    }
+
+    protected function syncCartItems(array $cart): array
+    {
+        $matchedCart = [];
+
+        foreach ($cart as $item) {
+            $product = Product::where('slug', $item['product_slug'])->first();
+            if (!$product) {
+                continue;
+            }
+
+            $matchedCart[] = $this->cartItemPayload($product, $item);
+        }
+
+        return $matchedCart;
+    }
+
+    protected function cartItemPayload(Product $product, array $item): array
+    {
+        $cartItem = new CartItem([
+            'color' => $item['color'],
+            'size' => $item['size'],
+            'quantity' => $item['quantity'] ?? 1,
+        ]);
+        $cartItem->setRelation('product', $product);
+
+        return (new CartProductUserResources($cartItem))->resolve();
     }
 }

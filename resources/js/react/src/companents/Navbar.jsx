@@ -1,10 +1,11 @@
-import React, { use, useEffect, useState } from "react";
+import React, { use, useEffect, useState, useRef } from "react";
 import "./css/Navbar.css";
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../services/AuthContex";
 import { Badge } from "@mui/material";
 import { getMenu } from "../services/WebService";
 function Navbar() {
+    const searchInputRef = useRef(null);
 
     const { accessToken, cart, miniCart, setMiniCart, loading } = useAuth();
     const navigate = useNavigate();
@@ -50,22 +51,150 @@ function Navbar() {
     return (
         <header className="header-main_area header-main_area-2">
             <div className="header-bottom_area header-bottom_area-2 header-sticky stick">
-                <div className="container-fliud h-100">
+                <div className="container-fliud h-100" style={{  borderBottom: '1px solid rgba(0, 0, 0, 0.05)' }}>
                     <div className="row h-100">
-                        <div className="col-lg-2 col-md-4 col-sm-4 h-100">
+                        <div className="col-lg-3 col-md-4 col-sm-4 h-100">
+                            <div className="header-right_area justify-content-start">
+                                <ul>
+                                    <li>
+                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                            <a
+                                                href="#searchBar"
+                                                className="search-btn toolbar-btn"
+                                                style={{ display: 'flex', alignItems: 'center' }}
+                                                onClick={e => {
+                                                    e.preventDefault();
+                                                    if (searchInputRef.current) searchInputRef.current.focus();
+                                                }}
+                                            >
+                                                <i className="ion-ios-search-strong"></i>
+                                            </a>
+                                            <input
+                                                ref={searchInputRef}
+                                                type="text"
+                                                placeholder="Ara..."
+                                                className="navbar-search-input"
+                                                style={{
+                                                    marginLeft: -8,
+                                                    border: 'none',
+                                                    fontSize: 14,
+                                                    width: 240
+                                                }}
+                                            />
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div className="col-lg-6 d-none d-lg-block position-static text-center">
                             <div className="header-logo h-100">
                                 <NavLink to="/tr">
                                     <img
-                                        src="/assets/images/valor.png"
+                                        src="/assets/images/valor_logo.png"
                                         alt="Hiraola's Header Logo"
                                     />
                                 </NavLink>
                             </div>
                         </div>
-                        <div className="col-lg-7 d-none d-lg-block position-static">
+                        <div className="col-lg-3 col-md-8 col-sm-8">
+                            <div className="header-right_area">
+                                <ul>
+                                    <li>
+                                        <Link
+                                            className="wishlist-btn"
+                                            to={"#"} onClick={handleWishListIconClick}
+                                        >
+                                            <i className="ion-android-favorite-outline"></i>
+                                        </Link>
+                                    </li>
+                                    {/* <li>
+                                        <a
+                                            href="#searchBar"
+                                            className="search-btn toolbar-btn"
+                                        >
+                                            <i className="ion-ios-search-strong"></i>
+                                        </a>
+                                    </li> */}
+                                    <li>
+                                        <a
+                                            href="#mobileMenu"
+                                            className="mobile-menu_btn toolbar-btn color--white d-lg-none d-block"
+                                        >
+                                            <i className="ion-navicon"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            className="minicart-btn toolbar-btn "
+                                            onClick={() =>
+                                                setMiniCart(!miniCart)
+                                            }
+                                        >
+                                            {cart?.length > 0 ? (
+                                                <Badge
+                                                    badgeContent={cart.length}
+                                                >
+                                                    <i className="ion-bag"></i>
+                                                </Badge>
+                                            ) : (
+                                                <i className="ion-bag"></i>
+                                            )}
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            className="minicart-btn toolbar-btn"
+                                            href={"#"} onClick={handleUserIconClick}
+                                        >
+                                            <i className="ion-android-person"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="container-fliud" style={{ borderBottom: '1px solid rgba(0, 0, 0, 0.05)' }}>
+                    <div className="row">
+                        <div className="col-12">
                             <div className="main-menu_area">
                                 <nav>
                                     <ul>
+                                        <li className="">
+                                            <NavLink to="/tr/yeni-gelenler">
+                                                YENİ Gelenler
+                                            </NavLink>
+                                        </li>
+                                        <li className="megamenu-holder">
+                                                <NavLink to="/tr/koleksiyonlar">
+                                                    KOLEKSİYONLAR
+                                                </NavLink>
+                                               
+                                                    <ul
+                                                        className="hm-megamenu"
+                                                       
+                                                    >
+                                                        <li className="mb-3">
+                                                            <ul className="d-flex justify-content-center">
+                                                               
+                                                                    <li
+                                                                       
+                                                                        className="dfsd"    
+                                                                    >
+                                                                        <span className="megamenu-title">
+                                                                            <Link to="/tr/lale-koleksiyonu">
+                                                                                Lale Koleksiyonu
+                                                                            </Link>
+                                                                        </span>
+                                                                    </li>
+                                                              
+                                                            </ul>
+                                                        </li>
+                                                      
+                                                        {/* <li className="menu-item_img"></li> */}
+                                                    </ul>
+                                              
+                                            </li>
                                         {menu.map((item, index) => (
                                             <li key={index} className="megamenu-holder">
                                                 <NavLink to={item.slug}>
@@ -130,70 +259,9 @@ function Navbar() {
                                                 Hakkımızda
                                             </NavLink>
                                         </li>
-                                        <li className="">
-                                            <NavLink to="/tr/iletisim">
-                                                İLETİŞİM
-                                            </NavLink>
-                                        </li>
 
                                     </ul>
                                 </nav>
-                            </div>
-                        </div>
-                        <div className="col-lg-3 col-md-8 col-sm-8">
-                            <div className="header-right_area">
-                                <ul>
-                                    <li>
-                                        <Link
-                                            className="wishlist-btn"
-                                            to={"#"} onClick={handleWishListIconClick}
-                                        >
-                                            <i className="ion-android-favorite-outline"></i>
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <a
-                                            href="#searchBar"
-                                            className="search-btn toolbar-btn"
-                                        >
-                                            <i className="ion-ios-search-strong"></i>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            href="#mobileMenu"
-                                            className="mobile-menu_btn toolbar-btn color--white d-lg-none d-block"
-                                        >
-                                            <i className="ion-navicon"></i>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            className="minicart-btn toolbar-btn "
-                                            onClick={() =>
-                                                setMiniCart(!miniCart)
-                                            }
-                                        >
-                                            {cart?.length > 0 ? (
-                                                <Badge
-                                                    badgeContent={cart.length}
-                                                >
-                                                    <i className="ion-bag"></i>
-                                                </Badge>
-                                            ) : (
-                                                <i className="ion-bag"></i>
-                                            )}
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            className="minicart-btn toolbar-btn"
-                                            href={"#"} onClick={handleUserIconClick}
-                                        >
-                                            <i className="ion-android-person"></i>
-                                        </a>
-                                    </li>
-                                </ul>
                             </div>
                         </div>
                     </div>

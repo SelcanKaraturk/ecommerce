@@ -11,6 +11,7 @@ export default function useCategories() {
                     try {
                         const { data } = await getCategoryAll(accessToken);
                         if (data.status === "success") {
+                            console.log(data.categories);
                             setCategories(data.categories);
                         }
                     } catch (error) {

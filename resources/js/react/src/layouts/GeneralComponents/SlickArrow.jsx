@@ -8,7 +8,7 @@ export function TabNextArrow(props) {
       style={{ ...style}}
       onClick={onClick}
     >
-        <i className="ion-ios-arrow-forward"></i>
+        <i className="ion-ios-arrow-right"></i>
 
     </button>
   );
@@ -22,7 +22,7 @@ export function TabPrevArrow(props) {
       style={{ ...style}}
       onClick={onClick}
     >
-        <i className="ion-ios-arrow-back"></i>
+        <i className="ion-ios-arrow-left"></i>
     </button>
   );
 }
